@@ -4,6 +4,7 @@ import { updateNumberStatus, setActiveRaffle, RaffleNumber, Raffle, } from "../.
 import { setActiveView, addToast } from "../../store/slices/uiSlice";
 import { tr } from "../../i18n/translations";
 import { GetRaffles } from "../../api/raffleAPI";
+import { SetSale } from "../../api/saleAPI";
 
 export default function NumberBoard() {
   const dispatch = useAppDispatch();
@@ -71,21 +72,38 @@ export default function NumberBoard() {
     if (!selected || !buyer.trim() || !phone.trim()) return;
     // dispatch(updateNumberStatus({ raffleId: activeRaffle.id, num: selected.num, status: "sold", buyer: buyer.trim(), phone: phone.trim() }));
     // dispatch(setActiveRaffle(activeRaffle.id));
-    dispatch(addToast({ 
-      type: "success", 
-      message: `${tr("sale_confirmed", lang)} 
-        (#${String(selected && 
-          selected.map((s) => String(s.num)
-            .padStart(activeRaffle.digits, "0"))
-            .join(", #"))
-        }) → ${buyer}` 
-    }));
+    
+    try {
+      const dataSend: any = {};
 
-    setTimeout(() => {
-      setSelected(null);
-      setBuyer("");
-      setPhone("");
-    }, 1500)
+      const data = await SetSale(dataSend);
+      
+      dispatch(addToast({ 
+        type: "success", 
+        message: `${tr("sale_confirmed", lang)} 
+          (#${String(selected && 
+            selected.map((s) => String(s.num)
+              .padStart(activeRaffle.digits, "0"))
+              .join(", #"))
+          }) → ${buyer}` 
+      }));
+
+      setTimeout(() => {
+        setSelected(null);
+        setBuyer("");
+        setPhone("");
+      }, 1500);
+    } catch (err: any) {
+      dispatch(addToast({ 
+        type: "error", 
+        message: `${tr("sale_failed", lang)} 
+          (#${String(selected && 
+            selected.map((s) => String(s.num)
+              .padStart(activeRaffle.digits, "0"))
+              .join(", #"))
+          }) → ${buyer}` 
+      }));
+    }
   };
 
   const cols: number = activeRaffle
