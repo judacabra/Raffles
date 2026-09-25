@@ -1,0 +1,10 @@
+{
+  "description": "Manage and customize raffles effortlessly with a multi-company web application designed for scalability and security, enhancing user engagement and sales tracking.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}

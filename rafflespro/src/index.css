@@ -1,0 +1,134 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import 'tailwindcss';
+
+html, body, #root {
+  height: 100%;
+}
+
+/* ── Design tokens ─────────────────────────────────────── */
+:root {
+  --font-sans: 'Inter', 'Poppins', system-ui, sans-serif;
+  --font-display: 'Poppins', 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* Brand */
+  --color-primary:       #1A365D;
+  --color-primary-light: #2A4A7F;
+  --color-primary-fg:    #FFFFFF;
+  --color-gold:          #F6AD55;
+  --color-gold-light:    #FBD38D;
+  --color-gold-fg:       #7B4F12;
+  --color-success:       #48BB78;
+  --color-success-light: #C6F6D5;
+  --color-danger:        #FC8181;
+  --color-danger-light:  #FED7D7;
+  --color-warning:       #ECC94B;
+  --color-warning-light: #FEFCBF;
+
+  /* Surface */
+  --bg:           #EDF2F7;
+  --bg-card:      #FFFFFF;
+  --bg-sidebar:   #1A365D;
+  --bg-header:    #FFFFFF;
+  --text-primary:   #1A202C;
+  --text-secondary: #4A5568;
+  --text-muted:     #718096;
+  --text-on-primary:#FFFFFF;
+  --border:         #E2E8F0;
+  --border-focus:   #1A365D;
+  --ring:           #1A365D33;
+  --radius:         8px;
+  --shadow-sm:      0 1px 3px 0 #0000001A, 0 1px 2px -1px #0000001A;
+  --shadow-md:      0 4px 6px -1px #0000001A, 0 2px 4px -2px #0000001A;
+  --shadow-lg:      0 10px 15px -3px #0000001A, 0 4px 6px -4px #0000001A;
+}
+
+/* ── Dark mode ─────────────────────────────────────────── */
+.dark {
+  --bg:           #0F172A;
+  --bg-card:      #1E293B;
+  --bg-sidebar:   #0F172A;
+  --bg-header:    #1E293B;
+  --text-primary:   #F1F5F9;
+  --text-secondary: #CBD5E0;
+  --text-muted:     #94A3B8;
+  --border:         #334155;
+  --border-focus:   #F6AD55;
+  --ring:           #F6AD5533;
+  --color-primary:       #2D4ED8;
+  --color-primary-light: #3B63F7;
+}
+
+/* ── Base ──────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  font-family: var(--font-sans);
+  font-size: 16px;
+  background-color: var(--bg);
+  color: var(--text-primary);
+  transition: background-color 0.2s, color 0.2s;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Scrollbar ─────────────────────────────────────────── */
+* { scrollbar-width: thin; scrollbar-color: transparent transparent; }
+*:hover { scrollbar-color: #CBD5E080 transparent; }
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-thumb { background: transparent; border-radius: 99px; }
+*:hover::-webkit-scrollbar-thumb { background: #CBD5E080; }
+
+/* ── Animations ────────────────────────────────────────── */
+@keyframes fadeIn    { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@keyframes slideIn   { from { transform: translateX(100%); } to { transform: translateX(0); } }
+@keyframes pulse-bg  { 0%,100% { opacity: 1; } 50% { opacity: 0.6; } }
+@keyframes countdown { from { transform: scale(1.05); } to { transform: scale(1); } }
+@keyframes shimmer   { 0% { background-position: -400px 0; } 100% { background-position: 400px 0; } }
+@keyframes confetti  { 0% { transform: scale(0) rotate(0deg); opacity: 1; } 100% { transform: scale(1.4) rotate(15deg); opacity: 0; } }
+@keyframes toastIn   { from { opacity: 0; transform: translateX(110%); } to { opacity: 1; transform: translateX(0); } }
+
+.animate-fade-in   { animation: fadeIn 0.3s ease both; }
+.animate-slide-in  { animation: slideIn 0.3s cubic-bezier(.25,.46,.45,.94) both; }
+.animate-pulse-bg  { animation: pulse-bg 1.8s ease-in-out infinite; }
+.animate-toast-in  { animation: toastIn 0.35s cubic-bezier(.25,.46,.45,.94) both; }
+
+/* ── Skeleton loader ───────────────────────────────────── */
+.skeleton {
+  background: linear-gradient(90deg, var(--border) 25%, var(--bg) 50%, var(--border) 75%);
+  background-size: 800px 100%;
+  animation: shimmer 1.4s infinite;
+  border-radius: var(--radius);
+}
+
+/* ── Number cell states ────────────────────────────────── */
+.num-available {
+  background: #C6F6D5;
+  color: #276749;
+  cursor: pointer;
+  transition: transform 0.12s, box-shadow 0.12s;
+}
+.dark .num-available { background: #1C4532; color: #9AE6B4; }
+.num-available:hover { transform: scale(1.08); box-shadow: 0 4px 12px #48BB7840; }
+
+.num-reserved {
+  background: #FEFCBF;
+  color: #975A16;
+  animation: pulse-bg 1.8s ease-in-out infinite;
+}
+.dark .num-reserved { background: #44340D; color: #ECC94B; }
+
+.num-sold {
+  background: #FED7D7;
+  color: #9B2C2C;
+  text-decoration: line-through;
+  cursor: not-allowed;
+}
+.dark .num-sold { background: #4A1212; color: #FC8181; }
+
+.num-winner {
+  border: 3px solid #F6AD55;
+  background: #FFFBEB;
+  color: #7B4F12;
+  position: relative;
+}
+.dark .num-winner { background: #3B2A0A; color: #FBD38D; }
