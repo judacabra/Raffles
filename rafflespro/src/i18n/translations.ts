@@ -148,6 +148,12 @@ export const t: Record<string, Record<string, string>> = {
   numbers: { es: "Números", en: "Numbers" },
   price: { es: "Precio", en: "Price" },
 
+  // Sale
+  sale_failed: { 
+    es: "Ocurrio un error durante la compra, intentalo de nuevo..", 
+    en: "An error occurred during the purchase, please try again.." 
+  },
+
 };
 
 export function tr(key: string, lang: "es" | "en"): string {

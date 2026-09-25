@@ -1,4 +1,4 @@
-import { ConfigEnvironment } from "src/interfaces/config.interfaces";
+import { ConfigEnvironment } from "@/interfaces/config.interfaces";
 
 const configProd: ConfigEnvironment = {  
   baseURL: 'https://cobralo.duckdns.org/api',

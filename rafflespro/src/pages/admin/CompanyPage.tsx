@@ -103,21 +103,21 @@ const CompaniesPage = () => {
     try {
       const data: CompanyRow[] = await GetCompanies();
       setCompanies(data);
-    } catch (error) {
-      console.error('Error al obtener las empresas: ', error);
+    } catch (err: any) {
+      console.error('Error al obtener las empresas: ', err);
     } finally {
       setCompaniesFounded(true);
     }
   }
 
   const trunkWeb = (w: string): string => {
-    let url: string = "";
+    let url: string = w;
     if (w.startsWith("www.")) url = w.split('www.')[1];
     return url;
   }
 
   const openNewTab = (w: string): void => {
-    let url: string = "";
+    let url: string = w;
     if (!w.startsWith("https://")) url = `https://${w}`;
     window.open(url, "_blank");
   }
@@ -133,9 +133,9 @@ const CompaniesPage = () => {
       (exp.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
     );
 
-    if (diffDays <= 0) return "#EF4444"; // rojo (hoy o vencido)
-    if (diffDays <= 5) return "#F97316"; // naranja (1-5 días)
-    if (diffDays <= 10) return "#EAB308"; // amarillo (6-10 días)
+    if (diffDays <= 0) return "#EF4444";
+    if (diffDays <= 5) return "#F97316";
+    if (diffDays <= 10) return "#EAB308";
 
     return "#22C55E";
   };
@@ -257,13 +257,23 @@ const CompaniesPage = () => {
                         <button 
                           onClick={() => openEdit(u)}
                           title={tr("edit", lang)}
-                          style={{ padding: "5px 12px", borderRadius: 6, border: "1px solid #1A365D", background: "rgb(185, 229, 250)", cursor: "pointer", fontSize: 12, color: "#1A365D", fontWeight: 600, marginRight: 10, }}>
-                            {tr("edit", lang)}
+                          style={{ 
+                            padding: "5px 12px", borderRadius: 6, border: "1px solid #1A365D", 
+                            background: "rgb(185, 229, 250)", cursor: "pointer", fontSize: 12, 
+                            color: "#1A365D", fontWeight: 600, marginRight: 10, 
+                          }}
+                        >
+                          {tr("edit", lang)}
                         </button>
                         <button 
                           onClick={() => deleteCompany(u.id!)}
                           title={tr("delete", lang)}
-                          style={{ padding: "5px 10px", borderRadius: 6, border: "1px solid #d13939", background: "rgb(250, 162, 162)", cursor: "pointer", fontSize: 12, color: "#d13939", fontWeight: 600 }}>
+                          style={{ 
+                            padding: "5px 10px", borderRadius: 6, border: "1px solid #d13939", 
+                            background: "rgb(250, 162, 162)", cursor: "pointer", fontSize: 12, 
+                            color: "#d13939", fontWeight: 600,
+                          }}
+                        >
                           {tr("delete", lang)}
                         </button>
                       </div>
@@ -288,7 +298,7 @@ const CompaniesPage = () => {
           }}>
             <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10 }}>
               <h3 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: "var(--text-primary)", fontFamily: "var(--font-display)" }}>
-                {tr(editing.name !== "" ? "edit_company" : "new_company", lang)}
+                {tr(editing.id ? "edit_company" : "new_company", lang)}
               </h3>
               <button onClick={() => setModalOpen(false)} style={{ background: "none", border: "none", cursor: "pointer", color: "var(--text-muted)", fontSize: 20 }}>×</button>
             </div>
@@ -330,7 +340,11 @@ const CompaniesPage = () => {
 
               <button
                 onClick={saveCompany}
-                style={{ padding: "12px", borderRadius: 8, border: "none", background: "#1A365D", color: "#fff", fontWeight: 700, cursor: "pointer", fontSize: 15, flexShrink: 0 }}
+                style={{ 
+                  padding: "12px", borderRadius: 8, border: "none", 
+                  background: "#1A365D", color: "#fff", fontWeight: 700, 
+                  cursor: "pointer", fontSize: 15, flexShrink: 0,
+                }}
               >
                 {tr("save_changes", lang)}
               </button>

@@ -5,11 +5,15 @@ import { setActiveView, addToast } from "../../store/slices/uiSlice";
 import { tr } from "../../i18n/translations";
 import { GetRaffles } from "../../api/raffleAPI";
 import { SetSale } from "../../api/saleAPI";
+import { Sale } from "@/interfaces/numberBoard.interfaces";
+import { useIP } from "../../utils/useIP";
 
 export default function NumberBoard() {
   const dispatch = useAppDispatch();
 
   const lang = useAppSelector((s) => s.ui.language);
+
+  const { getIP } = useIP();
 
   // const raffles = useAppSelector((s) => s.activeRaffle.raffles);
   // const activeRaffle = useAppSelector((s) => s.activeRaffle.activeRaffle);
@@ -24,6 +28,8 @@ export default function NumberBoard() {
   const [filter, setFilter] = useState<"all" | "available" | "sold">("all");
   const [search, setSearch] = useState("");
   const [iframe, setIframe] = useState(false);
+
+  const total = selected && selected.length * activeRaffle.pricePerNumber;
 
   const nums =
     activeRaffle && activeRaffle.numbers
@@ -69,40 +75,50 @@ export default function NumberBoard() {
   };
 
   const confirmSale = async (): Promise<void> => {
-    if (!selected || !buyer.trim() || !phone.trim()) return;
+    if (!selected || !buyer.trim() || !phone.trim() || (!total || total === 0)) return;
+
     // dispatch(updateNumberStatus({ raffleId: activeRaffle.id, num: selected.num, status: "sold", buyer: buyer.trim(), phone: phone.trim() }));
     // dispatch(setActiveRaffle(activeRaffle.id));
     
     try {
-      const dataSend: any = {};
+      const dataSend: Sale = {
+        buyer: buyer,
+        phone: phone,
+        description: `Compra rifa: ${activeRaffle.name}...`,
+        numbers: selected.map((s) => (s.num)) as any,
+        totalNumbers: selected.length,
+        totalPrice: total,
+        ip: await getIP(),
+        raffleId: activeRaffle.id,
+        companyId: 1,
+      };
 
       const data = await SetSale(dataSend);
-      
-      dispatch(addToast({ 
-        type: "success", 
-        message: `${tr("sale_confirmed", lang)} 
-          (#${String(selected && 
-            selected.map((s) => String(s.num)
-              .padStart(activeRaffle.digits, "0"))
-              .join(", #"))
-          }) → ${buyer}` 
-      }));
 
-      setTimeout(() => {
+      if (data.statusCode !== 500) {
+        dispatch(addToast({ 
+          type: "success", 
+          message: `${tr("sale_confirmed", lang)} 
+            (#${String(selected && 
+              selected.map((s) => String(s.num)
+                .padStart(activeRaffle.digits, "0"))
+                .join(", #"))
+            }) → ${buyer}` 
+        }));
+
         setSelected(null);
         setBuyer("");
         setPhone("");
-      }, 1500);
+
+        await fetchRaffles(1);
+      } else {
+        dispatch(addToast({ 
+          type: "error", 
+          message: `${buyer}, ${tr("sale_failed", lang)}` 
+        }));
+      }
     } catch (err: any) {
-      dispatch(addToast({ 
-        type: "error", 
-        message: `${tr("sale_failed", lang)} 
-          (#${String(selected && 
-            selected.map((s) => String(s.num)
-              .padStart(activeRaffle.digits, "0"))
-              .join(", #"))
-          }) → ${buyer}` 
-      }));
+      console.error("Error al guardar la compra: ", err);
     }
   };
 
@@ -388,7 +404,7 @@ export default function NumberBoard() {
           transition: "width 0.3s cubic-bezier(.25,.46,.45,.94)",
         }}
       >
-        {selected && (
+        {(selected && total) && (
           <div style={{ padding: 24, width: 320, }}>
             <div style={{ display: "flex", flexDirection: "column", gap: 16, maxHeight: "75vh", overflow: "hidden" }}>
               <div style={{ display: "flex", flexDirection: "column", gap: 16, overflowY: "auto", flex: 1, paddingRight: 4 }}>
@@ -470,7 +486,7 @@ export default function NumberBoard() {
                       marginTop: 4,
                     }}
                   >
-                    $ {(activeRaffle.pricePerNumber * selected.length).toLocaleString()}
+                    $ {(total).toLocaleString()}
                   </div>
                 </div>
 
