@@ -6,17 +6,132 @@ import { tr } from "../../i18n/translations";
 
 import { GetCompanies, PutCompany, PutCompanyStatus, SetCompany, DeleteCompany } from "../../api/companiesAPI";
 import { CompanyRow } from "@/interfaces/company.interfaces";
+import { appConfig } from "../../config";
+import { truncarText } from "../../utils/format-words";
 
 const CompaniesPage = () => {
   const dispatch = useAppDispatch();
 
   const lang: Language = useAppSelector((s: any) => s.ui.language);
 
+  const { uploadsFolder } = appConfig;
+
   const [companies, setCompanies] = useState<CompanyRow[]>([]);
   const [editing, setEditing] = useState<CompanyRow | null>(null);
+  const [payment, setPayment] = useState<any>({});
   const [modalOpen, setModalOpen] = useState<boolean>(false);
+  const [modalPaymentsOpen, setModalPaymentslOpen] = useState<boolean>(false);
   const [companiesFounded, setCompaniesFounded] = useState<boolean>(false);
   const [search, setSearch] = useState<string>("");
+
+  const [selected, setSelected] = useState<"history_payments" | "new_payment">("history_payments");
+
+  const [historyPage, setHistoryPage] = useState<number>(1);
+
+  const arrPayments: any[] = [
+    {
+      id: 1,
+      dateAt: "2026-01-15",
+      paymentMethod: "Transferencia bancolombia",
+      voucherURL: "https://a.espncdn.com/combiner/i?img=/i/teamlogos/soccer/500/8109.png&h=200&w=200",
+      total: "200000",
+    },
+    {
+      id: 2,
+      dateAt: "2026-02-15",
+      paymentMethod: "Transferencia bancolombia",
+      voucherURL: "https://a.espncdn.com/combiner/i?img=/i/teamlogos/soccer/500/8109.png&h=200&w=200",
+      total: "200000",
+    },
+    {
+      id: 3,
+      dateAt: "2026-03-15",
+      paymentMethod: "Transferencia bancolombia",
+      voucherURL: "https://a.espncdn.com/combiner/i?img=/i/teamlogos/soccer/500/8109.png&h=200&w=200",
+      total: "200000",
+    },
+    {
+      id: 4,
+      dateAt: "2026-04-15",
+      paymentMethod: "Transferencia bancolombia",
+      voucherURL: "https://a.espncdn.com/combiner/i?img=/i/teamlogos/soccer/500/8109.png&h=200&w=200",
+      total: "200000",
+    },
+    {
+      id: 5,
+      dateAt: "2026-05-15",
+      paymentMethod: "Transferencia bancolombia",
+      voucherURL: "https://a.espncdn.com/combiner/i?img=/i/teamlogos/soccer/500/8109.png&h=200&w=200",
+      total: "200000",
+    },
+    {
+      id: 6,
+      dateAt: "2026-06-15",
+      paymentMethod: "Transferencia bancolombia",
+      voucherURL: "https://a.espncdn.com/combiner/i?img=/i/teamlogos/soccer/500/8109.png&h=200&w=200",
+      total: "200000",
+    },
+    {
+      id: 7,
+      dateAt: "2026-07-15",
+      paymentMethod: "Transferencia bancolombia",
+      voucherURL: "https://a.espncdn.com/combiner/i?img=/i/teamlogos/soccer/500/8109.png&h=200&w=200",
+      total: "200000",
+    },
+    {
+      id: 8,
+      dateAt: "2026-08-15",
+      paymentMethod: "Transferencia bancolombia",
+      voucherURL: "https://a.espncdn.com/combiner/i?img=/i/teamlogos/soccer/500/8109.png&h=200&w=200",
+      total: "200000",
+    },
+    {
+      id: 9,
+      dateAt: "2026-09-15",
+      paymentMethod: "Transferencia bancolombia",
+      voucherURL: "https://a.espncdn.com/combiner/i?img=/i/teamlogos/soccer/500/8109.png&h=200&w=200",
+      total: "200000",
+    },
+    {
+      id: 10,
+      dateAt: "2026-10-15",
+      paymentMethod: "Transferencia bancolombia",
+      voucherURL: "https://a.espncdn.com/combiner/i?img=/i/teamlogos/soccer/500/8109.png&h=200&w=200",
+      total: "200000",
+    },
+    {
+      id: 11,
+      dateAt: "2026-11-15",
+      paymentMethod: "Transferencia bancolombia",
+      voucherURL: "https://a.espncdn.com/combiner/i?img=/i/teamlogos/soccer/500/8109.png&h=200&w=200",
+      total: "200000",
+    },
+    {
+      id: 12,
+      dateAt: "2026-12-15",
+      paymentMethod: "Transferencia bancolombia",
+      voucherURL: "https://a.espncdn.com/combiner/i?img=/i/teamlogos/soccer/500/8109.png&h=200&w=200",
+      total: "200000",
+    },
+  ];
+
+  const [payments, setPayments] = useState<any[]>(arrPayments.reverse());
+  const [minNumVisible, setMinNumVisible] = useState<number>(1);
+  const [maxNumVisible, setMaxNumVisible] = useState<number>(2);
+
+  const [maxPerPage, setMaxPerPage] = useState<number>(5);
+
+  const totalPages: number = Math.ceil(payments.length / maxPerPage);
+
+  const visiblePayments: number[] = Array.from(
+    { length: totalPages },
+    (_, index) => index + 1
+  ).slice(minNumVisible - 1, maxNumVisible);
+  
+  const start: number = (historyPage - 1) * maxPerPage;
+  const end: number = start + maxPerPage;
+
+  const filteredPayments = payments.slice(start, end);
 
   const initialCompany: CompanyRow = {
     name: "",
@@ -25,8 +140,6 @@ const CompaniesPage = () => {
     periodicity: "",
     lastPayment: "",
     expiratedDate: "",
-    dateAt: "",
-    hourAt: "",
     isActive: true,
   };
 
@@ -39,16 +152,18 @@ const CompaniesPage = () => {
   const openEdit = (u: CompanyRow): void => { 
     setEditing({ ...u }); 
     setModalOpen(true); 
-  }
+  };
 
   const openNew = (): void => {
     setEditing(initialCompany);
     setModalOpen(true);
-  }
+  };
 
   const saveCompany = async (): Promise<void> => {
     if (!editing) return;
     
+    console.log(editing)
+
     try {
       if (editing.id) {
         await PutCompany(editing.id, editing);
@@ -64,7 +179,7 @@ const CompaniesPage = () => {
 
       setModalOpen(false);
     }
-  }
+  };
 
   const changeCompanyStatus = async (id: number, status: boolean): Promise<void> => {
     try {
@@ -76,14 +191,14 @@ const CompaniesPage = () => {
 
       dispatch(addToast({ type: "success", message: tr("status_updated", lang) }));
     }
-  }
+  };
 
   const toggleActive = async (id: number): Promise<void> => {
     const company = companies.find((u: CompanyRow) => u.id === id);
     if (!company) return;
 
     await changeCompanyStatus(id, !company.isActive);
-  }
+  };
 
   const deleteCompany = async (id: number): Promise<void> => {
     try {
@@ -97,7 +212,7 @@ const CompaniesPage = () => {
 
       setModalOpen(false);
     }
-  }
+  };
 
   const fetchCompanies = async (): Promise<void> => {
     try {
@@ -108,28 +223,28 @@ const CompaniesPage = () => {
     } finally {
       setCompaniesFounded(true);
     }
-  }
+  };
 
   const trunkWeb = (w: string): string => {
     let url: string = w;
     if (w.startsWith("www.")) url = w.split('www.')[1];
     return url;
-  }
+  };
 
   const openNewTab = (w: string): void => {
     let url: string = w;
     if (!w.startsWith("https://")) url = `https://${w}`;
     window.open(url, "_blank");
-  }
+  };
 
-  const ExpiratedDateColor = (ed: string): string => {
-    const today = new Date();
+  const expiratedDateColor = (ed: string): string => {
+    const today: Date = new Date();
     today.setHours(0, 0, 0, 0);
 
-    const exp = new Date(ed);
+    const exp: Date = new Date(ed);
     exp.setHours(0, 0, 0, 0);
 
-    const diffDays = Math.round(
+    const diffDays: number = Math.round(
       (exp.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
     );
 
@@ -138,6 +253,49 @@ const CompaniesPage = () => {
     if (diffDays <= 10) return "#EAB308";
 
     return "#22C55E";
+  };
+
+  const handlePagination = (page: number, action?: "first" | "last" | "prevDots" | "nextDots"): void => {
+    if (action === "first") {
+      setMinNumVisible(1);
+      setMaxNumVisible(Math.min(2, totalPages));
+      setHistoryPage(1);
+      return;
+    }
+
+    if (action === "last") {
+      const newMax: number = totalPages;
+      const newMin: number = Math.max(1, newMax - 1);
+
+      setMinNumVisible(newMin);
+      setMaxNumVisible(newMax);
+      setHistoryPage(totalPages);
+      return;
+    }
+
+    if (action === "prevDots") {
+      const newMin: number = Math.max(1, minNumVisible - 1);
+      const newMax: number = Math.min(totalPages, newMin + 1);
+
+      setMinNumVisible(newMin);
+      setMaxNumVisible(newMax);
+      setHistoryPage(historyPage - 1);
+      return;
+    }
+
+    if (action === "nextDots") {
+      const newMax: number = Math.min(totalPages, maxNumVisible + 1);
+      const newMin: number = Math.max(1, newMax - 1);
+
+      setMinNumVisible(newMin);
+      setMaxNumVisible(newMax);
+      setHistoryPage(historyPage + 1);
+      return;
+    }
+
+    if (page < 1 || page > totalPages) return;
+
+    setHistoryPage(page);
   };
 
   useEffect(() => {
@@ -208,8 +366,13 @@ const CompaniesPage = () => {
                           background: "linear-gradient(135deg, #1A365D, #F6AD55)",
                           display: "flex", alignItems: "center", justifyContent: "center",
                           color: "#fff", fontSize: 12, fontWeight: 700,
+                          overflow: "hidden",
                         }}>
-                          {u.logoURL || u.name.split(" ").map((w) => w[0]).join("").slice(0, 2)}
+                          {u.logoURL ? (
+                            <img src={uploadsFolder + "/" + u.logoURL} alt="logo company" />
+                          ) : (
+                            u.logoURL || u.name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase()
+                          )}
                         </div>
                         <div>
                           <div style={{ fontWeight: 600, color: "var(--text-primary)" }}>{u.name}</div>
@@ -252,7 +415,7 @@ const CompaniesPage = () => {
                         </span>
                       </label>
                     </td>
-                    <td style={{ padding: "14px 16px" }}>
+                    <td style={{ padding: "14px 16px", width: "25%" }}>
                       <div style={{ display: "flex", gap: 6 }}>
                         <button 
                           onClick={() => openEdit(u)}
@@ -264,6 +427,17 @@ const CompaniesPage = () => {
                           }}
                         >
                           {tr("edit", lang)}
+                        </button>
+                        <button 
+                          onClick={() => setModalPaymentslOpen(true)}
+                          title={tr("delete", lang)}
+                          style={{ 
+                            padding: "5px 10px", borderRadius: 6, border: "1px solid #08422f", 
+                            background: "#7dddbd", cursor: "pointer", fontSize: 12, 
+                            color: "#08422f", fontWeight: 600, marginRight: 10,
+                          }}
+                        >
+                          {tr("payments", lang)}
                         </button>
                         <button 
                           onClick={() => deleteCompany(u.id!)}
@@ -286,8 +460,8 @@ const CompaniesPage = () => {
         </table>
       </div>
 
-      {/* Modal */}
-      {modalOpen && editing && (
+      {/* Principal Modal */}
+      {(modalOpen && editing) && (
         <div style={{
           position: "fixed", inset: 0, background: "#00000060", zIndex: 200,
           display: "flex", alignItems: "center", justifyContent: "center",
@@ -309,11 +483,11 @@ const CompaniesPage = () => {
                   { lk: "name", v: editing.name, f: "name" as const },
                   { lk: "taxId", v: editing.taxId, f: "taxId" as const },
                   { lk: "email", v: editing.email, f: "email" as const },
-                  { lk: "plan", v: editing.plan, f: "plan" as const },
-                  { lk: "periodicity", v: editing.periodicity, f: "periodicity" as const },
+                  { lk: "plan", v: editing.plan ?? "-", f: "plan" as const },
+                  { lk: "periodicity", v: editing.periodicity ?? "-", f: "periodicity" as const },
                   ...(editing.id ? [
-                      { lk: "lastPayment", v: editing.lastPayment, f: "lastPayment" as const },
-                      { lk: "expiratedDate", v: editing.expiratedDate, f: "expiratedDate" as const },
+                      { lk: "lastPayment", v: editing.lastPayment ?? "-", f: "lastPayment" as const },
+                      { lk: "expiratedDate", v: editing.expiratedDate ?? "-", f: "expiratedDate" as const },
                     ]
                   : []),
                   { lk: "website", v: editing.website, f: "website" as const },
@@ -327,8 +501,8 @@ const CompaniesPage = () => {
                       onChange={(e) => setEditing({ ...editing, [f]: e.target.value })}
                       style={{ 
                         width: "100%", padding: "10px 14px", borderRadius: 8, 
-                        border: f === "expiratedDate" ? `2px solid ${ExpiratedDateColor(editing.expiratedDate)}` : "2px solid var(--border)", 
-                        background: "var(--bg)", color: f === "expiratedDate" ? ExpiratedDateColor(editing.expiratedDate) : "var(--text-primary)", 
+                        border: (f === "expiratedDate" && editing.expiratedDate) ? `2px solid ${expiratedDateColor(editing.expiratedDate)}` : "2px solid var(--border)", 
+                        background: "var(--bg)", color: (f === "expiratedDate" && editing.expiratedDate) ? expiratedDateColor(editing.expiratedDate) : "var(--text-primary)", 
                         fontSize: 14, outline: "none", boxSizing: "border-box" 
                       }}
                       onFocus={(e) => e.target.style.borderColor = "#1A365D"}
@@ -348,6 +522,306 @@ const CompaniesPage = () => {
               >
                 {tr("save_changes", lang)}
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Principal Modal */}
+      {modalPaymentsOpen && (
+        <div style={{
+          position: "fixed", inset: 0, background: "#00000060", zIndex: 200,
+          display: "flex", alignItems: "center", justifyContent: "center", 
+        }} onClick={(e) => { if (e.target === e.currentTarget) setModalOpen(false); }}>
+          <div className="animate-fade-in" style={{
+            background: "var(--bg-card)", borderRadius: 16, padding: "20px 32px", width: "100%", maxWidth: 800,
+            boxShadow: "0 25px 60px #00000040",
+          }}>
+            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10 }}>
+              <h3 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: "var(--text-primary)", fontFamily: "var(--font-display)", marginBottom: 10, }}>
+                {tr("payments", lang)}
+              </h3>
+              <button onClick={() => setModalPaymentslOpen(false)} style={{ background: "none", border: "none", cursor: "pointer", color: "var(--text-muted)", fontSize: 20 }}>×</button>
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: 16, maxHeight: "70vh", overflow: "hidden" }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: 16, overflowY: "auto", flex: 1, paddingRight: 4 }}>
+                <div style={{ height: "52vh", }}>
+                  <div id="tabs" style={{ display: "flex", }}>
+                    {["history_payments", "new_payment"].map((p: any, index: number) => (
+                      <div 
+                        key={p}
+                        style={{ 
+                          height: 40, padding: 3, border: "1px solid #d6d2d2", cursor: "pointer",
+                          borderRadius: index === 0 ? "10px 0 0 0" : index === 1 ? "0 10px 0 0" : "", width: "100%", 
+                          boxShadow: p === selected ? "inset 0 1px 8px rgba(135, 195, 223, 0.8)" : "",
+                          background: p === selected ? "rgb(185, 229, 250)" : "#ececec",
+                          borderColor: p === selected ? "rgba(135, 195, 223, 0.1)" : "#d2d2d2",
+                          borderBottom: "none",
+                          borderLeft: index === 1 ? "" : "none",
+                          borderRight: index === 0 ? "none" : "",
+                          color: p === selected ? "#1A365D" : "#575656",
+                          display: "flex", justifyContent: "center", alignItems: "center",
+                        }}
+                        onClick={() => setSelected(p)}
+                      > 
+                        {tr(p, lang)} 
+                      </div>
+                    ))}
+                  </div>
+                  <div id="content" style={{ border: "1px solid #d4d2d2", height: "45vh", borderRadius: "0 0 10px 10px", }}>
+                    {selected == "history_payments" ? (
+                      <>
+                        <div style={{ height: "80%", }}>
+                          <table>
+                            <thead>
+                              <tr>
+                                <th style={{ padding: 8, paddingBottom: 15, width: "10%" }}> ID </th>
+                                <th style={{ padding: 8, paddingBottom: 15, width: "20%" }}> { tr("date", lang) }  </th>
+                                <th style={{ padding: 8, paddingBottom: 15, width: "25%" }}> { tr("payment_method", lang) } </th>
+                                <th style={{ padding: 8, paddingBottom: 15, width: "15%" }}> { tr("voucher", lang) } </th>
+                                <th style={{ padding: 8, paddingBottom: 15, width: "30%" }}> { tr("total", lang) } </th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {filteredPayments && filteredPayments.map((row: any, i: number) => (
+                                <tr 
+                                  key={row.id}
+                                  style={{ 
+                                    borderTop: "1px solid #e7e4e4", borderBottom: "1px solid #e7e4e4",
+                                    paddingTop: 3, paddingBottom: 3,
+                                  }}
+                                >
+                                  <td style={{ textAlign: "center", padding:  4, width: "10%" }}> {row.id} </td>
+                                  <td style={{ textAlign: "center", padding:  4, width: "20%" }}> {row.dateAt} </td>
+                                  <td style={{ textAlign: "center", padding:  4, width: "30%" }}> {truncarText(row.paymentMethod, 15, true)} </td>
+                                  <td style={{ textAlign: "center", padding:  4, width: "15%" }}> 
+                                    <img 
+                                      src={row.voucherURL} 
+                                      alt={truncarText(tr("photo_voucher", lang), 10, true)} 
+                                      onClick={() => openNewTab("google.com.co")} 
+                                      style={{ margin: "auto", border: "0.5px solid #c2c2c2", width: 30, height: 30, borderRadius: "50%", cursor: "pointer", }}
+                                    /> 
+                                  </td>
+                                  <td style={{ textAlign: "center", padding:  4, width: "25%" }}> $ {row.total.toLocaleString()} </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                        <div 
+                          id="paginator" 
+                          style={{ 
+                            display: "flex", "justifyContent": "space-between", alignItems: "center", 
+                            padding: 15, height: "20%", borderRadius: "0 0 10px 10px", 
+                          }}
+                        >
+                          <div id="paginator-pages" style={{ display: "flex", gap: 10, }}>
+                            <div 
+                              style={{ 
+                                display: "flex", justifyContent: "center", alignItems: "center", 
+                                border: "0.5px solid #c2c2c2", width: 30, height: 30, paddingBottom: 0.5, 
+                                borderRadius: "50%", cursor: historyPage == 1 ? "not-allowed" : "pointer",
+                              }}
+                              onMouseEnter={(e) => {
+                                if (historyPage !== 1) e.currentTarget.style.background = "var(--bg)";
+                              }}
+                              onMouseLeave={(e) => {
+                                if (historyPage !== 1) e.currentTarget.style.background = "transparent";
+                              }}
+                              onClick={() => {
+                                if (historyPage !== 1) handlePagination(1, "first");
+                              }}
+                              title={tr("go_to_start", lang)}
+                            > 
+                              <small> « </small>
+                            </div>
+                            {minNumVisible > 1 && (
+                              <div
+                                style={{
+                                  display: "flex",
+                                  justifyContent: "center",
+                                  alignItems: "center",
+                                  border: "0.5px solid #c2c2c2",
+                                  width: 30,
+                                  height: 30,
+                                  paddingBottom: 0.5,
+                                  borderRadius: "50%",
+                                  cursor: "pointer",
+                                }}
+                                onMouseEnter={(e) =>
+                                  (e.currentTarget.style.background = "var(--bg)")
+                                }
+                                onMouseLeave={(e) =>
+                                  (e.currentTarget.style.background = "transparent")
+                                }
+                                onClick={() =>
+                                  handlePagination(historyPage - 1, "prevDots")
+                                }
+                              >
+                                <small>{'<'}</small>
+                              </div>
+                            )}
+                            {visiblePayments.map((p) => (
+                              <div
+                                key={p}
+                                style={{
+                                  display: "flex",
+                                  justifyContent: "center",
+                                  alignItems: "center",
+                                  border: "0.5px solid #c2c2c2",
+                                  width: 30,
+                                  height: 30,
+                                  borderRadius: "50%",
+                                  cursor: "pointer",
+                                  boxShadow:
+                                    historyPage === p
+                                      ? "inset 0 1px 20px rgba(135, 195, 223, 0.8)"
+                                      : "",
+                                  background:
+                                    historyPage === p
+                                      ? "rgb(185, 229, 250)"
+                                      : "#fff",
+                                }}
+                                onClick={() => handlePagination(p)}
+                                onMouseEnter={(e) =>
+                                  (e.currentTarget.style.background = "var(--bg)")
+                                }
+                                onMouseLeave={(e) =>
+                                  (e.currentTarget.style.background =
+                                    historyPage === p
+                                      ? "rgb(185, 229, 250)"
+                                      : "transparent")
+                                }
+                              >
+                                <small>{p}</small>
+                              </div>
+                            ))}
+                            {maxNumVisible < totalPages && (
+                              <div
+                                style={{
+                                  display: "flex",
+                                  justifyContent: "center",
+                                  alignItems: "center",
+                                  border: "0.5px solid #c2c2c2",
+                                  width: 30,
+                                  height: 30,
+                                  paddingBottom: 0.5,
+                                  borderRadius: "50%",
+                                  cursor: "pointer",
+                                }}
+                                onMouseEnter={(e) =>
+                                  (e.currentTarget.style.background = "var(--bg)")
+                                }
+                                onMouseLeave={(e) =>
+                                  (e.currentTarget.style.background = "transparent")
+                                }
+                                onClick={() => handlePagination(historyPage + 1, "nextDots")}
+                              >
+                                <small>{'>'}</small>
+                              </div>
+                            )}
+                            <div 
+                              style={{ 
+                                display: "flex", justifyContent: "center", alignItems: "center", 
+                                paddingBottom: 0.5, border: "0.5px solid #c2c2c2", width: 30, height: 30, 
+                                borderRadius: "50%", cursor: (historyPage == totalPages) ? "not-allowed" : "pointer", 
+                              }}
+                              onMouseEnter={(e) => (e.currentTarget.style.background = "var(--bg)")}
+                              onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+                              onClick={() => {
+                                if (historyPage !== totalPages) {
+                                  handlePagination(totalPages, "last");
+                                }
+                              }}
+                              title={tr("go_to_end", lang)}
+                            > 
+                              <small> » </small>
+                            </div>
+                          </div>
+                          <small> {tr("page", lang)} {historyPage} {tr("of", lang)} {totalPages} </small> 
+                        </div>
+                      </>
+                    ) : (
+                      <div>
+                        <div style={{ display: "flex", gap: 16, overflowY: "auto", flex: 1, padding: 20 }}>
+                          {[
+                            { lk: "payment_method", v: payment.paymentMethod, f: "paymentMethod" as const },
+                            { lk: "total", v: payment.total, f: "total" as const },
+                          ].map(({ lk, v, f }) => (
+                            <div key={f} style={{ width: "100%", }}>
+                              <label 
+                                style={{ 
+                                  display: "block", fontSize: 12, fontWeight: 600, color: "var(--text-muted)", 
+                                  marginBottom: 6, textTransform: "uppercase",
+                                }}
+                              >
+                                {tr(lk, lang)}
+                              </label>
+                              <input
+                                value={v}
+                                onChange={(e) => setPayment({ ...payment, [f]: e.target.value })}
+                                style={{ 
+                                  width: "100%", padding: "10px 14px", borderRadius: 8, 
+                                  border: "2px solid var(--border)", 
+                                  background: "var(--bg)", color: "var(--text-primary)", 
+                                  fontSize: 14, outline: "none", boxSizing: "border-box" 
+                                }}
+                                onFocus={(e) => e.target.style.borderColor = "#1A365D"}
+                                onBlur={(e) => e.target.style.borderColor = "var(--border)"}
+                              />
+                            </div>
+                          ))}
+                        </div>
+                        <div
+                          style={{
+                            height: "100%",
+                            overflowY: "auto",
+                            overflowX: "hidden",
+                            padding: 20,
+                            boxSizing: "border-box",
+                          }}
+                        >
+                          <label
+                            style={{
+                              display: "block",
+                              fontSize: 12,
+                              fontWeight: 600,
+                              color: "var(--text-muted)",
+                              marginBottom: 6,
+                              textTransform: "uppercase",
+                            }}
+                          >
+                            {tr("voucher", lang)}
+                          </label>
+
+                          <textarea
+                            value={payment.voucher}
+                            onChange={(e) =>
+                              setPayment({ ...payment, voucher: e.target.value })
+                            }
+                            style={{
+                              display: "block",
+                              width: "100%",
+                              maxWidth: "100%",
+                              height: "300px",
+                              padding: "10px 14px",
+                              borderRadius: 8,
+                              border: "2px solid var(--border)",
+                              background: "var(--bg)",
+                              color: "var(--text-primary)",
+                              fontSize: 14,
+                              outline: "none",
+                              boxSizing: "border-box",
+                              resize: "none",
+                            }}
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>

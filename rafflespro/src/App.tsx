@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "./store/hooks";
-import { setActiveView } from "./store/slices/uiSlice";
+import { setActiveView, Theme } from "./store/slices/uiSlice";
 
 import LoginPage from "./pages/admin/LoginPage";
 import CompanySelect from "./pages/admin/CompanySelect";
@@ -14,6 +14,7 @@ import Sidebar from "./components/Sidebar";
 import Header from "./components/Header";
 import ToastContainer from "./components/ToastContainer";
 import CompaniesPage from "./pages/admin/CompanyPage";
+import { Company, User } from "./store/slices/authSlice";
 
 function AppShell() {
   const activeView = useAppSelector((s) => s.ui.activeView);
@@ -43,18 +44,17 @@ function AppShell() {
 }
 
 export default function App() {
-  const theme = useAppSelector((s) => s.ui.theme);
-  const isAuthenticated = useAppSelector((s) => s.auth.isAuthenticated);
-  const activeCompany = useAppSelector((s) => s.auth.activeCompany);
-  const user = useAppSelector((s) => s.auth.user);
+  const theme: Theme = useAppSelector((s) => s.ui.theme);
+  const isAuthenticated: boolean = useAppSelector((s) => s.auth.isAuthenticated);
+  const activeCompany: Company | null = useAppSelector((s) => s.auth.activeCompany);
+  const user: User | null = useAppSelector((s) => s.auth.user);
+  
   const dispatch = useAppDispatch();
 
-  // Apply dark mode to document root
   useEffect(() => {
     document.documentElement.classList.toggle("dark", theme === "dark");
   }, [theme]);
 
-  // Reset to dashboard when company changes
   useEffect(() => {
     if (activeCompany) dispatch(setActiveView("dashboard"));
   }, [activeCompany?.id]);

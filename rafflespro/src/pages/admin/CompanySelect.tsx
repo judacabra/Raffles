@@ -1,6 +1,8 @@
+import { selectCompany, logout, type Company, User } from "../../store/slices/authSlice";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { selectCompany, logout, type Company } from "../../store/slices/authSlice";
+import { Language } from "../../store/slices/uiSlice";
 import { tr } from "../../i18n/translations";
+import { appConfig } from "../../config";
 
 const planBadge: Record<string, string> = {
   starter: "#48BB78",
@@ -10,8 +12,11 @@ const planBadge: Record<string, string> = {
 
 export default function CompanySelect() {
   const dispatch = useAppDispatch();
-  const lang = useAppSelector((s) => s.ui.language);
-  const user = useAppSelector((s) => s.auth.user);
+
+  const lang: Language = useAppSelector((s) => s.ui.language);
+  const user: User | null = useAppSelector((s) => s.auth.user);
+
+  const { uploadsFolder } = appConfig;
 
   if (!user) return null;
 
@@ -74,7 +79,7 @@ export default function CompanySelect() {
                 background: company.color + "20", fontSize: 24,
                 display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
               }}>
-                {company.logo}
+                <img src={uploadsFolder + "/" + company.logoURL} alt="logo company" />
               </div>
               <div style={{ flex: 1 }}>
                 <div style={{ fontWeight: 600, fontSize: 15, color: "#1A202C" }}>{company.name}</div>

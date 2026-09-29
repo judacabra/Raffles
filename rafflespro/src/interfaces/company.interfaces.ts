@@ -9,8 +9,9 @@ export interface CompanyRow {
     periodicity?: string;
     lastPayment?: string;
     expiratedDate: string;
-    dateAt: string;
-    hourAt: string;
-    isActive: boolean;
+    dateAt?: string;
+    hourAt?: string;
+    isActive?: boolean;
+    isVisible?: boolean;
 }
 

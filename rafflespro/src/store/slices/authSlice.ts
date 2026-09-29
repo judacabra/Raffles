@@ -3,7 +3,7 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 export interface Company {
   id: string;
   name: string;
-  logo: string;
+  logoURL: string;
   plan: "starter" | "pro" | "enterprise";
   color: string;
 }
@@ -26,20 +26,20 @@ interface AuthState {
   rememberMe: boolean;
 }
 
-const MOCK_COMPANIES: Company[] = [
-  { id: "c1", name: "Rifas El Dorado", logo: "🏆", plan: "pro", color: "#F6AD55" },
-  { id: "c2", name: "Sorteos Express", logo: "🎯", plan: "starter", color: "#48BB78" },
-  { id: "c3", name: "Premios del Norte", logo: "⭐", plan: "enterprise", color: "#1A365D" },
-];
+// const MOCK_COMPANIES: Company[] = [
+//   { id: "c1", name: "Rifas El Dorado", logo: "🏆", plan: "pro", color: "#F6AD55" },
+//   { id: "c2", name: "Sorteos Express", logo: "🎯", plan: "starter", color: "#48BB78" },
+//   { id: "c3", name: "Premios del Norte", logo: "⭐", plan: "enterprise", color: "#1A365D" },
+// ];
 
-const MOCK_USER: User = {
-  id: "u1",
-  name: "Carlos Mendoza",
-  email: "carlos@rifasdorado.com",
-  avatar: "CM",
-  role: "admin",
-  companies: MOCK_COMPANIES,
-};
+// const MOCK_USER: User = {
+//   id: "u1",
+//   name: "Carlos Mendoza",
+//   email: "carlos@rifasdorado.com",
+//   avatar: "CM",
+//   role: "admin",
+//   companies: MOCK_COMPANIES,
+// };
 
 function loadFromStorage() {
   try {
@@ -65,9 +65,8 @@ const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    login(state, action: PayloadAction<{ email: string; password: string; rememberMe: boolean }>) {
-      // Mock auth — replace with real API call
-      state.user = MOCK_USER;
+    login(state, action: PayloadAction<{ user: any, email: string; password: string; rememberMe: boolean }>) {
+      state.user = action.payload.user;
       state.accessToken = "mock-access-token-" + Date.now();
       state.refreshToken = "mock-refresh-token";
       state.isAuthenticated = true;

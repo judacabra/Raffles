@@ -1,14 +1,16 @@
 import { useState } from "react";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
-import { toggleTheme, toggleLanguage, toggleSidebar } from "../store/slices/uiSlice";
-import { logout } from "../store/slices/authSlice";
+import { toggleTheme, toggleLanguage, toggleSidebar, Language, Theme } from "../store/slices/uiSlice";
+import { logout, User } from "../store/slices/authSlice";
 import { tr } from "../i18n/translations";
 
 export default function Header() {
   const dispatch = useAppDispatch();
-  const lang = useAppSelector((s) => s.ui.language);
-  const theme = useAppSelector((s) => s.ui.theme);
-  const user = useAppSelector((s) => s.auth.user);
+
+  const lang: Language = useAppSelector((s) => s.ui.language);
+  const theme: Theme = useAppSelector((s) => s.ui.theme);
+  const user: User | null = useAppSelector((s) => s.auth.user);
+
   const [menuOpen, setMenuOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
 
@@ -47,7 +49,6 @@ export default function Header() {
 
       {/* Right */}
       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-        {/* Language toggle */}
         <button
           onClick={() => dispatch(toggleLanguage())}
           style={{
@@ -55,7 +56,7 @@ export default function Header() {
             background: "var(--bg)", color: "var(--text-secondary)", cursor: "pointer",
             fontSize: 12, fontWeight: 700, fontFamily: "var(--font-mono)", letterSpacing: "0.05em",
           }}
-          title={lang === "es" ? "Switch to English" : "Cambiar a Español"}
+          title={tr("language_switch", lang)}
         >
           {lang.toUpperCase()}
         </button>

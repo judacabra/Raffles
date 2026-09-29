@@ -61,9 +61,9 @@ export const PutCompany = async(id: number, dataSend: any): Promise<any> => {
   }
 }
 
-export const PutCompanyStatus = async(id: number, dataSend: any): Promise<any> => {
+export const PutCompanyStatus = async(id: number, status: boolean): Promise<any> => {
   try {
-    const { data } = await axios.put<any>(`${baseURL}/company/${id}`, dataSend, config);
+    const { data } = await axios.put(`${baseURL}/company/status/${id}`, { status });
 
     return data;
   } catch (error: any) {

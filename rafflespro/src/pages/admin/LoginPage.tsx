@@ -1,23 +1,51 @@
 import { useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { login } from "../../store/slices/authSlice";
-import { addToast } from "../../store/slices/uiSlice";
+import { addToast, Language } from "../../store/slices/uiSlice";
 import { tr } from "../../i18n/translations";
+import { Auth } from "../../api/authAPI";
 
 export default function LoginPage() {
   const dispatch = useAppDispatch();
-  const lang = useAppSelector((s) => s.ui.language);
-  const [email, setEmail] = useState("carlos@rifasdorado.com");
-  const [password, setPassword] = useState("demo1234");
-  const [remember, setRemember] = useState(false);
-  const [loading, setLoading] = useState(false);
+
+  const lang: Language = useAppSelector((s) => s.ui.language);
+
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [remember, setRemember] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 900));
-    dispatch(login({ email, password, rememberMe: remember }));
-    dispatch(addToast({ type: "success", message: lang === "es" ? "¡Bienvenido de vuelta!" : "Welcome back!" }));
+
+    const data: any = await Auth({ email, password });
+
+    if (data.token) {
+      const companies = [
+        ...data.userResponse.companies,
+        ...data.userResponse.companies
+      ];
+
+      const user: any = {
+        id: data.userResponse.id,
+        name: data.userResponse.username,
+        email: data.userResponse.email,
+        avatar: data.userResponse.imageURL ?? 
+          data.userResponse.username
+            .split(" ").map((w: any) => w[0])
+            .join("").slice(0, 2).toUpperCase(),
+        companies: companies,
+      };
+
+      dispatch(login({ user, email, password, rememberMe: remember }));
+      dispatch(addToast({ type: "success", message: tr("welcome_back", lang) }));
+
+    } else {
+      dispatch(addToast({ type: "error", message: data.message }));
+    }
+
     setLoading(false);
   }
 
@@ -50,8 +78,12 @@ export default function LoginPage() {
               {tr("email", lang)}
             </label>
             <input
-              type="email" value={email} onChange={(e) => setEmail(e.target.value)}
-              required aria-label={tr("email", lang)}
+              type="email" 
+              placeholder="example@gmail.com" 
+              value={email} 
+              onChange={(e) => setEmail(e.target.value)}
+              required 
+              aria-label={tr("email", lang)}
               style={{
                 width: "100%", padding: "12px 16px", border: "2px solid #E2E8F0",
                 borderRadius: 8, fontSize: 15, outline: "none", fontFamily: "var(--font-sans)",
@@ -67,8 +99,12 @@ export default function LoginPage() {
               {tr("password", lang)}
             </label>
             <input
-              type="password" value={password} onChange={(e) => setPassword(e.target.value)}
-              required aria-label={tr("password", lang)}
+              type="password" 
+              placeholder="* * * * * *" 
+              value={password} 
+              onChange={(e) => setPassword(e.target.value)}
+              required 
+              aria-label={tr("password", lang)}
               style={{
                 width: "100%", padding: "12px 16px", border: "2px solid #E2E8F0",
                 borderRadius: 8, fontSize: 15, outline: "none", fontFamily: "var(--font-sans)",

@@ -1,6 +1,6 @@
 export const t: Record<string, Record<string, string>> = {
   // Auth
-  welcome_back: { es: "Bienvenido de vuelta", en: "Welcome back" },
+  welcome_back: { es: "¡Bienvenido de vuelta!", en: "Welcome back!" },
   sign_in: { es: "Iniciar Sesión", en: "Sign In" },
   email: { es: "Correo electrónico", en: "Email" },
   password: { es: "Contraseña", en: "Password" },
@@ -125,8 +125,11 @@ export const t: Record<string, Record<string, string>> = {
   loading: { es: "Cargando...", en: "Loading..." },
   success: { es: "Éxito", en: "Success" },
   error: { es: "Error", en: "Error" },
+  page: { es: "Página", en: "Page" },
   of: { es: "de", en: "of" },
   new: { es: "Nuevo", en: "New" },
+  date: { es: "Fecha", en: "Date" },
+
 
   // Companies
   new_company: { es: "Nueva Empresa", en: "New Company "},
@@ -154,6 +157,18 @@ export const t: Record<string, Record<string, string>> = {
     en: "An error occurred during the purchase, please try again.." 
   },
 
+  language_switch: { es: "Cambiar a ingles", en: "Switch to spanish" },
+
+  // Payments
+  payments: { es: "Pagos", en: "Payments" },
+  history_payments: { es: "Historial de pagos", en: "History payments" },
+  new_payment: { es: "Nuevo pago", en: "New payment" },
+  go_to_start: { es: "Ir al principio", en: "Go to start" },
+  go_to_end: { es: "Ir al final", en: "Go to end" },
+  photo_voucher: { es: "Foto comprobante", en: "Photo voucher" },
+  payment_method: { es: "Método de pago", en: "Payment method" },
+  voucher: { es: "Comprobante", en: "Voucher" },
+  total: { es: "Total", en: "Total" },
 };
 
 export function tr(key: string, lang: "es" | "en"): string {
