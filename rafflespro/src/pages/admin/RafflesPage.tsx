@@ -1,10 +1,16 @@
 import { useEffect, useState } from "react";
+
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { Raffle, setActiveRaffle } from "../../store/slices/raffleSlice";
+
 import { setActiveView, addToast, Language } from "../../store/slices/uiSlice";
+import { setActiveRaffle } from "../../store/slices/raffleSlice";
+
 import { tr } from "../../i18n/translations";
 import { appConfig } from "../../config";
+
 import { GetRaffles } from "../../api/raffleAPI";
+
+import { Raffle } from "@/interfaces/raffle.interfaces";
 
 function RafflesPage () {
   const dispatch = useAppDispatch();
@@ -46,7 +52,6 @@ function RafflesPage () {
   const fetchRaffles = async (idC: number): Promise<void> => {
     try {
       const data = await GetRaffles(idC);
-
       setRaffles(data);
     } catch (err: any) {
       console.error(`Error al obtener las rifas de la empresa #${idC}`, err);
@@ -65,7 +70,7 @@ function RafflesPage () {
             {tr("raffles", lang)}
           </h1>
           <p style={{ margin: "4px 0 0", fontSize: 14, color: "var(--text-muted)" }}>
-            {filtered.length} {tr("total_raffles" , lang)}
+            {filtered.length > 0 && filtered.length + " " + tr("total_raffles" , lang)}
           </p>
         </div>
         <button onClick={openEditor}
@@ -77,12 +82,11 @@ function RafflesPage () {
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: 20 }}>
         {filtered.length === 0 ? (
           <div style={{ gridColumn: "1 / -1", padding: "40px", textAlign: "center", color: "var(--text-muted)" }}>
-            {lang === "es" ? "No hay rifas registradas" : "No raffles found"}
+            {tr("no_raffles_found", lang)}
           </div>
         ) : ( 
           filtered.map((r) => {
             const badge = statusColors[r.status] ?? statusColors.draft;
-            // const sold: number = r.numbers.filter((n: any) => n.status === "sold").length;
             const sold: number = 0;
             const pct: number = Math.round((sold / r.totalNumbers) * 100);
 

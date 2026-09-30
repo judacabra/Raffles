@@ -49,6 +49,7 @@ export const t: Record<string, Record<string, string>> = {
   closed: { es: "Cerrada", en: "Closed" },
 
   // Raffle Editor
+  no_raffles_found: { es: "No hay rifas registradas", en: "No raffles found" },
   create_raffle: { es: "Crear Rifa", en: "Create Raffle" },
   edit_raffle: { es: "Editar Rifa", en: "Edit Raffle" },
   step_data: { es: "Datos", en: "Data" },
@@ -127,6 +128,7 @@ export const t: Record<string, Record<string, string>> = {
   error: { es: "Error", en: "Error" },
   page: { es: "Página", en: "Page" },
   of: { es: "de", en: "of" },
+  o: { es: "o", en: "o" },
   new: { es: "Nuevo", en: "New" },
   date: { es: "Fecha", en: "Date" },
 
@@ -169,6 +171,15 @@ export const t: Record<string, Record<string, string>> = {
   payment_method: { es: "Método de pago", en: "Payment method" },
   voucher: { es: "Comprobante", en: "Voucher" },
   total: { es: "Total", en: "Total" },
+  save_payment: { es: "Guardar pago", en: "Save payment" },
+  select_your_voucher: { es: "Seleccione su comprobante", en: "Select your voucher" },
+  upload_file_icon: { es: "Icono de subir archivo", en: "Upload file icon" },
+  select_payment_method: { es: "Seleccione un método de pago", en: "Select a payment method" }, 
+  cash: { es: "Efectivo", en: "Cash" }, 
+  transfer: { es: "Transferencia", en: "Transfer" }, 
+  debit_card: { es: "Tarjeta debito", en: "Debit card" }, 
+  credit_card: { es: "Tarjeta de credito ", en: "Credit card" }, 
+  payments_ok: { es: "Estas al día, no tienes pagos pendientes", en: "Payments up to date." }
 };
 
 export function tr(key: string, lang: "es" | "en"): string {

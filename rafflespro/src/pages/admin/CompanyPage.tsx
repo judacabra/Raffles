@@ -5,7 +5,10 @@ import { addToast, Language } from "../../store/slices/uiSlice";
 import { tr } from "../../i18n/translations";
 
 import { GetCompanies, PutCompany, PutCompanyStatus, SetCompany, DeleteCompany } from "../../api/companiesAPI";
+import { GetCompanyPayments, SetCompanyPayment } from "../../api/companyPaymentsAPI";
+
 import { CompanyRow } from "@/interfaces/company.interfaces";
+
 import { appConfig } from "../../config";
 import { truncarText } from "../../utils/format-words";
 
@@ -14,114 +17,34 @@ const CompaniesPage = () => {
 
   const lang: Language = useAppSelector((s: any) => s.ui.language);
 
-  const { uploadsFolder } = appConfig;
+  const { uploadsFolder, } = appConfig;
 
   const [companies, setCompanies] = useState<CompanyRow[]>([]);
   const [editing, setEditing] = useState<CompanyRow | null>(null);
-  const [payment, setPayment] = useState<any>({});
+  const [payment, setPayment] = useState<any>({ total: 200000, available: false });
+  
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const [modalPaymentsOpen, setModalPaymentslOpen] = useState<boolean>(false);
+  const [modalVoucherOpen, setModalVoucherlOpen] = useState<boolean>(false);
+  
   const [companiesFounded, setCompaniesFounded] = useState<boolean>(false);
+  const [companyPaymentsFounded, setCompanyPaymentsFounded] = useState<boolean>(false);
   const [search, setSearch] = useState<string>("");
 
   const [selected, setSelected] = useState<"history_payments" | "new_payment">("history_payments");
 
   const [historyPage, setHistoryPage] = useState<number>(1);
 
-  const arrPayments: any[] = [
-    {
-      id: 1,
-      dateAt: "2026-01-15",
-      paymentMethod: "Transferencia bancolombia",
-      voucherURL: "https://a.espncdn.com/combiner/i?img=/i/teamlogos/soccer/500/8109.png&h=200&w=200",
-      total: "200000",
-    },
-    {
-      id: 2,
-      dateAt: "2026-02-15",
-      paymentMethod: "Transferencia bancolombia",
-      voucherURL: "https://a.espncdn.com/combiner/i?img=/i/teamlogos/soccer/500/8109.png&h=200&w=200",
-      total: "200000",
-    },
-    {
-      id: 3,
-      dateAt: "2026-03-15",
-      paymentMethod: "Transferencia bancolombia",
-      voucherURL: "https://a.espncdn.com/combiner/i?img=/i/teamlogos/soccer/500/8109.png&h=200&w=200",
-      total: "200000",
-    },
-    {
-      id: 4,
-      dateAt: "2026-04-15",
-      paymentMethod: "Transferencia bancolombia",
-      voucherURL: "https://a.espncdn.com/combiner/i?img=/i/teamlogos/soccer/500/8109.png&h=200&w=200",
-      total: "200000",
-    },
-    {
-      id: 5,
-      dateAt: "2026-05-15",
-      paymentMethod: "Transferencia bancolombia",
-      voucherURL: "https://a.espncdn.com/combiner/i?img=/i/teamlogos/soccer/500/8109.png&h=200&w=200",
-      total: "200000",
-    },
-    {
-      id: 6,
-      dateAt: "2026-06-15",
-      paymentMethod: "Transferencia bancolombia",
-      voucherURL: "https://a.espncdn.com/combiner/i?img=/i/teamlogos/soccer/500/8109.png&h=200&w=200",
-      total: "200000",
-    },
-    {
-      id: 7,
-      dateAt: "2026-07-15",
-      paymentMethod: "Transferencia bancolombia",
-      voucherURL: "https://a.espncdn.com/combiner/i?img=/i/teamlogos/soccer/500/8109.png&h=200&w=200",
-      total: "200000",
-    },
-    {
-      id: 8,
-      dateAt: "2026-08-15",
-      paymentMethod: "Transferencia bancolombia",
-      voucherURL: "https://a.espncdn.com/combiner/i?img=/i/teamlogos/soccer/500/8109.png&h=200&w=200",
-      total: "200000",
-    },
-    {
-      id: 9,
-      dateAt: "2026-09-15",
-      paymentMethod: "Transferencia bancolombia",
-      voucherURL: "https://a.espncdn.com/combiner/i?img=/i/teamlogos/soccer/500/8109.png&h=200&w=200",
-      total: "200000",
-    },
-    {
-      id: 10,
-      dateAt: "2026-10-15",
-      paymentMethod: "Transferencia bancolombia",
-      voucherURL: "https://a.espncdn.com/combiner/i?img=/i/teamlogos/soccer/500/8109.png&h=200&w=200",
-      total: "200000",
-    },
-    {
-      id: 11,
-      dateAt: "2026-11-15",
-      paymentMethod: "Transferencia bancolombia",
-      voucherURL: "https://a.espncdn.com/combiner/i?img=/i/teamlogos/soccer/500/8109.png&h=200&w=200",
-      total: "200000",
-    },
-    {
-      id: 12,
-      dateAt: "2026-12-15",
-      paymentMethod: "Transferencia bancolombia",
-      voucherURL: "https://a.espncdn.com/combiner/i?img=/i/teamlogos/soccer/500/8109.png&h=200&w=200",
-      total: "200000",
-    },
-  ];
+  const [payments, setPayments] = useState<any[]>([]);
 
-  const [payments, setPayments] = useState<any[]>(arrPayments.reverse());
+  const [voucherPreview, setVoucherPreview] = useState<string | null>(null);
+
   const [minNumVisible, setMinNumVisible] = useState<number>(1);
   const [maxNumVisible, setMaxNumVisible] = useState<number>(2);
 
   const [maxPerPage, setMaxPerPage] = useState<number>(5);
 
-  const totalPages: number = Math.ceil(payments.length / maxPerPage);
+  const totalPages: number = payments ? Math.ceil(payments.length / maxPerPage) : 0;
 
   const visiblePayments: number[] = Array.from(
     { length: totalPages },
@@ -131,7 +54,7 @@ const CompaniesPage = () => {
   const start: number = (historyPage - 1) * maxPerPage;
   const end: number = start + maxPerPage;
 
-  const filteredPayments = payments.slice(start, end);
+  const filteredPayments = payments ? payments.slice(start, end) : [];
 
   const initialCompany: CompanyRow = {
     name: "",
@@ -233,11 +156,21 @@ const CompaniesPage = () => {
 
   const openNewTab = (w: string): void => {
     let url: string = w;
-    if (!w.startsWith("https://")) url = `https://${w}`;
+    if (!w.startsWith("https://") && !w.startsWith("http://")) url = `https://${w}`;
     window.open(url, "_blank");
   };
 
   const expiratedDateColor = (ed: string): string => {
+    const diffDays: number = expiratedDateValidated(ed);
+
+    if (diffDays <= 0) return "#EF4444";
+    if (diffDays <= 5) return "#F97316";
+    if (diffDays <= 10) return "#EAB308";
+
+    return "#22C55E";
+  };
+
+  const expiratedDateValidated = (ed: string): number => {
     const today: Date = new Date();
     today.setHours(0, 0, 0, 0);
 
@@ -248,11 +181,7 @@ const CompaniesPage = () => {
       (exp.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
     );
 
-    if (diffDays <= 0) return "#EF4444";
-    if (diffDays <= 5) return "#F97316";
-    if (diffDays <= 10) return "#EAB308";
-
-    return "#22C55E";
+    return diffDays;
   };
 
   const handlePagination = (page: number, action?: "first" | "last" | "prevDots" | "nextDots"): void => {
@@ -298,9 +227,83 @@ const CompaniesPage = () => {
     setHistoryPage(page);
   };
 
+  const handleVoucherChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+
+    if (!file) return;
+
+    setPayment({ ...payment, voucher: file, });
+
+    const previewURL: string = URL.createObjectURL(file);
+
+    setVoucherPreview(previewURL);
+  };
+
+  const handlePaymentSubmit = async (): Promise<void> => {
+    if (!payment.paymentMethod || !payment.total) return;
+    
+    const dataSend = new FormData();
+    payment.companyId = 1;
+
+    dataSend.append('companyId', payment.companyId);
+    dataSend.append('paymentMethodId', `${payment.paymentMethod}`);
+    dataSend.append('total', `${payment.total}`);
+
+    if (payment.voucher) dataSend.append('image', payment.voucher);
+
+    try {
+      await SetCompanyPayment(payment.companyId, dataSend);      
+    } catch (err: any) {
+      console.error(`Error al guardar el pago de la empresa #${1}:`, err);
+    } finally {
+      await fetchCompanyPayments(payment.companyId);
+
+      setPayment({ total: 200000, });
+      setSelected("history_payments");
+      setVoucherPreview(null);
+    }
+  }; 
+
+  const fetchCompanyPayments = async (idC: number): Promise<void> => {
+    try {
+      const data: any[] = await GetCompanyPayments(idC);
+      setPayments(data);
+    } catch (err: any) {
+      console.error(`Error al obtener los pagos de la empresa #${idC}: `, err);
+    } finally {
+      setCompanyPaymentsFounded(true);
+    }
+  };
+
+  const handleModalVoucher = (url: string): void => {
+    setVoucherPreview(url);
+    setModalVoucherlOpen(true)
+  };
+
+  const handlePaymentEdit = (dt: string): void => {
+    if (expiratedDateValidated(dt) <= 5) {
+      payment.available = true;
+    }
+    setModalPaymentslOpen(true);
+  };
+
   useEffect(() => {
     if (!companiesFounded) fetchCompanies();
   }, [companiesFounded]);
+
+  useEffect(() => {
+    if (!companyPaymentsFounded) fetchCompanyPayments(1);
+  }, [companyPaymentsFounded]);
+
+  useEffect(() => {
+    return () => {
+      if (voucherPreview) {
+        URL.revokeObjectURL(voucherPreview);
+      }
+    };
+  }, [voucherPreview]);
+
+  console.log(companies)
 
   return (
     <div className="animate-fade-in" style={{ padding: 28, maxWidth: 1100, height: "90vh", margin: "0 auto" }}>
@@ -338,7 +341,14 @@ const CompaniesPage = () => {
           <thead>
             <tr style={{ background: "var(--bg)" }}>
               {[tr("name", lang), tr("website", lang), tr("state", lang), ""].map((h) => (
-                <th key={h} style={{ padding: "12px 16px", textAlign: "left", fontSize: 11, fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>
+                <th 
+                  key={h} 
+                  style={{ 
+                    padding: "12px 16px", textAlign: "left", fontSize: 11, 
+                    fontWeight: 700, color: "var(--text-muted)", letterSpacing: "0.06em", 
+                    textTransform: "uppercase", 
+                  }}
+                >
                   {h}
                 </th>
               ))}
@@ -366,7 +376,7 @@ const CompaniesPage = () => {
                           background: "linear-gradient(135deg, #1A365D, #F6AD55)",
                           display: "flex", alignItems: "center", justifyContent: "center",
                           color: "#fff", fontSize: 12, fontWeight: 700,
-                          overflow: "hidden",
+                          overflow: "hidden", textTransform: "uppercase",
                         }}>
                           {u.logoURL ? (
                             <img src={uploadsFolder + "/" + u.logoURL} alt="logo company" />
@@ -429,8 +439,8 @@ const CompaniesPage = () => {
                           {tr("edit", lang)}
                         </button>
                         <button 
-                          onClick={() => setModalPaymentslOpen(true)}
-                          title={tr("delete", lang)}
+                          onClick={() => handlePaymentEdit(u.expiratedDate)}
+                          title={tr("payments", lang)}
                           style={{ 
                             padding: "5px 10px", borderRadius: 6, border: "1px solid #08422f", 
                             background: "#7dddbd", cursor: "pointer", fontSize: 12, 
@@ -527,8 +537,8 @@ const CompaniesPage = () => {
         </div>
       )}
 
-      {/* Principal Modal */}
-      {modalPaymentsOpen && (
+      {/* Payment Modal */}
+      {(modalPaymentsOpen && payment) &&  (
         <div style={{
           position: "fixed", inset: 0, background: "#00000060", zIndex: 200,
           display: "flex", alignItems: "center", justifyContent: "center", 
@@ -538,10 +548,18 @@ const CompaniesPage = () => {
             boxShadow: "0 25px 60px #00000040",
           }}>
             <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10 }}>
-              <h3 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: "var(--text-primary)", fontFamily: "var(--font-display)", marginBottom: 10, }}>
+              <h3 
+                style={{ 
+                  margin: 0, fontSize: 18, fontWeight: 700, color: "var(--text-primary)", 
+                  fontFamily: "var(--font-display)", marginBottom: 10, 
+                }}
+              >
                 {tr("payments", lang)}
               </h3>
-              <button onClick={() => setModalPaymentslOpen(false)} style={{ background: "none", border: "none", cursor: "pointer", color: "var(--text-muted)", fontSize: 20 }}>×</button>
+              <button 
+                onClick={() => setModalPaymentslOpen(false)} 
+                style={{ background: "none", border: "none", cursor: "pointer", color: "var(--text-muted)", fontSize: 20 }}
+              >×</button>
             </div>
 
             <div style={{ display: "flex", flexDirection: "column", gap: 16, maxHeight: "70vh", overflow: "hidden" }}>
@@ -551,17 +569,17 @@ const CompaniesPage = () => {
                     {["history_payments", "new_payment"].map((p: any, index: number) => (
                       <div 
                         key={p}
-                        style={{ 
-                          height: 40, padding: 3, border: "1px solid #d6d2d2", cursor: "pointer",
-                          borderRadius: index === 0 ? "10px 0 0 0" : index === 1 ? "0 10px 0 0" : "", width: "100%", 
+                        style={{
+                          height: 40, padding: 3, borderWidth: "1px", borderStyle: "solid",
+                          borderColor: p === selected ? "rgba(135, 195, 223, 0.1)" : "#d2d2d2",
+                          borderRadius: index === 0 ? "10px 0 0 0" : index === 1 ? "0 10px 0 0" : "",
+                          width: "100%", boxSizing: "border-box",
                           boxShadow: p === selected ? "inset 0 1px 8px rgba(135, 195, 223, 0.8)" : "",
                           background: p === selected ? "rgb(185, 229, 250)" : "#ececec",
-                          borderColor: p === selected ? "rgba(135, 195, 223, 0.1)" : "#d2d2d2",
-                          borderBottom: "none",
-                          borderLeft: index === 1 ? "" : "none",
-                          borderRight: index === 0 ? "none" : "",
+                          borderBottomWidth: 0, borderLeftWidth: index === 1 ? 1 : 0,
+                          display: "flex", borderRightWidth: index === 0 ? 0 : 1,
                           color: p === selected ? "#1A365D" : "#575656",
-                          display: "flex", justifyContent: "center", alignItems: "center",
+                          justifyContent: "center", alignItems: "center", cursor: "pointer",
                         }}
                         onClick={() => setSelected(p)}
                       > 
@@ -576,36 +594,58 @@ const CompaniesPage = () => {
                           <table>
                             <thead>
                               <tr>
-                                <th style={{ padding: 8, paddingBottom: 15, width: "10%" }}> ID </th>
-                                <th style={{ padding: 8, paddingBottom: 15, width: "20%" }}> { tr("date", lang) }  </th>
-                                <th style={{ padding: 8, paddingBottom: 15, width: "25%" }}> { tr("payment_method", lang) } </th>
-                                <th style={{ padding: 8, paddingBottom: 15, width: "15%" }}> { tr("voucher", lang) } </th>
-                                <th style={{ padding: 8, paddingBottom: 15, width: "30%" }}> { tr("total", lang) } </th>
+                                {[{ lk: "ID", w: "10", }, { lk: "date", w: "20" }, 
+                                  { lk: "payment_method", w: "25" }, { lk: "voucher", w: "15" }, 
+                                  { lk: "total", w: "30" },
+                                ].map((th: any) =>(
+                                  <th 
+                                    key={th.lk}
+                                    style={{ 
+                                      padding: "12px 16px", textAlign: "center", fontSize: 11, 
+                                      fontWeight: 700, color: "var(--text-muted)", letterSpacing: "0.06em", 
+                                      textTransform: "uppercase", paddingBottom: 15, width: `${th.w}%`, 
+                                    }}
+                                  > 
+                                    { tr(th.lk, lang) }  
+                                  </th>
+                                ))}
                               </tr>
                             </thead>
                             <tbody>
-                              {filteredPayments && filteredPayments.map((row: any, i: number) => (
+                              {filteredPayments && filteredPayments.length === 0 ? (
                                 <tr 
-                                  key={row.id}
+                                  key="payments-empty"
                                   style={{ 
                                     borderTop: "1px solid #e7e4e4", borderBottom: "1px solid #e7e4e4",
                                     paddingTop: 3, paddingBottom: 3,
                                   }}
                                 >
-                                  <td style={{ textAlign: "center", padding:  4, width: "10%" }}> {row.id} </td>
-                                  <td style={{ textAlign: "center", padding:  4, width: "20%" }}> {row.dateAt} </td>
-                                  <td style={{ textAlign: "center", padding:  4, width: "30%" }}> {truncarText(row.paymentMethod, 15, true)} </td>
-                                  <td style={{ textAlign: "center", padding:  4, width: "15%" }}> 
-                                    <img 
-                                      src={row.voucherURL} 
-                                      alt={truncarText(tr("photo_voucher", lang), 10, true)} 
-                                      onClick={() => openNewTab("google.com.co")} 
-                                      style={{ margin: "auto", border: "0.5px solid #c2c2c2", width: 30, height: 30, borderRadius: "50%", cursor: "pointer", }}
-                                    /> 
-                                  </td>
-                                  <td style={{ textAlign: "center", padding:  4, width: "25%" }}> $ {row.total.toLocaleString()} </td>
+                                  <td style={{ textAlign: "center", padding:  4, width: "10%", fontSize: 13, }} colSpan={5}>  No hay registros </td>
                                 </tr>
-                              ))}
+                              ) : (
+                                filteredPayments.map((row: any, i: number) => (
+                                  <tr 
+                                    key={row.id}
+                                    style={{ 
+                                      borderTop: "1px solid #e7e4e4", borderBottom: "1px solid #e7e4e4",
+                                      paddingTop: 3, paddingBottom: 3,
+                                    }}
+                                  >
+                                    <td style={{ textAlign: "center", padding:  4, width: "10%", fontSize: 13, }}> {row.id} </td>
+                                    <td style={{ textAlign: "center", padding:  4, width: "20%", fontSize: 13, }}> {row.dateAt} </td>
+                                    <td style={{ textAlign: "center", padding:  4, width: "30%", fontSize: 13, }}> {truncarText(row.paymentMethodId == 1 ? "Efectivo" : "Efectivo", 15, true)} </td>
+                                    <td style={{ textAlign: "center", padding:  4, width: "15%", fontSize: 13, }}> 
+                                      <img 
+                                        src={`${uploadsFolder}/${row.voucherURL}`} 
+                                        alt={truncarText(tr("photo_voucher", lang), 10, true)} 
+                                        onClick={() => handleModalVoucher(`${uploadsFolder}/${row.voucherURL}`)} 
+                                        style={{ margin: "auto", border: "0.5px solid #c2c2c2", width: 30, height: 30, borderRadius: "50%", cursor: "pointer", }}
+                                      /> 
+                                    </td>
+                                    <td style={{ textAlign: "center", padding:  4, width: "25%", fontSize: 13, }}> $ {Number(row.total).toLocaleString()} </td>
+                                  </tr>
+                                ))
+                              )}
                             </tbody>
                           </table>
                         </div>
@@ -666,56 +706,28 @@ const CompaniesPage = () => {
                               <div
                                 key={p}
                                 style={{
-                                  display: "flex",
-                                  justifyContent: "center",
-                                  alignItems: "center",
-                                  border: "0.5px solid #c2c2c2",
-                                  width: 30,
-                                  height: 30,
-                                  borderRadius: "50%",
-                                  cursor: "pointer",
-                                  boxShadow:
-                                    historyPage === p
-                                      ? "inset 0 1px 20px rgba(135, 195, 223, 0.8)"
-                                      : "",
-                                  background:
-                                    historyPage === p
-                                      ? "rgb(185, 229, 250)"
-                                      : "#fff",
+                                  display: "flex", justifyContent: "center", alignItems: "center",
+                                  border: "0.5px solid #c2c2c2", width: 30, height: 30,
+                                  borderRadius: "50%", cursor: "pointer",
+                                  boxShadow: historyPage === p ? "inset 0 1px 20px rgba(135, 195, 223, 0.8)" : "",
+                                  background: historyPage === p ? "rgb(185, 229, 250)" : "#fff",
                                 }}
                                 onClick={() => handlePagination(p)}
-                                onMouseEnter={(e) =>
-                                  (e.currentTarget.style.background = "var(--bg)")
-                                }
-                                onMouseLeave={(e) =>
-                                  (e.currentTarget.style.background =
-                                    historyPage === p
-                                      ? "rgb(185, 229, 250)"
-                                      : "transparent")
-                                }
+                                onMouseEnter={(e) => e.currentTarget.style.background = "var(--bg)"}
+                                onMouseLeave={(e) => e.currentTarget.style.background = historyPage === p ? "rgb(185, 229, 250)" : "transparent"}
                               >
                                 <small>{p}</small>
                               </div>
                             ))}
-                            {maxNumVisible < totalPages && (
+                            {(maxNumVisible < totalPages) && (
                               <div
                                 style={{
-                                  display: "flex",
-                                  justifyContent: "center",
-                                  alignItems: "center",
-                                  border: "0.5px solid #c2c2c2",
-                                  width: 30,
-                                  height: 30,
-                                  paddingBottom: 0.5,
-                                  borderRadius: "50%",
-                                  cursor: "pointer",
+                                  display: "flex", justifyContent: "center", alignItems: "center",
+                                  border: "0.5px solid #c2c2c2", width: 30, height: 30, paddingBottom: 0.5,
+                                  borderRadius: "50%", cursor: "pointer",
                                 }}
-                                onMouseEnter={(e) =>
-                                  (e.currentTarget.style.background = "var(--bg)")
-                                }
-                                onMouseLeave={(e) =>
-                                  (e.currentTarget.style.background = "transparent")
-                                }
+                                onMouseEnter={(e) => e.currentTarget.style.background = "var(--bg)"}
+                                onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
                                 onClick={() => handlePagination(historyPage + 1, "nextDots")}
                               >
                                 <small>{'>'}</small>
@@ -739,89 +751,193 @@ const CompaniesPage = () => {
                               <small> » </small>
                             </div>
                           </div>
-                          <small> {tr("page", lang)} {historyPage} {tr("of", lang)} {totalPages} </small> 
+                          <small> {tr("page", lang)} {historyPage} {tr("of", lang)} {totalPages === 0 ? 1 : totalPages} </small> 
                         </div>
                       </>
                     ) : (
-                      <div>
-                        <div style={{ display: "flex", gap: 16, overflowY: "auto", flex: 1, padding: 20 }}>
-                          {[
-                            { lk: "payment_method", v: payment.paymentMethod, f: "paymentMethod" as const },
-                            { lk: "total", v: payment.total, f: "total" as const },
-                          ].map(({ lk, v, f }) => (
-                            <div key={f} style={{ width: "100%", }}>
-                              <label 
-                                style={{ 
-                                  display: "block", fontSize: 12, fontWeight: 600, color: "var(--text-muted)", 
-                                  marginBottom: 6, textTransform: "uppercase",
-                                }}
-                              >
-                                {tr(lk, lang)}
-                              </label>
-                              <input
-                                value={v}
-                                onChange={(e) => setPayment({ ...payment, [f]: e.target.value })}
-                                style={{ 
-                                  width: "100%", padding: "10px 14px", borderRadius: 8, 
-                                  border: "2px solid var(--border)", 
-                                  background: "var(--bg)", color: "var(--text-primary)", 
-                                  fontSize: 14, outline: "none", boxSizing: "border-box" 
-                                }}
-                                onFocus={(e) => e.target.style.borderColor = "#1A365D"}
-                                onBlur={(e) => e.target.style.borderColor = "var(--border)"}
-                              />
-                            </div>
-                          ))}
+                      !payment.available ? (
+                        <div style={{ width: "100%", height: "100%", display: "flex", justifyContent: "center", alignItems: "center", }}>
+                          <div style={{ width: "35%", display: "flex", justifyContent: "end", alignItems: "center", marginRight: 10, }}>
+                            <img src="./images/check.png" alt="image_check" style={{ width: "20%", }} />
+                          </div>
+                          <h3 style={{ width: "65%", float: "right", }}> {tr("payments_ok", lang)} </h3>
                         </div>
-                        <div
-                          style={{
-                            height: "100%",
-                            overflowY: "auto",
-                            overflowX: "hidden",
-                            padding: 20,
-                            boxSizing: "border-box",
-                          }}
-                        >
-                          <label
+                      ) : (
+                        <div>
+                          <div style={{ display: "flex", gap: 16, overflowY: "auto", flex: 1, padding: "10px 20px" }}>
+                            {[
+                              { lk: "payment_method", v: payment.paymentMethod, type: "select", f: "paymentMethod" as const },
+                              { lk: "total", v: payment.total, type: "text", f: "total" as const },
+                            ].map(({ lk, type, v, f }) => (
+                              <div key={f} style={{ width: "100%", }}>
+                                <label 
+                                  style={{ 
+                                    display: "block", fontSize: 12, fontWeight: 600, color: "var(--text-muted)", 
+                                    marginBottom: 6, textTransform: "uppercase",
+                                  }}
+                                >
+                                  {tr(lk, lang)}
+                                </label>
+                                {type == "select" ? (
+                                  <select
+                                    defaultValue=""
+                                    value={v}
+                                    onChange={(e) => setPayment({ ...payment, [f]: e.target.value })}
+                                    style={{
+                                      width: "100%", padding: "10px 14px", borderRadius: 8, borderWidth: "2px",
+                                      borderStyle: "solid", borderColor: "var(--border)", background: "var(--bg)", 
+                                      color: "var(--text-primary)", fontSize: 14, outline: "none", boxSizing: "border-box",
+                                    }}
+                                    onFocus={(e) => e.target.style.borderColor = "#1A365D"}
+                                    onBlur={(e) => e.target.style.borderColor = "var(--border)"}
+                                  >
+                                    <option value=""> -- {tr("select_payment_method", lang)} -- </option>
+                                    <option value="1"> 💸 {tr("cash", lang)} </option>
+                                    <option value="2"> 🧾 {tr("transfer", lang)} </option>
+                                    <option value="3"> 💳 {tr("debit_card", lang)} </option>
+                                    <option value="4"> 💳 {tr("credit_card", lang)} </option>
+                                  </select>
+                                ) : (
+                                  <input
+                                    value={`$ ${Number(v).toLocaleString()}`}
+                                    onChange={(e) => {
+                                      if (lk !== "total") setPayment({ ...payment, [f]: e.target.value})
+                                    }}
+                                    style={{ 
+                                      width: "100%", padding: "10px 14px", borderRadius: 8, 
+                                      border: "2px solid var(--border)", 
+                                      background: "var(--bg)", color: "var(--text-primary)", 
+                                      fontSize: 14, outline: "none", boxSizing: "border-box" 
+                                    }}
+                                    onFocus={(e) => e.target.style.borderColor = "#1A365D"}
+                                    onBlur={(e) => e.target.style.borderColor = "var(--border)"}
+                                    readOnly={lk === "total"}
+                                  />
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                          <div
                             style={{
-                              display: "block",
-                              fontSize: 12,
-                              fontWeight: 600,
-                              color: "var(--text-muted)",
-                              marginBottom: 6,
-                              textTransform: "uppercase",
+                              height: "100%",
+                              overflowY: "auto",
+                              overflowX: "hidden",
+                              padding: "0 20px",
+                              boxSizing: "border-box",
                             }}
                           >
-                            {tr("voucher", lang)}
-                          </label>
-
-                          <textarea
-                            value={payment.voucher}
-                            onChange={(e) =>
-                              setPayment({ ...payment, voucher: e.target.value })
-                            }
-                            style={{
-                              display: "block",
-                              width: "100%",
-                              maxWidth: "100%",
-                              height: "300px",
-                              padding: "10px 14px",
-                              borderRadius: 8,
-                              border: "2px solid var(--border)",
-                              background: "var(--bg)",
-                              color: "var(--text-primary)",
-                              fontSize: 14,
-                              outline: "none",
-                              boxSizing: "border-box",
-                              resize: "none",
-                            }}
-                          />
+                            <label
+                              style={{
+                                display: "block", fontSize: 12, color: "var(--text-muted)",
+                                fontWeight: 600, marginBottom: 6, textTransform: "uppercase",
+                              }}
+                            >
+                              {tr("voucher", lang)}
+                            </label>
+                            <input
+                              id="voucher"
+                              type="file"
+                              accept="image/*,.pdf"
+                              onChange={handleVoucherChange}
+                              hidden
+                            />
+                            <label htmlFor="voucher">
+                              <div
+                                style={{
+                                  display: "flex", justifyContent: "center", alignItems: "center", textAlign: "center",
+                                  width: "100%", maxWidth: "100%", height: "135px", borderRadius: 8,
+                                  border: "2px solid var(--border)", background: "var(--bg)", color: "var(--text-primary)", 
+                                  fontSize: 14, boxSizing: "border-box", cursor: "pointer", overflow: "hidden",
+                                }}
+                              >
+                                {voucherPreview ? (
+                                  payment.voucher?.type === "application/pdf" ? (
+                                    <iframe
+                                      src={voucherPreview}
+                                      title="Voucher PDF"
+                                      style={{ width: "100%", height: "100%", border: "none", }}
+                                    />
+                                  ) : (
+                                    <img
+                                      src={voucherPreview}
+                                      alt="Voucher"
+                                      style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: 5, }}
+                                    />
+                                  )
+                                ) : (
+                                  <div style={{
+                                    border: "2px dashed var(--border)", borderRadius: 10, padding: "4px", textAlign: "center",
+                                    cursor: "pointer", color: "var(--text-muted)", fontSize: 14, width: "100%", height: "100%",
+                                    transition: "border-color 0.2s, background 0.2s",
+                                  }}
+                                    onMouseEnter={(e) => { e.currentTarget.style.borderColor = "#1A365D"; e.currentTarget.style.background = "#EBF4FF"; }}
+                                    onMouseLeave={(e) => { e.currentTarget.style.borderColor = "var(--border)"; e.currentTarget.style.background = "transparent"; }}
+                                  >
+                                    <div style={{ fontSize: 36, marginBottom: 8 }}>📸</div>
+                                    <div>{tr("drag_drop", lang)}</div>
+                                    <div style={{ fontSize: 12, marginTop: 4, opacity: 0.7 }}>PNG, JPG · máx 5MB</div>
+                                  </div>
+                                )}
+                              </div>
+                            </label>
+                          </div>
+                          <div style={{ width: "100%", marginTop: 12, display: "flex", justifyContent: "center", alignItems: "center" }}>
+                            <button
+                              style={{
+                                borderRadius: 10, fontSize: 13, 
+                                border: `0.5px solid ${(!payment.paymentMethod || !payment.total) ? "#505050": "#08422f"}`, 
+                                color: (!payment.paymentMethod || !payment.total) ? "#505050" : "#08422f",
+                                cursor: (!payment.paymentMethod || !payment.total) ? "default" : "pointer",
+                                background: (!payment.paymentMethod || !payment.total) ? "#c2c2c2" : "#7dddbd",
+                                padding: "5px 15px", 
+                              }}
+                              disabled={!payment.paymentMethod || !payment.total}
+                              onClick={handlePaymentSubmit}
+                            >
+                              {tr("save_payment", lang)}
+                            </button>
+                          </div>
                         </div>
-                      </div>
+                      )
                     )}
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Voucher Modal */}
+      {(modalVoucherOpen && voucherPreview) &&  (
+        <div style={{
+          position: "fixed", inset: 0, background: "#00000060", zIndex: 200,
+          display: "flex", alignItems: "center", justifyContent: "center", 
+        }} onClick={(e) => { if (e.target === e.currentTarget) setModalOpen(false); }}>
+          <div className="animate-fade-in" style={{
+            background: "var(--bg-card)", borderRadius: 16, padding: "20px 32px", 
+            boxShadow: "0 25px 60px #00000040",
+          }}>
+            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10 }}>
+              <h3 
+                style={{ 
+                  margin: 0, fontSize: 18, fontWeight: 700, color: "var(--text-primary)", 
+                  fontFamily: "var(--font-display)", marginBottom: 10, 
+                }}
+              >
+                {tr("voucher", lang)}
+              </h3>
+              <button 
+                onClick={() => { setModalVoucherlOpen(false); setVoucherPreview(null) }} 
+                style={{ background: "none", border: "none", cursor: "pointer", color: "var(--text-muted)", fontSize: 20 }}
+              >×</button>
+            </div>
+            <div style={{ display: "flex", justifyContent: "center", alignItems: "center", }}>
+              <img
+                src={voucherPreview}
+                alt="Voucher"
+                style={{ width: "50%", height: "100%", objectFit: "cover", borderRadius: 5, }}
+              />
             </div>
           </div>
         </div>

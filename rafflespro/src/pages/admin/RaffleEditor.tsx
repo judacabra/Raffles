@@ -1,66 +1,99 @@
 import { useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { updateEditorDraft, setEditorStep, saveRaffle } from "../../store/slices/raffleSlice";
-import { setActiveView, addToast } from "../../store/slices/uiSlice";
+import { setEditorStep, } from "../../store/slices/raffleSlice";
+import { setActiveView, addToast, Language } from "../../store/slices/uiSlice";
 import { tr } from "../../i18n/translations";
+import { SetRaffle } from "../../api/raffleAPI";
 
-const THEMES = [
-  { id: "default", label: "Clásico", emoji: "🎰" },
-  { id: "christmas", label: "Navideña", emoji: "🎄" },
-  { id: "sports", label: "Deportiva", emoji: "⚽" },
-  { id: "lottery", label: "Lotería", emoji: "🎱" },
-];
+const Label = ({ children }: { children: React.ReactNode }) => 
+  <label 
+    style={{ 
+      display: "block", fontSize: 12, fontWeight: 600, 
+      color: "var(--text-muted)", textTransform: "uppercase", 
+      letterSpacing: "0.06em", marginBottom: 4 
+    }}
+  >
+    {children}
+  </label>;
 
-const FONTS = ["Inter", "Poppins", "Georgia", "JetBrains Mono", "Playfair Display"];
+const Input = (
+  { value, onChange, placeholder, type = "text" } : 
+  { value: string; onChange: (v: string) => void; placeholder?: string; type?: string }
+) => 
+  <input
+    type={type} value={value} onChange={(e) => onChange(e.target.value)}
+    placeholder={placeholder}
+    style={{
+      width: "100%", padding: "10px 14px", borderRadius: 8,
+      border: "2px solid var(--border)", background: "var(--bg)",
+      color: "var(--text-primary)", fontSize: 14, outline: "none",
+      fontFamily: "var(--font-sans)", boxSizing: "border-box", transition: "border-color 0.2s",
+    }}
+    onFocus={(e) => e.target.style.borderColor = "#1A365D"}
+    onBlur={(e) => e.target.style.borderColor = "var(--border)"}
+  />;
 
-function makeNumbers(total: number) {
-  const statuses = ["available", "available", "available", "sold", "reserved"] as const;
-  return Array.from({ length: total }, (_, i) => ({
-    num: i, status: statuses[i % 5], buyer: undefined, phone: undefined,
-  }));
-}
-
-export default function RaffleEditor() {
+const RaffleEditor = () => {
   const dispatch = useAppDispatch();
-  const lang = useAppSelector((s) => s.ui.language);
-  const step = useAppSelector((s) => s.raffle.editorStep);
-  const draft = useAppSelector((s) => s.raffle.editorDraft);
-  const [saving, setSaving] = useState(false);
 
-  const steps = [tr("step_data", lang), tr("step_numbers", lang), tr("step_design", lang)];
+  const THEMES: any[] = [
+    { id: "default", label: "Clásico", emoji: "🎰" },
+    { id: "christmas", label: "Navideña", emoji: "🎄" },
+    { id: "sports", label: "Deportiva", emoji: "⚽" },
+    { id: "lottery", label: "Lotería", emoji: "🎱" },
+  ];
 
-  function update(partial: Record<string, unknown>) {
-    dispatch(updateEditorDraft(partial as Parameters<typeof updateEditorDraft>[0]));
-  }
+  const FONTS: string[] = ["Inter", "Poppins", "Georgia", "JetBrains Mono", "Playfair Display"];
 
-  async function handleSave() {
-    setSaving(true);
-    await new Promise((r) => setTimeout(r, 800));
-    const total = draft.totalNumbers ?? 100;
-    dispatch(saveRaffle({
-      id: draft.id ?? "r" + Date.now(),
-      name: draft.name ?? "Nueva Rifa",
-      description: draft.description ?? "",
-      drawDate: draft.drawDate ?? new Date().toISOString(),
-      totalNumbers: total,
-      digits: draft.digits ?? 2,
-      pricePerNumber: draft.pricePerNumber ?? 10000,
-      status: "active",
-      theme: (draft.theme as "default") ?? "default",
-      fontFamily: draft.fontFamily ?? "Inter",
-      bgColor: draft.bgColor ?? "#1A365D",
-      numColor: draft.numColor ?? "#FFFFFF",
-      numbers: makeNumbers(total),
-      createdAt: new Date().toISOString().split("T")[0],
-    }));
-    dispatch(addToast({ type: "success", message: lang === "es" ? "¡Rifa guardada exitosamente!" : "Raffle saved successfully!" }));
-    setSaving(false);
-    dispatch(setActiveView("dashboard"));
-  }
+  const lang: Language = useAppSelector((s) => s.ui.language);
+  const step: number = useAppSelector((s) => s.raffle.editorStep);
+
+  const [loading, setLoading] = useState<boolean>(false);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [raffle, setRaffle] = useState<any>({companyId: 1, fontFamily: "Inter", bgColor: "#2e52bd", numColor: "#ffffff", totalNumbers: 100, });
+
+  const steps: string[] = [tr("step_data", lang), tr("step_numbers", lang), tr("step_design", lang)];
+
+  const handleSave = async(): Promise<void> => {
+    if (!raffle) return;
+
+    try {
+      setLoading(true);
+    
+      console.log(raffle)
+
+      const data = await SetRaffle(raffle);
+
+      if (!data.statusCode) {
+        dispatch(addToast({ type: "success", message: lang === "es" ? "¡Rifa guardada exitosamente!" : "Raffle saved successfully!" }));
+        setLoading(false);
+        dispatch(setActiveView("dashboard"));
+      } else {
+        dispatch(addToast({ type: "error", message: lang === "es" ? "Error al crear la rifa" : "Error saving raffle" }));
+      }
+    } catch (err: any) {
+      console.log(`Error al guardar la nueva rifa: `, err);
+    }
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+
+    if (!file) return;
+
+    // saveRaffle({ ...raffle, image: file, });
+
+    const previewURL: string = URL.createObjectURL(file);
+
+    setImagePreview(previewURL);
+  };
 
   const previewNums = Array.from({ length: 12 }, (_, i) => ({
     num: i,
-    status: ["available", "sold", "reserved", "available", "sold", "available", "winner", "available", "sold", "reserved", "available", "available"][i] as "available" | "sold" | "reserved" | "winner",
+    status: [
+      "available", "sold", "reserved", "available", "sold", "available", 
+      "winner", "available", "sold", "reserved", "available", "available"
+    ][i],
   }));
 
   return (
@@ -106,13 +139,13 @@ export default function RaffleEditor() {
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
             <div style={{ gridColumn: "1 / -1" }}>
               <Label>{tr("raffle_name_label", lang)} *</Label>
-              <Input value={draft.name ?? ""} onChange={(v) => update({ name: v })} placeholder="Gran Rifa Navideña 2024" />
+              <Input value={raffle.name ?? ""} onChange={(v) => setRaffle({ ...raffle, name: v })} placeholder="Gran Rifa Navideña" />
             </div>
             <div style={{ gridColumn: "1 / -1" }}>
               <Label>{tr("description", lang)}</Label>
               <textarea
-                value={draft.description ?? ""}
-                onChange={(e) => update({ description: e.target.value })}
+                value={raffle.description ?? ""}
+                onChange={(e) => setRaffle({ ...raffle, description: e.target.value })}
                 placeholder={lang === "es" ? "Describe los premios y condiciones..." : "Describe prizes and conditions..."}
                 rows={3}
                 style={{
@@ -127,26 +160,45 @@ export default function RaffleEditor() {
             </div>
             <div>
               <Label>{tr("draw_date_label", lang)} *</Label>
-              <Input type="datetime-local" value={draft.drawDate?.slice(0, 16) ?? ""} onChange={(v) => update({ drawDate: v })} />
+              <Input type="datetime-local" value={raffle.drawDate?.slice(0, 16) ?? ""} onChange={(v) => setRaffle({ ...raffle, drawDate: v })} />
             </div>
             <div>
               <Label>{tr("price_per_number", lang)}</Label>
-              <Input type="number" value={String(draft.pricePerNumber ?? 10000)} onChange={(v) => update({ pricePerNumber: Number(v) })} placeholder="10000" />
+              <Input type="number" value={String(raffle.pricePerNumber ?? 10000)} onChange={(v) => setRaffle({ ...raffle, pricePerNumber: Number(v) })} placeholder="10000" />
             </div>
             <div style={{ gridColumn: "1 / -1" }}>
               <Label>{tr("image", lang)}</Label>
-              <div style={{
-                border: "2px dashed var(--border)", borderRadius: 10, padding: "32px", textAlign: "center",
-                cursor: "pointer", color: "var(--text-muted)", fontSize: 14,
-                transition: "border-color 0.2s, background 0.2s",
-              }}
-                onMouseEnter={(e) => { e.currentTarget.style.borderColor = "#1A365D"; e.currentTarget.style.background = "#EBF4FF"; }}
-                onMouseLeave={(e) => { e.currentTarget.style.borderColor = "var(--border)"; e.currentTarget.style.background = "transparent"; }}
-              >
-                <div style={{ fontSize: 36, marginBottom: 8 }}>📸</div>
-                <div>{tr("drag_drop", lang)}</div>
-                <div style={{ fontSize: 12, marginTop: 4, opacity: 0.7 }}>PNG, JPG · máx 5MB</div>
-              </div>
+              <input
+                id="image"
+                type="file"
+                accept="image/png, image/jpg"
+                onChange={(e) => handleImageChange(e)}
+                hidden
+              />
+              <label htmlFor="image">
+                <div style={{
+                  border: "2px dashed var(--border)", borderRadius: 10, padding: "5px", textAlign: "center",
+                  cursor: "pointer", color: "var(--text-muted)", fontSize: 14,
+                  transition: "border-color 0.2s, background 0.2s",
+                }}
+                  onMouseEnter={(e) => { e.currentTarget.style.borderColor = "#1A365D"; e.currentTarget.style.background = "#EBF4FF"; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.borderColor = "var(--border)"; e.currentTarget.style.background = "transparent"; }}
+                >
+                  {imagePreview ? (
+                    <img
+                      src={imagePreview}
+                      alt="Voucher"
+                      style={{ width: "100%", maxHeight: "160px", objectFit: "cover", borderRadius: 10, }}
+                    />
+                  ) : (
+                    <>
+                      <div style={{ fontSize: 36, marginBottom: 8 }}>📸</div>
+                      <div>{tr("drag_drop", lang)}</div>
+                      <div style={{ fontSize: 12, marginTop: 4, opacity: 0.7 }}>PNG, JPG · máx 5MB</div>
+                    </>
+                  )}
+                </div>
+              </label>
             </div>
           </div>
         </div>
@@ -157,11 +209,14 @@ export default function RaffleEditor() {
         <div className="animate-fade-in" style={{ background: "var(--bg-card)", borderRadius: 12, padding: 32, boxShadow: "var(--shadow-sm)" }}>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 28 }}>
             <div>
-              <Label>{tr("total_numbers", lang)}: <strong style={{ color: "#1A365D" }}>{draft.totalNumbers ?? 100}</strong></Label>
+              <Label>{tr("total_numbers", lang)}: <strong style={{ color: "#1A365D" }}>{raffle.totalNumbers}</strong></Label>
               <input
-                type="range" min={10} max={10000} step={10}
-                value={draft.totalNumbers ?? 100}
-                onChange={(e) => update({ totalNumbers: Number(e.target.value) })}
+                type="range" 
+                min={10} 
+                max={10000} 
+                step={10}
+                value={raffle.totalNumbers}
+                onChange={(e) => setRaffle({ ...raffle, totalNumbers: Number(e.target.value) })}
                 style={{ width: "100%", accentColor: "#1A365D", marginTop: 8 }}
               />
               <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "var(--text-muted)", marginTop: 4 }}>
@@ -169,11 +224,11 @@ export default function RaffleEditor() {
               </div>
               <div style={{ display: "flex", gap: 8, marginTop: 12, flexWrap: "wrap" }}>
                 {[50, 100, 500, 1000, 5000].map((n) => (
-                  <button key={n} onClick={() => update({ totalNumbers: n })}
+                  <button key={n} onClick={() => setRaffle({ ...raffle, totalNumbers: n })}
                     style={{
                       padding: "4px 12px", borderRadius: 6, border: "1px solid var(--border)",
-                      background: draft.totalNumbers === n ? "#1A365D" : "var(--bg)",
-                      color: draft.totalNumbers === n ? "#fff" : "var(--text-secondary)",
+                      background: raffle.totalNumbers === n ? "#1A365D" : "var(--bg)",
+                      color: raffle.totalNumbers === n ? "#fff" : "var(--text-secondary)",
                       cursor: "pointer", fontSize: 12, fontWeight: 600,
                     }}>
                     {n}
@@ -185,12 +240,12 @@ export default function RaffleEditor() {
             <div>
               <Label>{tr("digits", lang)}</Label>
               <div style={{ display: "flex", gap: 10, marginTop: 8 }}>
-                {[2, 3, 4, 5].map((d) => (
-                  <button key={d} onClick={() => update({ digits: d })}
+                {[2, 3, 4, 5, 6].map((d) => (
+                  <button key={d} onClick={() => setRaffle({ ...raffle, digits: d })}
                     style={{
                       flex: 1, padding: "14px 8px", borderRadius: 8,
-                      border: `2px solid ${draft.digits === d ? "#1A365D" : "var(--border)"}`,
-                      background: draft.digits === d ? "#EBF4FF" : "var(--bg)",
+                      border: `2px solid ${raffle.digits === d ? "#1A365D" : "var(--border)"}`,
+                      background: raffle.digits === d ? "#EBF4FF" : "var(--bg)",
                       cursor: "pointer", textAlign: "center",
                     }}>
                     <div style={{ fontFamily: "var(--font-mono)", fontSize: 16, fontWeight: 700, color: "#1A365D" }}>
@@ -203,13 +258,13 @@ export default function RaffleEditor() {
               <div style={{ marginTop: 20, padding: 16, background: "var(--bg)", borderRadius: 8 }}>
                 <div style={{ fontSize: 12, color: "var(--text-muted)", marginBottom: 8 }}>{tr("digits_preview", lang)}</div>
                 <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                  {[0, 1, 47, (draft.totalNumbers ?? 100) - 1].map((n) => (
+                  {[0, 1, 47, (raffle.totalNumbers) - 1].map((n) => (
                     <span key={n} style={{
                       fontFamily: "var(--font-mono)", fontSize: 20, fontWeight: 700,
                       color: "#1A365D", background: "#C6F6D5", padding: "6px 12px",
                       borderRadius: 6,
                     }}>
-                      {String(n).padStart(draft.digits ?? 2, "0")}
+                      {String(n).padStart(raffle.digits, "0")}
                     </span>
                   ))}
                 </div>
@@ -228,11 +283,11 @@ export default function RaffleEditor() {
               <Label>{tr("theme", lang)}</Label>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginTop: 8 }}>
                 {THEMES.map((th) => (
-                  <button key={th.id} onClick={() => update({ theme: th.id })}
+                  <button key={th.id} onClick={() => setRaffle({ ...raffle, theme: th.id })}
                     style={{
                       padding: "12px 8px", borderRadius: 8, textAlign: "center",
-                      border: `2px solid ${draft.theme === th.id ? "#1A365D" : "var(--border)"}`,
-                      background: draft.theme === th.id ? "#EBF4FF" : "var(--bg)",
+                      border: `2px solid ${raffle.theme === th.id ? "#1A365D" : "var(--border)"}`,
+                      background: raffle.theme === th.id ? "#EBF4FF" : "var(--bg)",
                       cursor: "pointer",
                     }}>
                     <div style={{ fontSize: 24 }}>{th.emoji}</div>
@@ -244,7 +299,7 @@ export default function RaffleEditor() {
 
             <div>
               <Label>{tr("font", lang)}</Label>
-              <select value={draft.fontFamily ?? "Inter"} onChange={(e) => update({ fontFamily: e.target.value })}
+              <select value={raffle.fontFamily ?? "Inter"} onChange={(e) => setRaffle({ ...raffle, fontFamily: e.target.value })}
                 style={{
                   width: "100%", padding: "8px 12px", borderRadius: 8, border: "1px solid var(--border)",
                   background: "var(--bg)", color: "var(--text-primary)", fontSize: 14,
@@ -257,18 +312,18 @@ export default function RaffleEditor() {
             <div>
               <Label>{tr("bg_color", lang)}</Label>
               <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 6 }}>
-                <input type="color" value={draft.bgColor ?? "#1A365D"} onChange={(e) => update({ bgColor: e.target.value })}
+                <input type="color" value={raffle.bgColor ?? "#1A365D"} onChange={(e) => setRaffle({ ...raffle, bgColor: e.target.value })}
                   style={{ width: 48, height: 36, borderRadius: 6, border: "none", cursor: "pointer", padding: 2 }} />
-                <code style={{ fontSize: 13, color: "var(--text-secondary)", fontFamily: "var(--font-mono)" }}>{draft.bgColor ?? "#1A365D"}</code>
+                <code style={{ fontSize: 13, color: "var(--text-secondary)", fontFamily: "var(--font-mono)" }}>{raffle.bgColor ?? "#1A365D"}</code>
               </div>
             </div>
 
             <div>
               <Label>{tr("num_color", lang)}</Label>
               <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 6 }}>
-                <input type="color" value={draft.numColor ?? "#FFFFFF"} onChange={(e) => update({ numColor: e.target.value })}
+                <input type="color" value={raffle.numColor ?? "#FFFFFF"} onChange={(e) => setRaffle({ ...raffle, numColor: e.target.value })}
                   style={{ width: 48, height: 36, borderRadius: 6, border: "none", cursor: "pointer", padding: 2 }} />
-                <code style={{ fontSize: 13, color: "var(--text-secondary)", fontFamily: "var(--font-mono)" }}>{draft.numColor ?? "#FFFFFF"}</code>
+                <code style={{ fontSize: 13, color: "var(--text-secondary)", fontFamily: "var(--font-mono)" }}>{raffle.numColor ?? "#FFFFFF"}</code>
               </div>
             </div>
           </div>
@@ -279,31 +334,31 @@ export default function RaffleEditor() {
               {tr("live_preview", lang)}
             </div>
             <div style={{ borderRadius: 10, overflow: "hidden", boxShadow: "var(--shadow-md)" }}>
-              <div style={{ background: draft.bgColor ?? "#1A365D", padding: "16px 20px" }}>
-                <div style={{ color: "#FFFFFF", fontSize: 15, fontWeight: 700, fontFamily: draft.fontFamily ?? "Inter" }}>
-                  {draft.name || (lang === "es" ? "Nombre de la Rifa" : "Raffle Name")}
+              <div style={{ background: raffle.bgColor ?? "#1A365D", padding: "16px 20px" }}>
+                <div style={{ color: "#FFFFFF", fontSize: 15, fontWeight: 700, fontFamily: raffle.fontFamily ?? "Inter" }}>
+                  {raffle.name || (lang === "es" ? "Nombre de la Rifa" : "Raffle Name")}
                 </div>
                 <div style={{ color: "#FFFFFF99", fontSize: 12, marginTop: 4 }}>
-                  {draft.totalNumbers ?? 100} {lang === "es" ? "números" : "numbers"} · {draft.digits ?? 2} {lang === "es" ? "dígitos" : "digits"}
+                  {raffle.totalNumbers ?? 100} {lang === "es" ? "números" : "numbers"} · {raffle.digits ?? 2} {lang === "es" ? "dígitos" : "digits"}
                 </div>
               </div>
               <div style={{ background: "var(--bg)", padding: 16 }}>
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: 5 }}>
                   {previewNums.map((n) => {
-                    const statusStyle = {
+                    const statusStyle: any = {
                       available: { bg: "#C6F6D5", color: "#276749" },
                       reserved:  { bg: "#FEFCBF", color: "#975A16" },
                       sold:      { bg: "#FED7D7", color: "#9B2C2C" },
-                      winner:    { bg: draft.bgColor ?? "#1A365D", color: draft.numColor ?? "#FFFFFF", border: "2px solid #F6AD55" },
+                      winner:    { bg: raffle.bgColor, color: raffle.numColor ?? "#FFFFFF", border: "2px solid #F6AD55" },
                     }[n.status];
                     return (
                       <div key={n.num} style={{
                         borderRadius: 5, padding: "7px 4px", textAlign: "center",
                         background: statusStyle.bg, color: statusStyle.color,
-                        fontFamily: draft.fontFamily ?? "Inter", fontSize: 12, fontWeight: 700,
+                        fontFamily: raffle.fontFamily ?? "Inter", fontSize: 12, fontWeight: 700,
                         border: "border" in statusStyle ? statusStyle.border : "none",
                       }}>
-                        {String(n.num).padStart(draft.digits ?? 2, "0")}
+                        {String(n.num).padStart(raffle.digits, "0")}
                       </div>
                     );
                   })}
@@ -341,15 +396,15 @@ export default function RaffleEditor() {
         ) : (
           <button
             onClick={handleSave}
-            disabled={saving}
+            disabled={loading}
             style={{
               padding: "12px 28px", borderRadius: 8, border: "none",
-              background: saving ? "#A0AEC0" : "#48BB78", color: "#fff",
-              cursor: saving ? "not-allowed" : "pointer", fontSize: 14, fontWeight: 700,
-              boxShadow: saving ? "none" : "0 4px 12px #48BB7840",
+              background: loading ? "#A0AEC0" : "#48BB78", color: "#fff",
+              cursor: loading ? "not-allowed" : "pointer", fontSize: 14, fontWeight: 700,
+              boxShadow: loading ? "none" : "0 4px 12px #48BB7840",
             }}
           >
-            {saving ? tr("saving", lang) : "✓ " + tr("save", lang)}
+            {loading ? tr("saving", lang) : "✓ " + tr("save", lang)}
           </button>
         )}
       </div>
@@ -357,23 +412,4 @@ export default function RaffleEditor() {
   );
 }
 
-function Label({ children }: { children: React.ReactNode }) {
-  return <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 4 }}>{children}</label>;
-}
-
-function Input({ value, onChange, placeholder, type = "text" }: { value: string; onChange: (v: string) => void; placeholder?: string; type?: string }) {
-  return (
-    <input
-      type={type} value={value} onChange={(e) => onChange(e.target.value)}
-      placeholder={placeholder}
-      style={{
-        width: "100%", padding: "10px 14px", borderRadius: 8,
-        border: "2px solid var(--border)", background: "var(--bg)",
-        color: "var(--text-primary)", fontSize: 14, outline: "none",
-        fontFamily: "var(--font-sans)", boxSizing: "border-box", transition: "border-color 0.2s",
-      }}
-      onFocus={(e) => e.target.style.borderColor = "#1A365D"}
-      onBlur={(e) => e.target.style.borderColor = "var(--border)"}
-    />
-  );
-}
+export default RaffleEditor;

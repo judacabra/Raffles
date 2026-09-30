@@ -1,0 +1,1 @@
+export type NumberStatus = "available" | "reserved" | "sold" | "winner";
