@@ -1,13 +1,18 @@
 import { useState, useEffect } from "react";
 
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { setActiveView } from "../../store/slices/uiSlice";
+import { Language, setActiveView, Theme } from "../../store/slices/uiSlice";
 import { setActiveRaffle } from "../../store/slices/raffleSlice";
 
 import { tr } from "../../i18n/translations";
 
-function useCountdown(targetDate: string) {
-  const [time, setTime] = useState({ days: 0, hours: 0, mins: 0, secs: 0 });
+import { GetRaffles } from "../../api/raffleAPI";
+
+import { KPIs, StatusColor, Time } from "@/interfaces/dashboard.interfaces";
+import { Raffle, RaffleNumber } from "@/interfaces/raffle.interfaces";
+
+const useCountdown = (targetDate: string): Time => {
+  const [time, setTime] = useState<Time>({ days: 0, hours: 0, mins: 0, secs: 0 });
 
   useEffect(() => {
     function calc() {
@@ -29,42 +34,68 @@ function useCountdown(targetDate: string) {
     
     return () => clearInterval(id);
   }, [targetDate]);
+
   return time;
 }
 
-const statusColors: Record<string, { bg: string; color: string }> = {
+const statusColors: Record<string, StatusColor> = {
   active:    { bg: "#C6F6D5", color: "#276749" },
   draft:     { bg: "#E2E8F0", color: "#4A5568" },
   completed: { bg: "#BEE3F8", color: "#2C5282" },
   closed:    { bg: "#FED7D7", color: "#9B2C2C" },
 };
 
-export default function Dashboard() {
+const Dashboard = () => {
   const dispatch = useAppDispatch();
-  const lang = useAppSelector((s) => s.ui.language);
-  const theme = useAppSelector((s) => s.ui.theme);
-  const raffles = useAppSelector((s) => s.raffle.raffles);
 
-  const activeRaffles = raffles.filter((r) => r.status === "active" && new Date(r.drawDate).getTime() > Date.now());
-  const nextRaffle = [...activeRaffles].sort((a, b) => new Date(a.drawDate).getTime() - new Date(b.drawDate).getTime())[0];
+  const lang: Language = useAppSelector((s) => s.ui.language);
+  const theme: Theme = useAppSelector((s) => s.ui.theme);
+  // const raffles = useAppSelector((s) => s.raffle.raffles);
 
-  const countdown = useCountdown(nextRaffle?.drawDate);
+  const [rafflesFounded, setRafflesFounded] = useState<boolean>(false);
+  const [raffles, setRaffles] = useState<Raffle[]>([]);
+  const activeRaffles: Raffle[] = raffles ? raffles.filter((r: Raffle) => r.status === "active") : [];
+  
+  const nextRaffle: Raffle = [...activeRaffles].sort((a, b) => new Date(a.drawDate).getTime() - new Date(b.drawDate).getTime())[0];
 
-  const totalSold = raffles.reduce((sum, r) => sum + r.numbers.filter((n) => n.status === "sold").length, 0);
-  const soldToday = Math.floor(totalSold * 0.12);
-  const revenue = raffles.reduce((sum, r) => sum + r.numbers.filter((n) => n.status === "sold").length * r.pricePerNumber, 0);
+  const countdown: Time = useCountdown(nextRaffle?.drawDate);
 
-  const stats = [
+  const totalSold: number = raffles.reduce((sum, r) => sum + r.numbers.filter((n) => n.status === "sold").length, 0);
+  
+  const today = new Date().toISOString().split("T")[0];
+
+  const soldToday: number = raffles.flatMap((r: Raffle) => r.numbers)
+    .filter((n: RaffleNumber) => n.soldAt && n.soldAt.split("T")[0] === today)
+    .length;
+
+  const revenue: number = raffles.reduce((sum, r) => sum + r.numbers.filter((n) => n.status === "sold").length * r.pricePerNumber, 0);
+
+  const stats: KPIs[] = [
     { label: tr("active_raffles", lang), value: activeRaffles.length.toString(), icon: "🎟", color: "#1A365D", bg: "#EBF4FF" },
     { label: tr("sold_today", lang), value: soldToday.toString(), icon: "📈", color: "#276749", bg: "#F0FFF4" },
     { label: tr("total_sold", lang), value: totalSold.toLocaleString(), icon: "🎯", color: "#7B4F12", bg: "#FFFBEB" },
-    { label: tr("estimated_revenue", lang), value: `$${(revenue / 1000).toFixed(1)}K`, icon: "💰", color: "#553C9A", bg: "#FAF5FF" },
+    { label: tr("estimated_revenue", lang), value: `$${(revenue / 1000).toFixed(0)}K`, icon: "💰", color: "#553C9A", bg: "#FAF5FF" },
   ];
 
-  function openBoard(raffleId: string) {
-    dispatch(setActiveRaffle(raffleId));
+  const openBoard = (rId: string): void => {
+    dispatch(setActiveRaffle(rId));
     dispatch(setActiveView("board"));
   }
+
+  const fetchRaffles = async (idC: number): Promise<void> => {
+    try {
+      const data = await GetRaffles(idC);
+      setRaffles(data);
+    } catch (err: any) {
+      console.error(`Error al obtener las rifas de la empresa #${idC}`, err);
+    } finally {
+      setRafflesFounded(true);
+    }
+  };
+
+  useEffect(() => {
+    if (!rafflesFounded) fetchRaffles(1);
+  }, [rafflesFounded]);
 
   return (
     <div className="animate-fade-in" style={{ padding: 28, maxWidth: 1200, margin: "0 auto" }}>
@@ -231,3 +262,5 @@ export default function Dashboard() {
     </div>
   );
 }
+
+export default Dashboard;

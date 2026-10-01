@@ -84,8 +84,6 @@ const CompaniesPage = () => {
 
   const saveCompany = async (): Promise<void> => {
     if (!editing) return;
-    
-    console.log(editing)
 
     try {
       if (editing.id) {
@@ -302,8 +300,6 @@ const CompaniesPage = () => {
       }
     };
   }, [voucherPreview]);
-
-  console.log(companies)
 
   return (
     <div className="animate-fade-in" style={{ padding: 28, maxWidth: 1100, height: "90vh", margin: "0 auto" }}>

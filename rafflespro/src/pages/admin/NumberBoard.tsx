@@ -1,17 +1,27 @@
 import { useEffect, useState } from "react";
+
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { updateNumberStatus, setActiveRaffle, RaffleNumber, Raffle, } from "../../store/slices/raffleSlice";
-import { setActiveView, addToast } from "../../store/slices/uiSlice";
+import { setActiveView, addToast, Language } from "../../store/slices/uiSlice";
+
 import { tr } from "../../i18n/translations";
+
 import { GetRaffles } from "../../api/raffleAPI";
 import { SetSale } from "../../api/saleAPI";
-import { Sale } from "@/interfaces/numberBoard.interfaces";
+
 import { useIP } from "../../utils/useIP";
 
-export default function NumberBoard() {
+import { Sale } from "@/interfaces/numberBoard.interfaces";
+import { Raffle, RaffleNumber } from "@/interfaces/raffle.interfaces";
+
+
+const NumberBoard = () => {
   const dispatch = useAppDispatch();
 
-  const lang = useAppSelector((s) => s.ui.language);
+  const lang: Language = useAppSelector((s) => s.ui.language);
+
+  const user: any = {
+    id: 1,
+  };
 
   const { getIP } = useIP();
 
@@ -23,31 +33,44 @@ export default function NumberBoard() {
   const [activeRaffle, setActiveRaffle] = useState<any>(null);
 
   const [selected, setSelected] = useState<RaffleNumber[] | null>(null);
-  const [buyer, setBuyer] = useState("");
-  const [phone, setPhone] = useState("");
+  const [buyer, setBuyer] = useState<string>("");
+  const [phone, setPhone] = useState<string>("");
   const [filter, setFilter] = useState<"all" | "available" | "sold">("all");
-  const [search, setSearch] = useState("");
-  const [iframe, setIframe] = useState(false);
+  const [search, setSearch] = useState<string>("");
 
-  const total = selected && selected.length * activeRaffle.pricePerNumber;
+  const total: number | null = selected ? (selected.length * activeRaffle.pricePerNumber) : 0;
 
-  const nums =
-    activeRaffle && activeRaffle.numbers
-      ? activeRaffle.numbers.filter((n: any) => {
-          if (filter !== "all" && n.status !== filter) return false;
-          if (
-            search &&
-            !String(n.num).padStart(activeRaffle.digits, "0").includes(search)
-          )
-            return false;
-          return true;
-        })
-      : [];
+  const nums: any[] = activeRaffle
+    ? Array.from({ length: activeRaffle.totalNumbers }).map((_, i) => {
+        const num = String(i).padStart(activeRaffle.digits, "0");
+        const existing = activeRaffle.numbers?.find((x: any) => x.num === num);
 
-  const counts = {
+        return existing
+          ? { ...existing, id: i }
+          : {
+              id: i,
+              num,
+              status: "available",
+              buyer: "",
+              phone: "",
+              soldAt: null,
+            };
+      }).filter((n: any) => {
+        if (filter !== "all" && n.status !== filter) return false;
+        if (
+          search &&
+          !String(n.num).padStart(activeRaffle.digits, "0").includes(search)
+        )
+          return false;
+        return true;
+      })
+    : [];
+
+  const counts: any = {
     available:
       activeRaffle && activeRaffle.numbers
-        ? activeRaffle.numbers.filter((n: any) => n.status === "available")
+        ? activeRaffle.totalNumbers - 
+          activeRaffle.numbers.filter((n: any) => n.status === "sold")
             .length
         : 0,
     sold:
@@ -95,7 +118,7 @@ export default function NumberBoard() {
 
       const data = await SetSale(dataSend);
 
-      if (data.statusCode !== 500) {
+      if (!data.statusCode) {
         dispatch(addToast({ 
           type: "success", 
           message: `${tr("sale_confirmed", lang)} 
@@ -106,6 +129,7 @@ export default function NumberBoard() {
             }) → ${buyer}` 
         }));
 
+        setActiveRaffle(activeRaffle);
         setSelected(null);
         setBuyer("");
         setPhone("");
@@ -127,13 +151,8 @@ export default function NumberBoard() {
       : activeRaffle.totalNumbers <= 500 ? 10
         : 10 : 0;
 
-  const validateNumber = (value: string): boolean => {
-    return /^\d*$/.test(value);
-  };
-
-  const validatePhoneNumber = (value: string): boolean => {
-    return value.length < 11;
-  };
+  const validateNumber = (value: string): boolean => /^\d*$/.test(value);
+  const validatePhoneNumber = (value: string): boolean => value.length < 11;
 
   const fetchRaffles = async (idC: number): Promise<void> => {
     try {
@@ -201,34 +220,33 @@ export default function NumberBoard() {
         {/* Raffle selector */}
         <div
           style={{
-            marginBottom: 20,
-            display: "flex",
-            alignItems: "center",
-            gap: 12,
+            marginBottom: 20, display: "flex",
+            alignItems: "center", gap: 12,
             flexWrap: "wrap",
           }}
         >
-          <select
-            value={(selected && selected[0].num) ?? ""}
-            // onChange={(e) => dispatch(setActiveRaffle(e.target.value))}
-            onChange={() => {}}
-            style={{
-              padding: "8px 12px",
-              borderRadius: 8,
-              border: "1px solid var(--border)",
-              background: "var(--bg-card)",
-              color: "var(--text-primary)",
-              fontSize: 14,
-              fontFamily: "var(--font-sans)",
-              cursor: "pointer",
-            }}
-          >
-            {raffles.map((r) => (
-              <option key={r.id} value={r.id}>
-                {r.name}
-              </option>
-            ))}
-          </select>
+          {user && user.id == 1 && (
+            <select
+              value={activeRaffle.id}
+              onChange={(e) => setActiveRaffle(raffles.find((r: any) => r.id == e.target.value))}
+              style={{
+                padding: "8px 12px",
+                borderRadius: 8,
+                border: "1px solid var(--border)",
+                background: "var(--bg-card)",
+                color: "var(--text-primary)",
+                fontSize: 14,
+                fontFamily: "var(--font-sans)",
+                cursor: "pointer",
+              }}
+            >
+              {raffles.map((r) => (
+                <option key={r.id} value={r.id}>
+                  {r.name}
+                </option>
+              ))}
+            </select>
+          )}
           <input
             placeholder="Buscar número..."
             value={search}
@@ -265,7 +283,7 @@ export default function NumberBoard() {
                   boxShadow: filter === f ? "none" : "0 1px 2px #0000001A",
                 }}
               >
-                {f === "all" ? (lang === "es" ? "Todos" : "All") : tr(f, lang)}
+                {tr(f, lang)}
                 {f !== "all" && (
                   <span style={{ marginLeft: 4, opacity: 0.7 }}>
                     ({counts[f]})
@@ -331,8 +349,9 @@ export default function NumberBoard() {
           }}
         >
           {nums.map((n: any) => {
-            const label = String(n.num).padStart(activeRaffle.digits, "0");
-            const cls = selected?.includes(n) 
+            const label: string = String(n.num).padStart(activeRaffle.digits, "0");
+            const isSelected: boolean | undefined = selected?.some((s: any) => s.num === n.num);
+            const cls: string = isSelected  
               ? "num-reserved" 
               : n.status === "winner"
                 ? "num-winner"
@@ -342,7 +361,7 @@ export default function NumberBoard() {
 
             return (
               <button
-                key={n.num}
+                key={`_${n.num}`}
                 onClick={() => handleNumberClick(n)}
                 className={cls}
                 title={n.buyer ? `${n.buyer} · ${n.phone ?? ""}` : label}
@@ -603,3 +622,5 @@ export default function NumberBoard() {
     </div>
   );
 }
+
+export default NumberBoard;

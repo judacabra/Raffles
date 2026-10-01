@@ -86,8 +86,8 @@ function RafflesPage () {
           </div>
         ) : ( 
           filtered.map((r) => {
-            const badge = statusColors[r.status] ?? statusColors.draft;
-            const sold: number = 0;
+            const badge: any = statusColors[r.status] ?? statusColors.draft;
+            const sold: number = r.numbers.filter((n: any) => n.status === "sold").length;
             const pct: number = Math.round((sold / r.totalNumbers) * 100);
 
             return (
@@ -160,9 +160,17 @@ function RafflesPage () {
                       style={{ flex: 1, padding: "9px", borderRadius: 8, border: "none", background: "#1A365D", color: "#fff", cursor: "pointer", fontSize: 13, fontWeight: 600 }}>
                       {tr("view_board", lang)}
                     </button>
-                    <button onClick={() => { dispatch(setActiveView("editor")); dispatch(addToast({ type: "info", message: lang === "es" ? "Modo edición" : "Edit mode" })); }}
-                      style={{ padding: "9px 14px", borderRadius: 8, border: "1px solid var(--border)", background: "none", color: "var(--text-secondary)", cursor: "pointer", fontSize: 13 }}>
-                      ✏
+                    <button 
+                      onClick={() => { 
+                        dispatch(setActiveView("editor")); 
+                        dispatch(addToast({ type: "info", message: lang === "es" ? "Modo edición" : "Edit mode" })); 
+                      }}
+                      style={{ 
+                        padding: "9px 14px", borderRadius: 8, border: "1px solid var(--border)", 
+                        background: "none", color: "var(--text-secondary)", cursor: "pointer", fontSize: 13,
+                      }}
+                    >
+                      {tr("edit", lang)}
                     </button>
                   </div>
                 </div>

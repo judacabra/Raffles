@@ -4,9 +4,12 @@ import { appConfig } from "../config";
 
 const { baseURL } = appConfig;
 
+const token = localStorage.getItem('accessToken');
+
 const config: Object = {
   headers: {
-    'Content-Type': 'application/json',
+    'Content-Type': 'multipart/form-data',
+    'Authorization': `Bearer ${token}`,
   }
 };
 

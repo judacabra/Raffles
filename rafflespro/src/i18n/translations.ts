@@ -131,6 +131,7 @@ export const t: Record<string, Record<string, string>> = {
   o: { es: "o", en: "o" },
   new: { es: "Nuevo", en: "New" },
   date: { es: "Fecha", en: "Date" },
+  all: { es: "Todo", en: "All" },
 
 
   // Companies

@@ -50,7 +50,7 @@ const RaffleEditor = () => {
 
   const [loading, setLoading] = useState<boolean>(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [raffle, setRaffle] = useState<any>({companyId: 1, fontFamily: "Inter", bgColor: "#2e52bd", numColor: "#ffffff", totalNumbers: 100, });
+  const [raffle, setRaffle] = useState<any>({ companyId: 1, fontFamily: "Inter", bgColor: "#2e52bd", numColor: "#ffffff", totalNumbers: 100, digits: 2, });
 
   const steps: string[] = [tr("step_data", lang), tr("step_numbers", lang), tr("step_design", lang)];
 
@@ -59,20 +59,34 @@ const RaffleEditor = () => {
 
     try {
       setLoading(true);
-    
-      console.log(raffle)
+
+      const dataSend = new FormData();
+
+      dataSend.append('companyId', raffle.companyId);
+      dataSend.append('name', raffle.name);
+      dataSend.append('description', raffle.description);
+      dataSend.append('digits', raffle.digits);
+      dataSend.append('bgColor', raffle.bgColor);
+      dataSend.append('numColor', raffle.numColor);
+      dataSend.append('pricePerNumber', raffle.pricePerNumber);
+      dataSend.append('fontFamily', raffle.fontFamily);
+      dataSend.append('drawDate', raffle.drawDate);
+      dataSend.append('theme', raffle.theme);
+
+      if (raffle.image) dataSend.append('image', raffle.image);
 
       const data = await SetRaffle(raffle);
 
       if (!data.statusCode) {
         dispatch(addToast({ type: "success", message: lang === "es" ? "¡Rifa guardada exitosamente!" : "Raffle saved successfully!" }));
-        setLoading(false);
-        dispatch(setActiveView("dashboard"));
+        dispatch(setActiveView("raffles"));
       } else {
         dispatch(addToast({ type: "error", message: lang === "es" ? "Error al crear la rifa" : "Error saving raffle" }));
       }
     } catch (err: any) {
       console.log(`Error al guardar la nueva rifa: `, err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -81,7 +95,7 @@ const RaffleEditor = () => {
 
     if (!file) return;
 
-    // saveRaffle({ ...raffle, image: file, });
+    setRaffle({ ...raffle, image: file, });
 
     const previewURL: string = URL.createObjectURL(file);
 
@@ -95,6 +109,11 @@ const RaffleEditor = () => {
       "winner", "available", "sold", "reserved", "available", "available"
     ][i],
   }));
+
+  const calculateNumDigits = (n: number): number => {
+    if (n <= 100) return 2;
+    return Math.floor(Math.log10(n - 1)) + 1;
+  };
 
   return (
     <div className="animate-fade-in" style={{ padding: 28, maxWidth: 960, margin: "0 auto" }}>
@@ -209,29 +228,31 @@ const RaffleEditor = () => {
         <div className="animate-fade-in" style={{ background: "var(--bg-card)", borderRadius: 12, padding: 32, boxShadow: "var(--shadow-sm)" }}>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 28 }}>
             <div>
-              <Label>{tr("total_numbers", lang)}: <strong style={{ color: "#1A365D" }}>{raffle.totalNumbers}</strong></Label>
+              <Label>{tr("total_numbers", lang)}: <strong style={{ color: "#1A365D" }}> {raffle.totalNumbers} </strong></Label>
               <input
                 type="range" 
                 min={10} 
-                max={10000} 
+                max={100000} 
                 step={10}
                 value={raffle.totalNumbers}
                 onChange={(e) => setRaffle({ ...raffle, totalNumbers: Number(e.target.value) })}
                 style={{ width: "100%", accentColor: "#1A365D", marginTop: 8 }}
               />
               <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "var(--text-muted)", marginTop: 4 }}>
-                <span>10</span><span>100</span><span>1,000</span><span>10,000</span>
+                <span>10</span> <span>50</span> <span>100</span> <span>500</span>
+                <span>1.000</span> <span>5.000</span> <span>10.000</span> <span>50.000</span>
+                <span>100.000</span> <span>500.000</span> <span>1.000.000</span>
               </div>
               <div style={{ display: "flex", gap: 8, marginTop: 12, flexWrap: "wrap" }}>
-                {[50, 100, 500, 1000, 5000].map((n) => (
-                  <button key={n} onClick={() => setRaffle({ ...raffle, totalNumbers: n })}
+                {[10, 50, 100, 500, 1000, 5000, 10000, 50000, 100000, 500000, 1000000].map((n) => (
+                  <button key={n} onClick={() => setRaffle({ ...raffle, totalNumbers: n, digits: calculateNumDigits(n) })}
                     style={{
                       padding: "4px 12px", borderRadius: 6, border: "1px solid var(--border)",
                       background: raffle.totalNumbers === n ? "#1A365D" : "var(--bg)",
                       color: raffle.totalNumbers === n ? "#fff" : "var(--text-secondary)",
                       cursor: "pointer", fontSize: 12, fontWeight: 600,
                     }}>
-                    {n}
+                    {n.toLocaleString()}
                   </button>
                 ))}
               </div>
