@@ -1,7 +1,11 @@
+import { NavigateFunction, useNavigate } from "react-router-dom";
+
 import { selectCompany, logout, type Company, User } from "../../store/slices/authSlice";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { Language } from "../../store/slices/uiSlice";
+import { Language, } from "../../store/slices/uiSlice";
+
 import { tr } from "../../i18n/translations";
+
 import { appConfig } from "../../config";
 
 const planBadge: Record<string, string> = {
@@ -10,8 +14,10 @@ const planBadge: Record<string, string> = {
   enterprise: "#1A365D",
 };
 
-export default function CompanySelect() {
+const CompanySelect = () => {
   const dispatch = useAppDispatch();
+
+  const navigate: NavigateFunction = useNavigate();
 
   const lang: Language = useAppSelector((s) => s.ui.language);
   const user: User | null = useAppSelector((s) => s.auth.user);
@@ -37,7 +43,11 @@ export default function CompanySelect() {
             display: "inline-flex", alignItems: "center", justifyContent: "center",
             color: "#FFF", fontSize: 20, fontWeight: 700, marginBottom: 16,
           }}>
-            {user.avatar}
+            {user?.avatar.startsWith("uploads/") ? (
+              <img src={uploadsFolder + "/" + user?.avatar} style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "50%", }} />
+            ) : (
+              user?.avatar
+            )}
           </div>
           <h2 style={{ fontFamily: "var(--font-display)", fontSize: 22, fontWeight: 700, color: "#1A202C", margin: "0 0 8px" }}>
             {tr("select_company", lang)}
@@ -51,7 +61,10 @@ export default function CompanySelect() {
           {user.companies.map((company: Company) => (
             <button
               key={company.id}
-              onClick={() => dispatch(selectCompany(company))}
+              onClick={() => {
+                dispatch(selectCompany(company));
+                navigate("/dashboard", { replace: true });
+              }}
               style={{
                 display: "flex", alignItems: "center", gap: 16,
                 padding: "18px 20px", borderRadius: 12,
@@ -79,12 +92,12 @@ export default function CompanySelect() {
                 background: company.color + "20", fontSize: 24,
                 display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
               }}>
-                <img src={uploadsFolder + "/" + company.logoURL} alt="logo company" />
+                <img src={uploadsFolder + "/" + company.logoURL} alt="logo company" style={{ borderRadius: "50%", }} />
               </div>
               <div style={{ flex: 1 }}>
                 <div style={{ fontWeight: 600, fontSize: 15, color: "#1A202C" }}>{company.name}</div>
                 <div style={{ fontSize: 12, color: "#718096", marginTop: 2 }}>
-                  {user.email}
+                  {company.taxId}
                 </div>
               </div>
               <span style={{
@@ -99,7 +112,10 @@ export default function CompanySelect() {
         </div>
 
         <button
-          onClick={() => dispatch(logout())}
+          onClick={() => {
+            dispatch(logout());
+            navigate("/login", { replace: true });
+          }}
           style={{
             display: "block", width: "100%", marginTop: 24, padding: "10px",
             borderRadius: 8, border: "1px solid #E2E8F0", background: "none",
@@ -115,3 +131,5 @@ export default function CompanySelect() {
     </div>
   );
 }
+
+export default CompanySelect;

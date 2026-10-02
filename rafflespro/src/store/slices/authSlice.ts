@@ -3,6 +3,7 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 export interface Company {
   id: string;
   name: string;
+  taxId: string;
   logoURL: string;
   plan: "starter" | "pro" | "enterprise";
   color: string;

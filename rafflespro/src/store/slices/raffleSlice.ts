@@ -36,9 +36,6 @@ const raffleSlice = createSlice({
         }
       }
     },
-    setEditorStep(state, action: PayloadAction<number>) {
-      state.editorStep = action.payload;
-    },
     updateEditorDraft(state, action: PayloadAction<Partial<Raffle>>) {
       state.editorDraft = { ...state.editorDraft, ...action.payload };
     },
@@ -55,5 +52,5 @@ const raffleSlice = createSlice({
   },
 });
 
-export const { setActiveRaffle, updateNumberStatus, setEditorStep, updateEditorDraft, saveRaffle } = raffleSlice.actions;
+export const { setActiveRaffle, updateNumberStatus, updateEditorDraft, saveRaffle } = raffleSlice.actions;
 export default raffleSlice.reducer;

@@ -7,11 +7,14 @@ import { tr } from "../../i18n/translations";
 import { UserRow } from "@/interfaces/user.interfaces";
 
 import { GetUsers, PutUser, PutUserStatus, SetUser, DeleteUser } from "../../api/usersAPI";
+import { appConfig } from "../../config";
 
 const UsersPage = () => {
   const dispatch = useAppDispatch();
 
   const lang: Language = useAppSelector((s: any) => s.ui.language);
+  
+  const { uploadsFolder, } = appConfig;
 
   const roleColors: Record<string, { bg: string; color: string }> = {
     admin:  { bg: "#EBF4FF", color: "#2B6CB0", },
@@ -176,7 +179,14 @@ const UsersPage = () => {
                           display: "flex", alignItems: "center", justifyContent: "center",
                           color: "#fff", fontSize: 12, fontWeight: 700,
                         }}>
-                          {u.imageURL || u.username.split(" ").map((w) => w[0]).join("").slice(0, 2)}
+                          {u.imageURL && u.imageURL.startsWith("uploads/") ? (
+                            <img src={uploadsFolder + "/" + u.imageURL} style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "50%", }} />
+                          ) : (
+                            u.username.split(" ").map((w) => w[0]).join("").slice(0, 2)
+                          )}
+
+                          {/* {u.imageURL || u.username.split(" ").map((w) => w[0]).join("").slice(0, 2)} */}
+                        
                         </div>
                         <div>
                           <div style={{ fontWeight: 600, color: "var(--text-primary)" }}>{u.username}</div>

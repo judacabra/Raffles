@@ -7,7 +7,6 @@ interface UiState {
   theme: Theme;
   language: Language;
   sidebarOpen: boolean;
-  activeView: string;
   toasts: Toast[];
 }
 
@@ -26,7 +25,6 @@ const initialState: UiState = {
   theme: saved.theme,
   language: saved.language,
   sidebarOpen: true,
-  activeView: "dashboard",
   toasts: [],
 };
 
@@ -53,9 +51,6 @@ const uiSlice = createSlice({
     toggleSidebar(state) {
       state.sidebarOpen = !state.sidebarOpen;
     },
-    setActiveView(state, action: PayloadAction<string>) {
-      state.activeView = action.payload;
-    },
     addToast(state, action: PayloadAction<Omit<Toast, "id">>) {
       state.toasts.push({ ...action.payload, id: Date.now().toString() });
     },
@@ -67,6 +62,6 @@ const uiSlice = createSlice({
 
 export const {
   toggleTheme, setTheme, toggleLanguage, setLanguage,
-  toggleSidebar, setActiveView, addToast, removeToast,
+  toggleSidebar, addToast, removeToast,
 } = uiSlice.actions;
 export default uiSlice.reducer;

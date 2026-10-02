@@ -1,11 +1,20 @@
 import { useState } from "react";
-import { useAppDispatch, useAppSelector } from "../store/hooks";
-import { toggleTheme, toggleLanguage, toggleSidebar, Language, Theme } from "../store/slices/uiSlice";
+import { NavigateFunction, useNavigate } from "react-router-dom";
+
 import { logout, User } from "../store/slices/authSlice";
+import { useAppDispatch, useAppSelector } from "../store/hooks";
+import { toggleTheme, toggleLanguage, toggleSidebar, Language, Theme, } from "../store/slices/uiSlice";
+
 import { tr } from "../i18n/translations";
+
+import { appConfig } from "../config";
 
 export default function Header() {
   const dispatch = useAppDispatch();
+
+  const navigate: NavigateFunction = useNavigate();
+
+  const { uploadsFolder } = appConfig;
 
   const lang: Language = useAppSelector((s) => s.ui.language);
   const theme: Theme = useAppSelector((s) => s.ui.theme);
@@ -52,7 +61,7 @@ export default function Header() {
         <button
           onClick={() => dispatch(toggleLanguage())}
           style={{
-            padding: "6px 12px", borderRadius: 6, border: "1px solid var(--border)",
+            padding: "7.5px 10px", borderRadius: 6, border: "1px solid var(--border)",
             background: "var(--bg)", color: "var(--text-secondary)", cursor: "pointer",
             fontSize: 12, fontWeight: 700, fontFamily: "var(--font-mono)", letterSpacing: "0.05em",
           }}
@@ -73,6 +82,18 @@ export default function Header() {
           title={theme === "dark" ? "Modo Claro" : "Modo Oscuro"}
         >
           {theme === "dark" ? "☀️" : "🌙"}
+        </button>
+
+        <button
+          onClick={() => navigate("/select-company", { replace: true })}
+          style={{
+            padding: "5px 8px", borderRadius: 6, border: "1px solid var(--border)",
+            background: "var(--bg)", color: "var(--text-secondary)", cursor: "pointer",
+            fontSize: 15, fontWeight: 700, fontFamily: "var(--font-mono)", letterSpacing: "0.05em",
+          }}
+          title={tr("language_switch", lang)}
+        >
+          🏢
         </button>
 
         {/* Notifications */}
@@ -138,7 +159,11 @@ export default function Header() {
               display: "flex", alignItems: "center", justifyContent: "center",
               color: "#fff", fontSize: 11, fontWeight: 700,
             }}>
-              {user?.avatar}
+              {user?.avatar.startsWith("uploads/") ? (
+                <img src={uploadsFolder + "/" + user?.avatar} style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "50%", }} />
+              ) : (
+                user?.avatar
+              )}
             </div>
             <span style={{ fontSize: 13, fontWeight: 500, color: "var(--text-primary)", maxWidth: 120, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
               {user?.name}
@@ -173,7 +198,10 @@ export default function Header() {
               ))}
               <div style={{ borderTop: "1px solid var(--border)" }}>
                 <button
-                  onClick={() => dispatch(logout())}
+                  onClick={() => {
+                    dispatch(logout());
+                    navigate("/login", { replace: true });
+                  }}
                   style={{
                     display: "flex", alignItems: "center", gap: 10, width: "100%",
                     padding: "10px 16px", border: "none", background: "none", cursor: "pointer",

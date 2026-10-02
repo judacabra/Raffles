@@ -1,6 +1,9 @@
-import { useAppDispatch, useAppSelector } from "../store/hooks";
-import { setActiveView } from "../store/slices/uiSlice";
+import { Location, NavigateFunction, useLocation, useNavigate } from "react-router-dom";
+
+import { useAppSelector } from "../store/hooks";
+
 import { tr } from "../i18n/translations";
+
 
 const navItems = [
   { view: "dashboard", icon: "⊞", key: "dashboard" },
@@ -12,11 +15,12 @@ const navItems = [
 ];
 
 export default function Sidebar({ open }: { open: boolean }) {
-  const dispatch = useAppDispatch();
+  const navigate: NavigateFunction = useNavigate();
 
   const lang = useAppSelector((s) => s.ui.language);
-  const activeView = useAppSelector((s) => s.ui.activeView);
   const company = useAppSelector((s) => s.auth.activeCompany);
+
+  const location: Location = useLocation();
 
   return (
     <aside style={{
@@ -48,11 +52,12 @@ export default function Sidebar({ open }: { open: boolean }) {
       {/* Nav */}
       <nav style={{ flex: 1, padding: "12px 8px", display: "flex", flexDirection: "column", gap: 4 }}>
         {navItems.map((item) => {
-          const isActive = activeView === item.view;
+          const isActive = location.pathname.slice(1,location.pathname.length) == item.view;
+
           return (
             <button
               key={item.view}
-              onClick={() => dispatch(setActiveView(item.view))}
+              onClick={() => navigate(item.view)}
               title={open ? undefined : tr(item.key, lang)}
               style={{
                 display: "flex", alignItems: "center", gap: 12,
@@ -76,7 +81,7 @@ export default function Sidebar({ open }: { open: boolean }) {
       {/* Bottom */}
       <div style={{ padding: "12px 8px", borderTop: "1px solid #FFFFFF15" }}>
         <button
-          onClick={() => dispatch(setActiveView("settings"))}
+          onClick={() => navigate("/settings", { replace: true })}
           style={{
             display: "flex", alignItems: "center", gap: 12,
             padding: "10px 12px", borderRadius: 8, border: "none", cursor: "pointer",

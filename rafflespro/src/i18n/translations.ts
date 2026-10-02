@@ -87,6 +87,7 @@ export const t: Record<string, Record<string, string>> = {
   confirm: { es: "Confirmar", en: "Confirm" },
   sale_confirmed: { es: "¡Venta confirmada!", en: "Sale confirmed!" },
   proceed_to_payment : { es: "Ir a pagar", en: "Proceed to payment" },
+  no_active_raffles: { es: "No hay rifas activas.", en: "No active raffles." },
 
   // Users
   user_management: { es: "Gestión de Usuarios", en: "User Management" },
@@ -149,6 +150,7 @@ export const t: Record<string, Record<string, string>> = {
   expiratedDate: { es: "Fecha de expiración", en: "Expirated Date "},
 
   // Raffles
+  raffle_saved_successfully: { es: "¡Rifa guardada exitosamente!", en: "Raffle saved successfully!" },
   total_raffles: { es: "rifa(s) en total", en: "total raffles" },
   draw: { es: "Sorteo", en: "Draw" },
   numbers: { es: "Números", en: "Numbers" },
@@ -180,7 +182,15 @@ export const t: Record<string, Record<string, string>> = {
   transfer: { es: "Transferencia", en: "Transfer" }, 
   debit_card: { es: "Tarjeta debito", en: "Debit card" }, 
   credit_card: { es: "Tarjeta de credito ", en: "Credit card" }, 
-  payments_ok: { es: "Estas al día, no tienes pagos pendientes", en: "Payments up to date." }
+  payments_ok: { es: "Estas al día, no tienes pagos pendientes", en: "Payments up to date." },
+
+  // errors
+  user_inactive_please_contact_admin: { 
+    es: "Usuario inactivo, por favor comuniquese con el administrador de", 
+    en: "User inactive, please contact admin of" 
+  },
+  error_saving_raffle: { es: "Error al crear la rifa", en: "Error saving raffle" },
+
 };
 
 export function tr(key: string, lang: "es" | "en"): string {

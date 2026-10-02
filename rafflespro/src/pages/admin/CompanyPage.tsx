@@ -10,18 +10,20 @@ import { GetCompanyPayments, SetCompanyPayment } from "../../api/companyPayments
 import { CompanyRow } from "@/interfaces/company.interfaces";
 
 import { appConfig } from "../../config";
+
 import { truncarText } from "../../utils/format-words";
 
 const CompaniesPage = () => {
   const dispatch = useAppDispatch();
 
   const lang: Language = useAppSelector((s: any) => s.ui.language);
+  const company: any = useAppSelector((s) => s.auth.activeCompany);
 
   const { uploadsFolder, } = appConfig;
 
   const [companies, setCompanies] = useState<CompanyRow[]>([]);
   const [editing, setEditing] = useState<CompanyRow | null>(null);
-  const [payment, setPayment] = useState<any>({ total: 200000, available: false });
+  const [payment, setPayment] = useState<any>({ companyId: company.id, total: 200000, available: false });
   
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const [modalPaymentsOpen, setModalPaymentslOpen] = useState<boolean>(false);
@@ -241,7 +243,6 @@ const CompaniesPage = () => {
     if (!payment.paymentMethod || !payment.total) return;
     
     const dataSend = new FormData();
-    payment.companyId = 1;
 
     dataSend.append('companyId', payment.companyId);
     dataSend.append('paymentMethodId', `${payment.paymentMethod}`);
@@ -390,8 +391,8 @@ const CompaniesPage = () => {
                       {u.website ? (
                         <button 
                           style={{ 
-                            padding: 10, background: "rgb(162, 222, 245)", borderRadius: 10, cursor: "pointer", 
-                            boxShadow: "inset 0 1px 5px rgba(255, 255, 255, 0.8)", 
+                            padding: 10, background: "rgb(162, 222, 245)", borderRadius: 10, 
+                            cursor: "pointer", color: "#6e6e6e", 
                           }}
                           onClick={() => openNewTab(u.website!)}
                           onMouseEnter={(e) => (e.currentTarget.style.background = "rgb(101, 194, 228)", e.currentTarget.style.fontWeight = "bold")}

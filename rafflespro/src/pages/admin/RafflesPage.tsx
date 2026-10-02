@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 
-import { setActiveView, addToast, Language } from "../../store/slices/uiSlice";
+import { addToast, Language } from "../../store/slices/uiSlice";
 import { setActiveRaffle } from "../../store/slices/raffleSlice";
 
 import { tr } from "../../i18n/translations";
@@ -11,13 +11,17 @@ import { appConfig } from "../../config";
 import { GetRaffles } from "../../api/raffleAPI";
 
 import { Raffle } from "@/interfaces/raffle.interfaces";
+import { NavigateFunction, useNavigate } from "react-router-dom";
 
 function RafflesPage () {
   const dispatch = useAppDispatch();
 
+  const navigate: NavigateFunction = useNavigate();
+
   const { uploadsFolder } = appConfig;
-  
+
   const lang: Language = useAppSelector((s) => s.ui.language);
+  const company: any = useAppSelector((s) => s.auth.activeCompany);
 
   const [rafflesFounded, setRafflesFounded] = useState<boolean>(false);
   const [raffles, setRaffles] = useState<Raffle[]>([]);
@@ -42,11 +46,14 @@ function RafflesPage () {
 
   const openBoard = (id: string): void => {
     dispatch(setActiveRaffle(id));
-    dispatch(setActiveView("board"));
+    navigate("/board", { replace: true, state: { raffleSelected: id } });
   }
 
-  const openEditor = (): void => {
-    dispatch(setActiveView("editor"));
+  const openEditor = (r?: Raffle): void => {
+    const objEdit: any = { replace: true, state: {} };
+    if (r) objEdit.state.raffleSelected = r;
+
+    navigate("/raffles/editor", objEdit);
   }
 
   const fetchRaffles = async (idC: number): Promise<void> => {
@@ -55,12 +62,14 @@ function RafflesPage () {
       setRaffles(data);
     } catch (err: any) {
       console.error(`Error al obtener las rifas de la empresa #${idC}`, err);
+    } finally {
+      setRafflesFounded(true);
     }
   }
 
   useEffect(() => {
-    if (!rafflesFounded) fetchRaffles(1);
-  }, [rafflesFounded]);
+    if (!rafflesFounded) fetchRaffles(company.id);
+  }, [rafflesFounded, company]);
 
   return (
     <div className="animate-fade-in" style={{ padding: 28, maxWidth: 1100, margin: "0 auto" }}>
@@ -73,8 +82,14 @@ function RafflesPage () {
             {filtered.length > 0 && filtered.length + " " + tr("total_raffles" , lang)}
           </p>
         </div>
-        <button onClick={openEditor}
-          style={{ padding: "10px 20px", borderRadius: 8, border: "none", background: "#1A365D", color: "#fff", cursor: "pointer", fontSize: 14, fontWeight: 700, boxShadow: "0 4px 12px #1A365D40" }}>
+        <button 
+          onClick={() => openEditor()}
+          style={{ 
+            padding: "10px 20px", borderRadius: 8, border: "none", background: "#1A365D", 
+            color: "#fff", cursor: "pointer", fontSize: 14, fontWeight: 700, 
+            boxShadow: "0 4px 12px #1A365D40",
+          }}
+        >
           + {tr("new_raffle", lang)}
         </button>
       </div>
@@ -85,7 +100,7 @@ function RafflesPage () {
             {tr("no_raffles_found", lang)}
           </div>
         ) : ( 
-          filtered.map((r) => {
+          filtered.map((r: Raffle) => {
             const badge: any = statusColors[r.status] ?? statusColors.draft;
             const sold: number = r.numbers.filter((n: any) => n.status === "sold").length;
             const pct: number = Math.round((sold / r.totalNumbers) * 100);
@@ -162,7 +177,7 @@ function RafflesPage () {
                     </button>
                     <button 
                       onClick={() => { 
-                        dispatch(setActiveView("editor")); 
+                        openEditor(r); 
                         dispatch(addToast({ type: "info", message: lang === "es" ? "Modo edición" : "Edit mode" })); 
                       }}
                       style={{ 

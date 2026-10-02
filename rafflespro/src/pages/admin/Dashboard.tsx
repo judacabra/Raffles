@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { Language, setActiveView, Theme } from "../../store/slices/uiSlice";
+import { Language, Theme } from "../../store/slices/uiSlice";
 import { setActiveRaffle } from "../../store/slices/raffleSlice";
 
 import { tr } from "../../i18n/translations";
@@ -10,6 +10,7 @@ import { GetRaffles } from "../../api/raffleAPI";
 
 import { KPIs, StatusColor, Time } from "@/interfaces/dashboard.interfaces";
 import { Raffle, RaffleNumber } from "@/interfaces/raffle.interfaces";
+import { NavigateFunction, useNavigate } from "react-router-dom";
 
 const useCountdown = (targetDate: string): Time => {
   const [time, setTime] = useState<Time>({ days: 0, hours: 0, mins: 0, secs: 0 });
@@ -48,8 +49,11 @@ const statusColors: Record<string, StatusColor> = {
 const Dashboard = () => {
   const dispatch = useAppDispatch();
 
+  const navigate: NavigateFunction = useNavigate();
+
   const lang: Language = useAppSelector((s) => s.ui.language);
   const theme: Theme = useAppSelector((s) => s.ui.theme);
+  const company: any = useAppSelector((s) => s.auth.activeCompany);
   // const raffles = useAppSelector((s) => s.raffle.raffles);
 
   const [rafflesFounded, setRafflesFounded] = useState<boolean>(false);
@@ -62,7 +66,7 @@ const Dashboard = () => {
 
   const totalSold: number = raffles.reduce((sum, r) => sum + r.numbers.filter((n) => n.status === "sold").length, 0);
   
-  const today = new Date().toISOString().split("T")[0];
+  const today: string = new Date().toISOString().split("T")[0];
 
   const soldToday: number = raffles.flatMap((r: Raffle) => r.numbers)
     .filter((n: RaffleNumber) => n.soldAt && n.soldAt.split("T")[0] === today)
@@ -70,16 +74,24 @@ const Dashboard = () => {
 
   const revenue: number = raffles.reduce((sum, r) => sum + r.numbers.filter((n) => n.status === "sold").length * r.pricePerNumber, 0);
 
+  const getStringValue = (v: number): string => {
+    if (v < 1000) return v.toString();
+    if (v < 1_000_000) return `${Math.floor(v / 100) / 10}K`;
+    if (v < 1_000_000_000) return `${Math.floor(v / 100_000) / 10}M`;
+
+    return `${Math.floor(v / 100_000_000) / 10}B`;
+  };
+
   const stats: KPIs[] = [
     { label: tr("active_raffles", lang), value: activeRaffles.length.toString(), icon: "🎟", color: "#1A365D", bg: "#EBF4FF" },
-    { label: tr("sold_today", lang), value: soldToday.toString(), icon: "📈", color: "#276749", bg: "#F0FFF4" },
-    { label: tr("total_sold", lang), value: totalSold.toLocaleString(), icon: "🎯", color: "#7B4F12", bg: "#FFFBEB" },
-    { label: tr("estimated_revenue", lang), value: `$${(revenue / 1000).toFixed(0)}K`, icon: "💰", color: "#553C9A", bg: "#FAF5FF" },
+    { label: tr("sold_today", lang), value: soldToday.toString(), icon: "📈", color: "#276749", bg: "#EBF4FF" },
+    { label: tr("total_sold", lang), value: totalSold.toLocaleString(), icon: "🎯", color: "#7B4F12", bg: "#EBF4FF" },
+    { label: tr("estimated_revenue", lang), value: getStringValue(revenue), icon: "💰", color: "#553C9A", bg: "#EBF4FF" },
   ];
 
   const openBoard = (rId: string): void => {
     dispatch(setActiveRaffle(rId));
-    dispatch(setActiveView("board"));
+    navigate("/board", { replace: true, state: { raffleSelected: rId } });
   }
 
   const fetchRaffles = async (idC: number): Promise<void> => {
@@ -94,8 +106,8 @@ const Dashboard = () => {
   };
 
   useEffect(() => {
-    if (!rafflesFounded) fetchRaffles(1);
-  }, [rafflesFounded]);
+    if (!rafflesFounded) fetchRaffles(company.id);
+  }, [rafflesFounded, company]);
 
   return (
     <div className="animate-fade-in" style={{ padding: 28, maxWidth: 1200, margin: "0 auto" }}>
@@ -128,7 +140,8 @@ const Dashboard = () => {
               {tr("recent_raffles", lang)}
             </h2>
             <button
-              onClick={() => dispatch(setActiveView("raffles"))}
+              onClick={() => 
+                navigate("/raffles", { replace: true, })}
               style={{
                 padding: "6px 14px", borderRadius: 6, border: "none", cursor: "pointer",
                 background: "#1A365D", color: "#FFFFFF", fontSize: 13, fontWeight: 600,
@@ -150,7 +163,13 @@ const Dashboard = () => {
                 </tr>
               </thead>
               <tbody>
-                {raffles.map((r) => {
+                {raffles && raffles.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} style={{ textAlign: "center", padding: 15, }}>
+                      No hay registros
+                    </td>
+                  </tr>
+                ) : (raffles.map((r) => {
                   const badge = statusColors[r.status] ?? statusColors.draft;
                   const sold = r.numbers.filter((n) => n.status === "sold").length;
                   const pct = Math.round((sold / r.totalNumbers) * 100);
@@ -191,7 +210,7 @@ const Dashboard = () => {
                       </td>
                     </tr>
                   );
-                })}
+                }))}
               </tbody>
             </table>
           </div>

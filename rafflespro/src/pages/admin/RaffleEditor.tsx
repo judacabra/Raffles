@@ -1,9 +1,14 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { NavigateFunction, useLocation, useNavigate } from "react-router-dom";
+
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { setEditorStep, } from "../../store/slices/raffleSlice";
-import { setActiveView, addToast, Language } from "../../store/slices/uiSlice";
+import { addToast, Language } from "../../store/slices/uiSlice";
+
 import { tr } from "../../i18n/translations";
+
 import { SetRaffle } from "../../api/raffleAPI";
+
+import { appConfig } from "../../config";
 
 const Label = ({ children }: { children: React.ReactNode }) => 
   <label 
@@ -36,6 +41,27 @@ const Input = (
 const RaffleEditor = () => {
   const dispatch = useAppDispatch();
 
+  const navigate: NavigateFunction = useNavigate();
+
+  const { uploadsFolder } = appConfig;
+  
+  const company: any = useAppSelector((s) => s.auth.activeCompany);
+  const lang: Language = useAppSelector((s) => s.ui.language);
+
+  const location = useLocation();
+
+  const initRaffle: any = { 
+    companyId: company.id, 
+    name: "",
+    fontFamily: "Inter", 
+    bgColor: "#2e52bd", 
+    numColor: "#ffffff", 
+    totalNumbers: 100, 
+    digits: 2, 
+  };
+  
+  const raffleSelected: any = location.state.raffleSelected ? location.state.raffleSelected : initRaffle; 
+  
   const THEMES: any[] = [
     { id: "default", label: "Clásico", emoji: "🎰" },
     { id: "christmas", label: "Navideña", emoji: "🎄" },
@@ -45,14 +71,21 @@ const RaffleEditor = () => {
 
   const FONTS: string[] = ["Inter", "Poppins", "Georgia", "JetBrains Mono", "Playfair Display"];
 
-  const lang: Language = useAppSelector((s) => s.ui.language);
-  const step: number = useAppSelector((s) => s.raffle.editorStep);
-
   const [loading, setLoading] = useState<boolean>(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [raffle, setRaffle] = useState<any>({ companyId: 1, fontFamily: "Inter", bgColor: "#2e52bd", numColor: "#ffffff", totalNumbers: 100, digits: 2, });
+
+  const [raffle, setRaffle] = useState<any>(raffleSelected);
+  const [step, setStep] = useState<number>(0);
 
   const steps: string[] = [tr("step_data", lang), tr("step_numbers", lang), tr("step_design", lang)];
+
+  const previewNums = Array.from({ length: 12 }, (_, i) => ({
+    num: i,
+    status: [
+      "available", "sold", "reserved", "available", "sold", "available", 
+      "winner", "available", "sold", "reserved", "available", "available"
+    ][i],
+  }));
 
   const handleSave = async(): Promise<void> => {
     if (!raffle) return;
@@ -78,10 +111,10 @@ const RaffleEditor = () => {
       const data = await SetRaffle(raffle);
 
       if (!data.statusCode) {
-        dispatch(addToast({ type: "success", message: lang === "es" ? "¡Rifa guardada exitosamente!" : "Raffle saved successfully!" }));
-        dispatch(setActiveView("raffles"));
+        dispatch(addToast({ type: "success", message: tr("raffle_saved_successfully", lang) }));
+        navigate("/raffles", { replace: true });
       } else {
-        dispatch(addToast({ type: "error", message: lang === "es" ? "Error al crear la rifa" : "Error saving raffle" }));
+        dispatch(addToast({ type: "error", message: tr("error_saving_raffle", lang) }));
       }
     } catch (err: any) {
       console.log(`Error al guardar la nueva rifa: `, err);
@@ -102,27 +135,31 @@ const RaffleEditor = () => {
     setImagePreview(previewURL);
   };
 
-  const previewNums = Array.from({ length: 12 }, (_, i) => ({
-    num: i,
-    status: [
-      "available", "sold", "reserved", "available", "sold", "available", 
-      "winner", "available", "sold", "reserved", "available", "available"
-    ][i],
-  }));
-
   const calculateNumDigits = (n: number): number => {
     if (n <= 100) return 2;
     return Math.floor(Math.log10(n - 1)) + 1;
   };
 
+  useEffect(() => {
+    if (raffleSelected && raffleSelected.image) {
+      const previewURL: string = `${uploadsFolder}/${raffleSelected.image}`;
+      setImagePreview(previewURL);
+    }
+  }, [raffleSelected]);
+
   return (
     <div className="animate-fade-in" style={{ padding: 28, maxWidth: 960, margin: "0 auto" }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 28 }}>
         <h1 style={{ margin: 0, fontSize: 22, fontWeight: 800, color: "var(--text-primary)", fontFamily: "var(--font-display)" }}>
-          {tr("create_raffle", lang)}
+          {tr(raffleSelected && raffleSelected.id ? "edit_raffle" : "create_raffle", lang)}
         </h1>
-        <button onClick={() => dispatch(setActiveView("dashboard"))}
-          style={{ background: "none", border: "1px solid var(--border)", borderRadius: 8, padding: "8px 16px", cursor: "pointer", color: "var(--text-muted)", fontSize: 13 }}>
+        <button 
+          onClick={() => navigate("/raffles", { replace: true })}
+          style={{ 
+            background: "none", border: "1px solid var(--border)", borderRadius: 8, 
+            padding: "8px 16px", cursor: "pointer", color: "var(--text-muted)", fontSize: 13,
+          }}
+        >
           ← {tr("cancel", lang)}
         </button>
       </div>
@@ -131,7 +168,10 @@ const RaffleEditor = () => {
       <div style={{ display: "flex", alignItems: "center", marginBottom: 32 }}>
         {steps.map((s, i) => (
           <div key={s} style={{ display: "flex", alignItems: "center", flex: i < steps.length - 1 ? 1 : "none" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 10, cursor: "pointer" }} onClick={() => i < step && dispatch(setEditorStep(i))}>
+            <div 
+              style={{ display: "flex", alignItems: "center", gap: 10, cursor: "pointer" }} 
+              onClick={() => i < step && setStep(i)}
+            >
               <div style={{
                 width: 32, height: 32, borderRadius: "50%", flexShrink: 0,
                 background: i < step ? "#48BB78" : i === step ? "#1A365D" : "var(--border)",
@@ -158,12 +198,12 @@ const RaffleEditor = () => {
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
             <div style={{ gridColumn: "1 / -1" }}>
               <Label>{tr("raffle_name_label", lang)} *</Label>
-              <Input value={raffle.name ?? ""} onChange={(v) => setRaffle({ ...raffle, name: v })} placeholder="Gran Rifa Navideña" />
+              <Input value={raffle.name} onChange={(v) => setRaffle({ ...raffle, name: v })} placeholder="Gran Rifa Navideña" />
             </div>
             <div style={{ gridColumn: "1 / -1" }}>
               <Label>{tr("description", lang)}</Label>
               <textarea
-                value={raffle.description ?? ""}
+                value={raffle.description}
                 onChange={(e) => setRaffle({ ...raffle, description: e.target.value })}
                 placeholder={lang === "es" ? "Describe los premios y condiciones..." : "Describe prizes and conditions..."}
                 rows={3}
@@ -179,7 +219,7 @@ const RaffleEditor = () => {
             </div>
             <div>
               <Label>{tr("draw_date_label", lang)} *</Label>
-              <Input type="datetime-local" value={raffle.drawDate?.slice(0, 16) ?? ""} onChange={(v) => setRaffle({ ...raffle, drawDate: v })} />
+              <Input type="datetime-local" value={raffle.drawDate?.slice(0, 16)} onChange={(v) => setRaffle({ ...raffle, drawDate: v })} />
             </div>
             <div>
               <Label>{tr("price_per_number", lang)}</Label>
@@ -393,7 +433,7 @@ const RaffleEditor = () => {
       {/* Navigation buttons */}
       <div style={{ display: "flex", justifyContent: "space-between", marginTop: 28 }}>
         <button
-          onClick={() => dispatch(setEditorStep(Math.max(0, step - 1)))}
+          onClick={() => setStep(step - 1)}
           disabled={step === 0}
           style={{
             padding: "12px 24px", borderRadius: 8, border: "1px solid var(--border)",
@@ -405,7 +445,7 @@ const RaffleEditor = () => {
         </button>
         {step < 2 ? (
           <button
-            onClick={() => dispatch(setEditorStep(step + 1))}
+            onClick={() => setStep(step + 1)}
             style={{
               padding: "12px 28px", borderRadius: 8, border: "none",
               background: "#1A365D", color: "#fff", cursor: "pointer", fontSize: 14, fontWeight: 600,

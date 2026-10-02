@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { setActiveView, addToast, Language } from "../../store/slices/uiSlice";
+import { addToast, Language } from "../../store/slices/uiSlice";
 
 import { tr } from "../../i18n/translations";
 
@@ -12,16 +12,21 @@ import { useIP } from "../../utils/useIP";
 
 import { Sale } from "@/interfaces/numberBoard.interfaces";
 import { Raffle, RaffleNumber } from "@/interfaces/raffle.interfaces";
+import { NavigateFunction, useLocation, useNavigate } from "react-router-dom";
 
 
 const NumberBoard = () => {
+  const location = useLocation();
+
+  const { raffleSelected } = location.state || {};
+  
   const dispatch = useAppDispatch();
 
-  const lang: Language = useAppSelector((s) => s.ui.language);
+  const navigate: NavigateFunction = useNavigate();
 
-  const user: any = {
-    id: 1,
-  };
+  const lang: Language = useAppSelector((s) => s.ui.language);
+  const company: any = useAppSelector((s) => s.auth.activeCompany);
+  const user: any = useAppSelector((s) => s.auth.user);
 
   const { getIP } = useIP();
 
@@ -79,6 +84,12 @@ const NumberBoard = () => {
         : 0,
   };
 
+  const cols: number = activeRaffle
+    ? activeRaffle.totalNumbers <= 100 ? 10
+      : activeRaffle.totalNumbers <= 500 ? 10
+        : 10 : 0;
+
+  
   const handleNumberClick = (n: RaffleNumber): void => {
     if (n.status !== "available") return;
 
@@ -113,7 +124,7 @@ const NumberBoard = () => {
         totalPrice: total,
         ip: await getIP(),
         raffleId: activeRaffle.id,
-        companyId: 1,
+        companyId: company.id,
       };
 
       const data = await SetSale(dataSend);
@@ -134,7 +145,7 @@ const NumberBoard = () => {
         setBuyer("");
         setPhone("");
 
-        await fetchRaffles(1);
+        await fetchRaffles(company.id);
       } else {
         dispatch(addToast({ 
           type: "error", 
@@ -146,21 +157,19 @@ const NumberBoard = () => {
     }
   };
 
-  const cols: number = activeRaffle
-    ? activeRaffle.totalNumbers <= 100 ? 10
-      : activeRaffle.totalNumbers <= 500 ? 10
-        : 10 : 0;
-
   const validateNumber = (value: string): boolean => /^\d*$/.test(value);
   const validatePhoneNumber = (value: string): boolean => value.length < 11;
 
   const fetchRaffles = async (idC: number): Promise<void> => {
     try {
-      const data = await GetRaffles(idC);
+      const data: Raffle[] = await GetRaffles(idC);
       setRaffles(data);
 
-      const firstActive: any = data.find((r: any) => r.status === "active");
-      setActiveRaffle(firstActive);
+      const firstRaffle: Raffle | undefined = raffleSelected 
+        ? data.find((r: Raffle) => r.id === raffleSelected)
+        : data.find((r: Raffle) => r.status === "active");
+        
+      setActiveRaffle(firstRaffle);
     } catch (err: any) {
       console.error(`Error al obtener las rifas de la empresa #${idC}`, err);
     } finally {
@@ -169,27 +178,23 @@ const NumberBoard = () => {
   };
 
   useEffect(() => {
-    if (!rafflesFounded) fetchRaffles(1);
-  }, [rafflesFounded]);
+    if (!rafflesFounded) fetchRaffles(company.id);
+  }, [rafflesFounded, company]);
 
   if (!activeRaffle) {
     return (
       <div
         style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          height: 400,
-          gap: 16,
+          display: "flex", flexDirection: "column", alignItems: "center",
+          justifyContent: "center", height: 400, gap: 16,
         }}
       >
         <div style={{ fontSize: 48 }}>🎟</div>
         <p style={{ color: "var(--text-muted)", fontSize: 16 }}>
-          {lang === "es" ? "No hay rifas activas." : "No active raffles."}
+          {tr("no_active_raffles", lang)}
         </p>
         <button
-          onClick={() => dispatch(setActiveView("raffles"))}
+          onClick={() => navigate("/raffles", { replace: true })}
           style={{
             padding: "10px 20px",
             borderRadius: 8,

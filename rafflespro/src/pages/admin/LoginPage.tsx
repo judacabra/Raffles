@@ -1,12 +1,20 @@
 import { useState } from "react";
+import { NavigateFunction, useNavigate } from "react-router-dom";
+
+import { login, selectCompany } from "../../store/slices/authSlice";
+import { addToast, Language, } from "../../store/slices/uiSlice";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { login } from "../../store/slices/authSlice";
-import { addToast, Language } from "../../store/slices/uiSlice";
+
 import { tr } from "../../i18n/translations";
 import { Auth } from "../../api/authAPI";
+import { CONFIG } from "../../../config-global.ts";
 
 export default function LoginPage() {
+  const { appName } = CONFIG;
+
   const dispatch = useAppDispatch();
+
+  const navigate: NavigateFunction = useNavigate();
 
   const lang: Language = useAppSelector((s) => s.ui.language);
 
@@ -23,25 +31,30 @@ export default function LoginPage() {
     const data: any = await Auth({ email, password });
 
     if (data.token) {
-      const companies = [
-        ...data.userResponse.companies,
-        ...data.userResponse.companies
-      ];
-
-      const user: any = {
-        id: data.userResponse.id,
-        name: data.userResponse.username,
-        email: data.userResponse.email,
-        avatar: data.userResponse.imageURL ?? 
-          data.userResponse.username
-            .split(" ").map((w: any) => w[0])
-            .join("").slice(0, 2).toUpperCase(),
-        companies: companies,
-      };
-
-      dispatch(login({ user, email, password, rememberMe: remember }));
-      dispatch(addToast({ type: "success", message: tr("welcome_back", lang) }));
-
+      if (data.userResponse.isActive){
+        const user: any = {
+          id: data.userResponse.id,
+          name: data.userResponse.username,
+          email: data.userResponse.email,
+          avatar: data.userResponse.imageURL ?? 
+            data.userResponse.username
+              .split(" ").map((w: any) => w[0])
+              .join("").slice(0, 2).toUpperCase(),
+          companies: data.userResponse.companies,
+        };
+  
+        dispatch(login({ user, email, password, rememberMe: remember }));
+        dispatch(addToast({ type: "success", message: tr("welcome_back", lang) }));
+  
+        if (user.companies.length > 1) {
+          navigate("/select-company", { replace: true });
+        } else {
+          dispatch(selectCompany(user.companies[0]));
+          navigate("/dashboard", { replace: true });
+        }
+      } else {
+        dispatch(addToast({ type: "error", message: `${tr("user_inactive_please_contact_admin", lang)} ${appName}.` }));
+      }
     } else {
       dispatch(addToast({ type: "error", message: data.message }));
     }
@@ -143,7 +156,7 @@ export default function LoginPage() {
         </form>
 
         <p style={{ textAlign: "center", fontSize: 12, color: "#A0AEC0", marginTop: 24 }}>
-          © 2024 RifasPro · {lang === "es" ? "Todos los derechos reservados" : "All rights reserved"}
+          © 2026 RifasPro · {lang === "es" ? "Todos los derechos reservados" : "All rights reserved"}
         </p>
       </div>
     </div>
