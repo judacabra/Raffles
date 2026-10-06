@@ -13,6 +13,7 @@ const UsersPage = () => {
   const dispatch = useAppDispatch();
 
   const lang: Language = useAppSelector((s: any) => s.ui.language);
+  const company: any = useAppSelector((s) => s.auth.activeCompany);
   
   const { uploadsFolder, } = appConfig;
 
@@ -20,6 +21,14 @@ const UsersPage = () => {
     admin:  { bg: "#EBF4FF", color: "#2B6CB0", },
     seller: { bg: "#F0FFF4", color: "#276749", },
     viewer: { bg: "#FFFFF0", color: "#7B6B00", },
+  };
+
+  const initialUser: any = {
+    username: "", 
+    email: "", 
+    company: company.id, 
+    role: "seller", 
+    isActive: true,
   };
 
   const [users, setUsers] = useState<UserRow[]>([]);
@@ -40,7 +49,7 @@ const UsersPage = () => {
   }
 
   const openNew = (): void => {
-    setEditing({ username: "", email: "", company: "Rifas JC", role: "seller", isActive: false, });
+    setEditing(initialUser);
     setModalOpen(true);
   }
 
@@ -56,7 +65,7 @@ const UsersPage = () => {
     } catch (err: any) {
       console.error(`Error al ${(editing.id ? "actualizar" : "guardar")} el usuario: `, err);
     } finally {
-      await fetchUsers();
+      await fetchUsers(company.id);
 
       dispatch(addToast({ type: "success", message: tr("user_saved", lang) }));
 
@@ -70,7 +79,7 @@ const UsersPage = () => {
     } catch (err: any) {
       console.error(`Error al actualizar el estado del usuario: `, err);
     } finally {
-      await fetchUsers();
+      await fetchUsers(company.id);
 
       dispatch(addToast({ type: "success", message: tr("status_updated", lang) }));
     }
@@ -89,7 +98,7 @@ const UsersPage = () => {
     } catch (err: any) {
       console.error('Error al eliminar el usuario: ', err);
     } finally {
-      await fetchUsers();
+      await fetchUsers(company.id);
 
       dispatch(addToast({ type: "info", message: tr("user_deleted", lang) }));
 
@@ -97,9 +106,9 @@ const UsersPage = () => {
     }
   }
 
-  const fetchUsers = async (): Promise<void> => {
+  const fetchUsers = async (idC: number): Promise<void> => {
     try {
-      const data: UserRow[] = await GetUsers();
+      const data: UserRow[] = await GetUsers(idC);
       setUsers(data);
     } catch (err: any) {
       console.error('Error al obtener los usuarios: ', err);
@@ -109,8 +118,8 @@ const UsersPage = () => {
   }
 
   useEffect(() => {
-    if (!usersFounded) fetchUsers();
-  }, [usersFounded]);
+    if (!usersFounded) fetchUsers(company.id);
+  }, [usersFounded, company]);
 
   return (
     <div className="animate-fade-in" style={{ padding: 28, maxWidth: 1100, height: "90vh", margin: "0 auto" }}>

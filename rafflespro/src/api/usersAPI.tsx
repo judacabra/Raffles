@@ -8,7 +8,7 @@ const token = localStorage.getItem('accessToken');
 
 const config: Object = {
   headers: {
-    'Content-Type': 'application/json',
+    'Content-Type': 'multipart/form-data',
     'Authorization': `Bearer ${token}`,
   }
 };
@@ -25,9 +25,9 @@ export const SetUser = async(dataSend: any): Promise<any> => {
   }
 }
 
-export const GetUsers = async(): Promise<any> => {
+export const GetUsers = async(idC: number): Promise<any> => {
   try {
-    const { data } = await axios.get(`${baseURL}/users`);
+    const { data } = await axios.get(`${baseURL}/users/all/${idC}`);
 
     return data;
   } catch (error: any) {

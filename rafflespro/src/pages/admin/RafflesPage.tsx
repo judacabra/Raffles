@@ -67,6 +67,8 @@ function RafflesPage () {
     }
   }
 
+  console.log(company)
+
   useEffect(() => {
     if (!rafflesFounded) fetchRaffles(company.id);
   }, [rafflesFounded, company]);

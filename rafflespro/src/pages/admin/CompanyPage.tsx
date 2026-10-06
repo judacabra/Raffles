@@ -816,10 +816,7 @@ const CompaniesPage = () => {
                           </div>
                           <div
                             style={{
-                              height: "100%",
-                              overflowY: "auto",
-                              overflowX: "hidden",
-                              padding: "0 20px",
+                              height: "100%", overflowY: "auto", overflowX: "hidden", padding: "0 20px",
                               boxSizing: "border-box",
                             }}
                           >
@@ -839,13 +836,13 @@ const CompaniesPage = () => {
                               hidden
                             />
                             <label htmlFor="voucher">
-                              <div
-                                style={{
-                                  display: "flex", justifyContent: "center", alignItems: "center", textAlign: "center",
-                                  width: "100%", maxWidth: "100%", height: "135px", borderRadius: 8,
-                                  border: "2px solid var(--border)", background: "var(--bg)", color: "var(--text-primary)", 
-                                  fontSize: 14, boxSizing: "border-box", cursor: "pointer", overflow: "hidden",
-                                }}
+                              <div style={{
+                                border: "2px dashed var(--border)", borderRadius: 10, padding: "5px", textAlign: "center",
+                                cursor: "pointer", color: "var(--text-muted)", fontSize: 14, marginBottom: 1,
+                                transition: "border-color 0.2s, background 0.2s",
+                              }}
+                                onMouseEnter={(e) => { e.currentTarget.style.borderColor = "#1A365D"; e.currentTarget.style.background = "#EBF4FF"; }}
+                                onMouseLeave={(e) => { e.currentTarget.style.borderColor = "var(--border)"; e.currentTarget.style.background = "transparent"; }}
                               >
                                 {voucherPreview ? (
                                   payment.voucher?.type === "application/pdf" ? (
@@ -855,25 +852,33 @@ const CompaniesPage = () => {
                                       style={{ width: "100%", height: "100%", border: "none", }}
                                     />
                                   ) : (
-                                    <img
-                                      src={voucherPreview}
-                                      alt="Voucher"
-                                      style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: 5, }}
-                                    />
+                                     <div style={{ position: "relative", }}>
+                                      <img
+                                        src={voucherPreview}
+                                        alt="Voucher"
+                                        style={{ width: "100%", maxHeight: "120px", objectFit: "cover", borderRadius: 10, }}
+                                      />
+                                      <div 
+                                        style={{ 
+                                          borderRadius: "50%", padding: "1% 1% 1.25%", color: "#b61e1e", position: "absolute",
+                                          border: "0.5px solid #b61e1e", width: 30, height: 30, background: "#fff",
+                                          display: "flex", justifyContent: "center", alignItems: "center", top: 5, right: 5,
+                                          cursor: "pointer",
+                                        }}
+                                        title={tr("remove_image", lang)}
+                                        onClick={(e) => {
+                                          e.preventDefault();
+                                          setVoucherPreview(null);
+                                        }}
+                                      > x </div>
+                                    </div>
                                   )
                                 ) : (
-                                  <div style={{
-                                    border: "2px dashed var(--border)", borderRadius: 10, padding: "4px", textAlign: "center",
-                                    cursor: "pointer", color: "var(--text-muted)", fontSize: 14, width: "100%", height: "100%",
-                                    transition: "border-color 0.2s, background 0.2s",
-                                  }}
-                                    onMouseEnter={(e) => { e.currentTarget.style.borderColor = "#1A365D"; e.currentTarget.style.background = "#EBF4FF"; }}
-                                    onMouseLeave={(e) => { e.currentTarget.style.borderColor = "var(--border)"; e.currentTarget.style.background = "transparent"; }}
-                                  >
+                                  <>
                                     <div style={{ fontSize: 36, marginBottom: 8 }}>📸</div>
                                     <div>{tr("drag_drop", lang)}</div>
                                     <div style={{ fontSize: 12, marginTop: 4, opacity: 0.7 }}>PNG, JPG · máx 5MB</div>
-                                  </div>
+                                  </>
                                 )}
                               </div>
                             </label>

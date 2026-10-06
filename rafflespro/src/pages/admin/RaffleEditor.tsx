@@ -244,11 +244,26 @@ const RaffleEditor = () => {
                   onMouseLeave={(e) => { e.currentTarget.style.borderColor = "var(--border)"; e.currentTarget.style.background = "transparent"; }}
                 >
                   {imagePreview ? (
-                    <img
-                      src={imagePreview}
-                      alt="Voucher"
-                      style={{ width: "100%", maxHeight: "160px", objectFit: "cover", borderRadius: 10, }}
-                    />
+                    <div style={{ position: "relative", }}>
+                      <img
+                        src={imagePreview}
+                        alt={tr("previewImage", lang)}
+                        style={{ width: "100%", maxHeight: "160px", objectFit: "cover", borderRadius: 10, }}
+                      />
+                      <div 
+                        style={{ 
+                          borderRadius: "50%", padding: "1% 1% 1.25%", color: "#b61e1e", position: "absolute",
+                          border: "0.5px solid #b61e1e", width: 30, height: 30, background: "#fff",
+                          display: "flex", justifyContent: "center", alignItems: "center", top: 10, right: 10,
+                          cursor: "pointer",
+                        }}
+                        title={tr("remove_image", lang)}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setImagePreview(null);
+                        }}
+                      > x </div>
+                    </div>
                   ) : (
                     <>
                       <div style={{ fontSize: 36, marginBottom: 8 }}>📸</div>

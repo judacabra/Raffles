@@ -100,7 +100,7 @@ export default function LoginPage() {
               style={{
                 width: "100%", padding: "12px 16px", border: "2px solid #E2E8F0",
                 borderRadius: 8, fontSize: 15, outline: "none", fontFamily: "var(--font-sans)",
-                transition: "border-color 0.2s", boxSizing: "border-box",
+                transition: "border-color 0.2s", boxSizing: "border-box", color: "#1A202C",
               }}
               onFocus={(e) => e.target.style.borderColor = "#1A365D"}
               onBlur={(e) => e.target.style.borderColor = "#E2E8F0"}
@@ -121,7 +121,7 @@ export default function LoginPage() {
               style={{
                 width: "100%", padding: "12px 16px", border: "2px solid #E2E8F0",
                 borderRadius: 8, fontSize: 15, outline: "none", fontFamily: "var(--font-sans)",
-                transition: "border-color 0.2s", boxSizing: "border-box",
+                transition: "border-color 0.2s", boxSizing: "border-box", color: "#1A202C",
               }}
               onFocus={(e) => e.target.style.borderColor = "#1A365D"}
               onBlur={(e) => e.target.style.borderColor = "#E2E8F0"}

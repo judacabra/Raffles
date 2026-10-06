@@ -20,8 +20,19 @@ export default function Header() {
   const theme: Theme = useAppSelector((s) => s.ui.theme);
   const user: User | null = useAppSelector((s) => s.auth.user);
 
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [notifOpen, setNotifOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState<boolean>(false);
+  const [notifOpen, setNotifOpen] = useState<boolean>(false);
+  const [text, setText] = useState<string>("");
+
+  const handleSearch = (txt: string): void => {
+    const text: string = encodeURIComponent(txt);
+    setText(text);
+  };
+
+  const goToSearch = (): void => {
+    navigate(`search?text=${text}`, { replace: true });
+    setText("");
+  };
 
   return (
     <header style={{
@@ -43,16 +54,36 @@ export default function Header() {
         </button>
         <div style={{ position: "relative" }}>
           <input
+            value={text}
             placeholder={tr("search", lang)}
             aria-label={tr("search", lang)}
             style={{
               padding: "8px 16px 8px 36px", borderRadius: 8,
               border: "1px solid var(--border)", background: "var(--bg)",
               color: "var(--text-primary)", fontSize: 14, outline: "none", width: 260,
-              fontFamily: "var(--font-sans)",
+              fontFamily: "var(--font-sans)", marginLeft: 5,
             }}
+            onChange={(e) => handleSearch(e.target.value)}
+            onKeyDown={(e) => { if (e.key === "Enter") goToSearch() }}
           />
-          <span style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "var(--text-muted)", pointerEvents: "none" }}>🔍</span>
+          {text && 
+            <button 
+              style={{ 
+                position: "absolute", right: 10, top: 5, border: "solid .5px #c2c2c2", 
+                padding: "1px 7px 2px", borderRadius: 20, marginBottom: 5, color: "#c2c2c2",
+                cursor: "pointer", 
+              }}
+              title={tr("send", lang)}
+              onClick={goToSearch}
+              onMouseEnter={(e) => ([e.currentTarget.style.borderColor = "#5272db", e.currentTarget.style.color = "#5272db",] )}
+              onMouseLeave={(e) => ([e.currentTarget.style.borderColor = "#c2c2c2", e.currentTarget.style.color = "#c2c2c2", ])}
+            > ➤ </button>}
+          <span 
+            style={{ 
+              position: "absolute", left: 12, top: "50%", 
+              transform: "translateY(-50%)", color: "var(--text-muted)", pointerEvents: "none", 
+            }}
+          > 🔍 </span>
         </div>
       </div>
 
@@ -182,14 +213,20 @@ export default function Header() {
                 <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 2 }}>{user?.email}</div>
               </div>
               {[
-                { label: tr("my_profile", lang), icon: "👤" },
-                { label: tr("settings", lang), icon: "⚙" },
+                { label: tr("my_profile", lang), icon: "👤", url: "profile" },
+                { label: tr("settings", lang), icon: "⚙", url: "settings" },
               ].map((item) => (
-                <button key={item.label} style={{
-                  display: "flex", alignItems: "center", gap: 10, width: "100%",
-                  padding: "10px 16px", border: "none", background: "none", cursor: "pointer",
-                  fontSize: 13, color: "var(--text-primary)", fontFamily: "var(--font-sans)", textAlign: "left",
-                }}
+                <button 
+                  key={item.label} 
+                  style={{
+                    display: "flex", alignItems: "center", gap: 10, width: "100%",
+                    padding: "10px 16px", border: "none", background: "none", cursor: "pointer",
+                    fontSize: 13, color: "var(--text-primary)", fontFamily: "var(--font-sans)", textAlign: "left",
+                  }}
+                  onClick={() => {
+                    navigate(`/${item.url}`, { replace: true });
+                    setMenuOpen(false);
+                  }}
                   onMouseEnter={(e) => (e.currentTarget.style.background = "var(--bg)")}
                   onMouseLeave={(e) => (e.currentTarget.style.background = "none")}
                 >

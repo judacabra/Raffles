@@ -133,7 +133,9 @@ export const t: Record<string, Record<string, string>> = {
   new: { es: "Nuevo", en: "New" },
   date: { es: "Fecha", en: "Date" },
   all: { es: "Todo", en: "All" },
-
+  username: { es: "Nombre de usuario", en: "Username" },
+  language_switch: { es: "Cambiar a ingles", en: "Switch to spanish" },
+  sought: { es: "Buscado", en: "Sought" },
 
   // Companies
   new_company: { es: "Nueva Empresa", en: "New Company "},
@@ -162,8 +164,6 @@ export const t: Record<string, Record<string, string>> = {
     en: "An error occurred during the purchase, please try again.." 
   },
 
-  language_switch: { es: "Cambiar a ingles", en: "Switch to spanish" },
-
   // Payments
   payments: { es: "Pagos", en: "Payments" },
   history_payments: { es: "Historial de pagos", en: "History payments" },
@@ -184,13 +184,19 @@ export const t: Record<string, Record<string, string>> = {
   credit_card: { es: "Tarjeta de credito ", en: "Credit card" }, 
   payments_ok: { es: "Estas al día, no tienes pagos pendientes", en: "Payments up to date." },
 
+  // images
+  remove_image: { es: "Quitar imagen", en: "Remove image" },
+
   // errors
   user_inactive_please_contact_admin: { 
     es: "Usuario inactivo, por favor comuniquese con el administrador de", 
     en: "User inactive, please contact admin of" 
   },
   error_saving_raffle: { es: "Error al crear la rifa", en: "Error saving raffle" },
-
+  please_write_something_for_search: { 
+    es: "Por favor escribe alguna palabra para realizar la busqueda.", 
+    en: "please_write_something_for_search" 
+  },
 };
 
 export function tr(key: string, lang: "es" | "en"): string {

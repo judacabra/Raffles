@@ -9,6 +9,8 @@ import NumberBoard from "../pages/admin/NumberBoard";
 import UsersPage from "../pages/admin/UsersPage";
 import LogsPage from "../pages/admin/LogsPage";
 import CompaniesPage from "../pages/admin/CompanyPage";
+import ProfilePage from "../pages/admin/ProfilePage";
+import SearchPage from "../pages/admin/SearchPage";
 
 import ProtectedRoute from "./ProtectedRouted";
 import AppShell from "./AppShell";
@@ -35,6 +37,8 @@ export default function AppRouter() {
           <Route path="/board" element={<NumberBoard />} />
           <Route path="/users" element={<UsersPage />} />
           <Route path="/logs" element={<LogsPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/search" element={<SearchPage />} />
         </Route>
       </Route>
 
