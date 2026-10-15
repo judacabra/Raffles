@@ -26,7 +26,7 @@ const UsersPage = () => {
   const initialUser: any = {
     username: "", 
     email: "", 
-    company: company.id, 
+    companyId: company.id, 
     role: "seller", 
     isActive: true,
   };
@@ -36,6 +36,12 @@ const UsersPage = () => {
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const [usersFounded, setUsersFounded] = useState<boolean>(false);
   const [search, setSearch] = useState<string>("");
+
+  const ROLES: any[] = [
+    { id: 1, name: "admin", }, 
+    { id: 2, name: "seller", }, 
+    { id: 3, name: "viewer", },
+  ];
 
   const filtered: UserRow[] = users.length > 0 
     ? users.filter((u) =>
@@ -56,11 +62,20 @@ const UsersPage = () => {
   const saveUser = async (): Promise<void> => {
     if (!editing) return;
     
+    const { role, ...rest } = editing;
+
+    const dataSend = {
+      ...rest,
+      roleId: ROLES.find((r: any) => r.name === role)?.id,
+    };
+
+    console.log(dataSend);
+
     try {
-      if (editing.id) {
-        await PutUser(editing.id, editing);
+      if (dataSend.id) {
+        await PutUser(dataSend.id, dataSend);
       } else {
-        await SetUser(editing);
+        await SetUser(dataSend);
       }
     } catch (err: any) {
       console.error(`Error al ${(editing.id ? "actualizar" : "guardar")} el usuario: `, err);
@@ -71,7 +86,7 @@ const UsersPage = () => {
 
       setModalOpen(false);
     }
-  }
+  };
 
   const changeUserStatus = async (id: number, status: boolean): Promise<void> => {
     try {
@@ -83,14 +98,14 @@ const UsersPage = () => {
 
       dispatch(addToast({ type: "success", message: tr("status_updated", lang) }));
     }
-  }
+  };
 
   const toggleActive = async (id: number): Promise<void> => {
     const user = users.find((u: UserRow) => u.id === id);
     if (!user) return;
 
     await changeUserStatus(id, !user.isActive);
-  }
+  };
 
   const deleteUser = async (id: number): Promise<void> => {
     try {
@@ -104,7 +119,7 @@ const UsersPage = () => {
 
       setModalOpen(false);
     }
-  }
+  };
 
   const fetchUsers = async (idC: number): Promise<void> => {
     try {
@@ -115,7 +130,7 @@ const UsersPage = () => {
     } finally {
       setUsersFounded(true);
     }
-  }
+  };
 
   useEffect(() => {
     if (!usersFounded) fetchUsers(company.id);
@@ -172,9 +187,8 @@ const UsersPage = () => {
                 <td colSpan={5} style={{ padding: "14px 16px", textAlign: "center", }}>No hay registros</td>
               </tr>
             ) : (
-              filtered.map((u) => {
-              const rc = roleColors[u.role];
-              
+              filtered.map((u: UserRow) => {
+                const rc = roleColors[u.role];
                 return (
                   <tr key={u.id} style={{ borderBottom: "1px solid var(--border)", transition: "background 0.15s" }}
                     onMouseEnter={(e) => (e.currentTarget.style.background = "var(--bg)")}
@@ -189,13 +203,13 @@ const UsersPage = () => {
                           color: "#fff", fontSize: 12, fontWeight: 700,
                         }}>
                           {u.imageURL && u.imageURL.startsWith("uploads/") ? (
-                            <img src={uploadsFolder + "/" + u.imageURL} style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "50%", }} />
+                            <img 
+                              src={uploadsFolder + "/" + u.imageURL} 
+                              style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "50%", }} 
+                            />
                           ) : (
                             u.username.split(" ").map((w) => w[0]).join("").slice(0, 2)
                           )}
-
-                          {/* {u.imageURL || u.username.split(" ").map((w) => w[0]).join("").slice(0, 2)} */}
-                        
                         </div>
                         <div>
                           <div style={{ fontWeight: 600, color: "var(--text-primary)" }}>{u.username}</div>
@@ -287,17 +301,20 @@ const UsersPage = () => {
               <div>
                 <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "var(--text-muted)", marginBottom: 8, textTransform: "uppercase" }}>{tr("role", lang)}</label>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
-                  {(["admin", "seller", "viewer"] as const).map((r) => {
-                    const rc = roleColors[r];
+                  {ROLES.map((r: any) => {
+                    const rc = roleColors[r.name];
                     return (
-                      <button key={r} onClick={() => setEditing({ ...editing, role: r })}
+                      <button 
+                        key={r.id} 
+                        onClick={() => setEditing({ ...editing, role: r.name })}
                         style={{
                           padding: "10px", borderRadius: 8, cursor: "pointer",
-                          border: `2px solid ${editing.role === r ? rc.color : "var(--border)"}`,
-                          background: editing.role === r ? rc.bg : "var(--bg)",
+                          border: `2px solid ${editing.role === r.name ? rc.color : "var(--border)"}`,
+                          background: editing.role === r.name ? rc.bg : "var(--bg)",
                           color: rc.color, fontSize: 13, fontWeight: editing.role === r ? 700 : 500,
-                        }}>
-                        {tr(r, lang)}
+                        }}
+                      >
+                        {tr(r.name, lang)}
                       </button>
                     );
                   })}

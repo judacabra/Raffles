@@ -187,6 +187,12 @@ export const t: Record<string, Record<string, string>> = {
   // images
   remove_image: { es: "Quitar imagen", en: "Remove image" },
 
+  // notifications
+  delete_notification: { es: "Eliminar notificación", en: "Delete notification" },
+
+  // empty
+  no_notifications: { es: "No hay nofiticaciónes para mostrar", en: "No notifications" },
+
   // errors
   user_inactive_please_contact_admin: { 
     es: "Usuario inactivo, por favor comuniquese con el administrador de", 

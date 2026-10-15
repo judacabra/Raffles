@@ -97,10 +97,10 @@ export default function LoginPage() {
               onChange={(e) => setEmail(e.target.value)}
               required 
               aria-label={tr("email", lang)}
-              style={{
-                width: "100%", padding: "12px 16px", border: "2px solid #E2E8F0",
-                borderRadius: 8, fontSize: 15, outline: "none", fontFamily: "var(--font-sans)",
-                transition: "border-color 0.2s", boxSizing: "border-box", color: "#1A202C",
+              style={{ 
+                padding: "12px 16px", border: "2px solid #E2E8F0", fontSize: 15, 
+                borderRadius: 8, outline: "none", fontFamily: "var(--font-sans)", width: "100%", 
+                boxSizing: "border-box", transition: "border-color 0.2s", color: "var(--text-primary)", 
               }}
               onFocus={(e) => e.target.style.borderColor = "#1A365D"}
               onBlur={(e) => e.target.style.borderColor = "#E2E8F0"}
@@ -121,7 +121,7 @@ export default function LoginPage() {
               style={{
                 width: "100%", padding: "12px 16px", border: "2px solid #E2E8F0",
                 borderRadius: 8, fontSize: 15, outline: "none", fontFamily: "var(--font-sans)",
-                transition: "border-color 0.2s", boxSizing: "border-box", color: "#1A202C",
+                transition: "border-color 0.2s", boxSizing: "border-box", color: "var(--text-primary)",
               }}
               onFocus={(e) => e.target.style.borderColor = "#1A365D"}
               onBlur={(e) => e.target.style.borderColor = "#E2E8F0"}

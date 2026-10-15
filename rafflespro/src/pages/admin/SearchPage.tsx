@@ -19,17 +19,16 @@ const SearchPage = () => {
   
   const [infoFounded, setInfoFounded] = useState<boolean>(false);
   const [text, setText] = useState<string>("");
-  const [searched, setSearched] = useState<string>("");
 
-  const modules: Module[] = MODULES.filter((m: Module) =>
+  const modules: Module[] = MODULES.filter((m: Module): boolean =>
     m.title.toLowerCase().includes(text.toLowerCase()) ||
     m.description.toLowerCase().includes(text.toLowerCase())
   );
 
-  const highlightText = (description: string, text: string) => {
-    if (!text) return description;
+  const highlightText = (v: string, text: string) => {
+    if (!text) return v;
 
-    const parts: string[] = description.split(new RegExp(`(${text})`, "gi"));
+    const parts: string[] = v.split(new RegExp(`(${text})`, "gi"));
 
     return parts.map((part, index) =>
       part.toLowerCase() === text.toLowerCase() ? (
@@ -114,7 +113,7 @@ const SearchPage = () => {
                   onClick={() => navigate(url, { replace: true })}
                   style={{ fontStyle: "italic", fontSize: 13, color: "#5272db", }}
                 >
-                  {highlightText(url, text)}
+                  {url}
                 </h2>
               </div>
             </div>

@@ -13,6 +13,7 @@ import { useIP } from "../../utils/useIP";
 import { Sale } from "@/interfaces/numberBoard.interfaces";
 import { Raffle, RaffleNumber } from "@/interfaces/raffle.interfaces";
 import { NavigateFunction, useLocation, useNavigate } from "react-router-dom";
+import { truncarText } from "../../utils/format-words";
 
 
 const NumberBoard = () => {
@@ -357,17 +358,19 @@ const NumberBoard = () => {
             const label: string = String(n.num).padStart(activeRaffle.digits, "0");
             const isSelected: boolean | undefined = selected?.some((s: any) => s.num === n.num);
             const cls: string = isSelected  
-              ? "num-reserved" 
-              : n.status === "winner"
-                ? "num-winner"
-                : n.status === "sold"
-                  ? "num-sold"
-                  : "num-available";
+                ? "num-reserved" 
+                : n.status === "winner"
+                  ? "num-winner"
+                  : n.status === "sold"
+                    ? "num-sold"
+                    : "num-available";
 
             return (
               <button
                 key={`_${n.num}`}
-                onClick={() => handleNumberClick(n)}
+                onClick={() => {
+                  if (activeRaffle.status == "active") handleNumberClick(n);
+                }}
                 className={cls}
                 title={n.buyer ? `${n.buyer} · ${n.phone ?? ""}` : label}
                 style={{
@@ -380,7 +383,7 @@ const NumberBoard = () => {
                   fontSize: activeRaffle.totalNumbers > 500 ? 11 : 13,
                   fontFamily: "var(--font-mono)",
                   fontWeight: 600,
-                  cursor: n.status === "available" ? "pointer" : "default",
+                  cursor: (activeRaffle.status == "active" && n.status === "available") ? "pointer" : "default",
                   position: "relative",
                   minWidth: 0,
                 }}
@@ -389,15 +392,23 @@ const NumberBoard = () => {
                   <span
                     style={{
                       position: "absolute",
-                      top: 2,
-                      right: 3,
-                      fontSize: 9,
+                      top: "10%",
+                      right: "30%",
+                      fontSize: 15,
                     }}
                   >
                     ★
                   </span>
                 )}
-                {label}
+                {label} 
+                {n.status === "winner" && (
+                  <>
+                    <br />
+                    <small>
+                      {truncarText(n.buyer, 14, true)}
+                    </small>
+                  </>
+                )}
               </button>
             );
           })}

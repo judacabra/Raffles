@@ -10,8 +10,8 @@ import { GetCompanyPayments, SetCompanyPayment } from "../../api/companyPayments
 import { CompanyRow } from "@/interfaces/company.interfaces";
 
 import { appConfig } from "../../config";
-
 import { truncarText } from "../../utils/format-words";
+
 
 const CompaniesPage = () => {
   const dispatch = useAppDispatch();

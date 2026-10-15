@@ -155,7 +155,7 @@ const ProfilePage = () => {
               padding: "10px 14px",
               borderRadius: 8,
               border: "2px solid var(--border)",
-              background: "var(--bg)",
+              background: "var(--bg-header)",
               color: "var(--text-primary)",
               fontSize: 14,
               outline: "none",

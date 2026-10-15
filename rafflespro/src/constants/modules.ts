@@ -23,7 +23,7 @@ export const MODULES: Module[] = [
     description: "Crea, configura y administra tus rifas, números disponibles y resultados.",
   },
   {
-    url: "/number_board",
+    url: "/board",
     icon: "🔢",
     title: "Tablero",
     subtitle: "Módulo Tablero",

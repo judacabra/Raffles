@@ -123,7 +123,7 @@ function RafflesPage () {
                   position: "relative",
                 }}>
                   <span style={{ position: "absolute", top: 12, left: 16, fontSize: 28 }}>{themeEmoji[r.theme]}</span>
-                  <div style={{ color: "#FFFFFF", fontWeight: 700, fontSize: 15, fontFamily: "var(--font-display)", textShadow: "0 1px 4px #000" }}>
+                  <div style={{ color: "#fff", fontWeight: 700, fontSize: 15, fontFamily: "var(--font-display)", textShadow: "0 1px 4px #000" }}>
                     {r.name}
                   </div>
                   <span style={{ position: "absolute", top: 12, right: 12, padding: "3px 10px", borderRadius: 99, fontSize: 11, fontWeight: 700, background: badge.bg, color: badge.color }}>
@@ -164,7 +164,12 @@ function RafflesPage () {
                   </div>
 
                   {r.winnerNumber != null && (
-                    <div style={{ marginBottom: 12, padding: "8px 12px", borderRadius: 8, background: "#FFFBEB", border: "1px solid #F6AD55", display: "flex", alignItems: "center", gap: 8 }}>
+                    <div 
+                      style={{ 
+                        marginBottom: 12, padding: "8px 12px", borderRadius: 8, background: "#FFFBEB", 
+                        border: "1px solid #F6AD55", display: "flex", alignItems: "center", gap: 8, 
+                      }}
+                    >
                       <span style={{ fontSize: 16 }}>🏆</span>
                       <span style={{ fontSize: 13, color: "#7B4F12", fontWeight: 600 }}>
                         #{String(r.winnerNumber).padStart(r.digits, "0")} · {r.winnerName}
@@ -173,22 +178,29 @@ function RafflesPage () {
                   )}
 
                   <div style={{ display: "flex", gap: 8 }}>
-                    <button onClick={() => openBoard(r.id)}
-                      style={{ flex: 1, padding: "9px", borderRadius: 8, border: "none", background: "#1A365D", color: "#fff", cursor: "pointer", fontSize: 13, fontWeight: 600 }}>
-                      {tr("view_board", lang)}
-                    </button>
                     <button 
-                      onClick={() => { 
-                        openEditor(r); 
-                        dispatch(addToast({ type: "info", message: lang === "es" ? "Modo edición" : "Edit mode" })); 
-                      }}
+                      onClick={() => openBoard(r.id)}
                       style={{ 
-                        padding: "9px 14px", borderRadius: 8, border: "1px solid var(--border)", 
-                        background: "none", color: "var(--text-secondary)", cursor: "pointer", fontSize: 13,
+                        flex: 1, padding: "9px", borderRadius: 8, border: "none", background: "#1A365D", 
+                        color: "#fff", cursor: "pointer", fontSize: 13, fontWeight: 600, 
                       }}
                     >
-                      {tr("edit", lang)}
+                      {tr("view_board", lang)}
                     </button>
+                    {r.status == "active" && (
+                      <button 
+                        onClick={() => { 
+                          openEditor(r); 
+                          dispatch(addToast({ type: "info", message: lang === "es" ? "Modo edición" : "Edit mode" })); 
+                        }}
+                        style={{ 
+                          padding: "9px 14px", borderRadius: 8, border: "1px solid var(--border)", 
+                          background: "none", color: "var(--text-secondary)", cursor: "pointer", fontSize: 13,
+                        }}
+                      >
+                        {tr("edit", lang)}
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>

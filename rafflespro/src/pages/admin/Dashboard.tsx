@@ -1,16 +1,17 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, } from "react"; 
+import { NavigateFunction, useNavigate, } from "react-router-dom"; 
 
-import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { Language, Theme } from "../../store/slices/uiSlice";
-import { setActiveRaffle } from "../../store/slices/raffleSlice";
+import { useAppDispatch, useAppSelector } from "../../store/hooks"; 
+import { Language, Theme } from "../../store/slices/uiSlice"; 
+import { setActiveRaffle } from "../../store/slices/raffleSlice"; 
 
-import { tr } from "../../i18n/translations";
+import { tr } from "../../i18n/translations"; 
 
-import { GetRaffles } from "../../api/raffleAPI";
+import { GetRaffles } from "../../api/raffleAPI"; 
 
-import { KPIs, StatusColor, Time } from "@/interfaces/dashboard.interfaces";
-import { Raffle, RaffleNumber } from "@/interfaces/raffle.interfaces";
-import { NavigateFunction, useNavigate } from "react-router-dom";
+import { KPIs, StatusColor, Time } from "@/interfaces/dashboard.interfaces"; 
+import { Raffle, RaffleNumber } from "@/interfaces/raffle.interfaces"; 
+import { truncarText } from "../../utils/format-words";
 
 const useCountdown = (targetDate: string): Time => {
   const [time, setTime] = useState<Time>({ days: 0, hours: 0, mins: 0, secs: 0 });
@@ -37,7 +38,7 @@ const useCountdown = (targetDate: string): Time => {
   }, [targetDate]);
 
   return time;
-}
+};
 
 const statusColors: Record<string, StatusColor> = {
   active:    { bg: "#C6F6D5", color: "#276749" },
@@ -54,17 +55,27 @@ const Dashboard = () => {
   const lang: Language = useAppSelector((s) => s.ui.language);
   const theme: Theme = useAppSelector((s) => s.ui.theme);
   const company: any = useAppSelector((s) => s.auth.activeCompany);
+
   // const raffles = useAppSelector((s) => s.raffle.raffles);
 
   const [rafflesFounded, setRafflesFounded] = useState<boolean>(false);
   const [raffles, setRaffles] = useState<Raffle[]>([]);
+
   const activeRaffles: Raffle[] = raffles ? raffles.filter((r: Raffle) => r.status === "active") : [];
-  
-  const nextRaffle: Raffle = [...activeRaffles].sort((a, b) => new Date(a.drawDate).getTime() - new Date(b.drawDate).getTime())[0];
+
+  const now = new Date();
+
+  const nextRaffle: Raffle | undefined = [...activeRaffles]
+    .filter((raffle) => new Date(raffle.drawDate).getTime() >= now.getTime())
+    .sort(
+      (a, b) =>
+        new Date(a.drawDate).getTime() -
+        new Date(b.drawDate).getTime()
+    )[0];
 
   const countdown: Time = useCountdown(nextRaffle?.drawDate);
 
-  const totalSold: number = raffles.reduce((sum, r) => sum + r.numbers.filter((n) => n.status === "sold").length, 0);
+  const totalSold: number = activeRaffles.reduce((sum, r) => sum + r.numbers.filter((n) => n.status === "sold").length, 0);
   
   const today: string = new Date().toISOString().split("T")[0];
 
@@ -72,7 +83,7 @@ const Dashboard = () => {
     .filter((n: RaffleNumber) => n.soldAt && n.soldAt.split("T")[0] === today)
     .length;
 
-  const revenue: number = raffles.reduce((sum, r) => sum + r.numbers.filter((n) => n.status === "sold").length * r.pricePerNumber, 0);
+  const revenue: number = activeRaffles.reduce((sum, r) => sum + r.numbers.filter((n) => n.status === "sold").length * r.pricePerNumber, 0);
 
   const getStringValue = (v: number): string => {
     if (v < 1000) return v.toString();
@@ -92,7 +103,7 @@ const Dashboard = () => {
   const openBoard = (rId: string): void => {
     dispatch(setActiveRaffle(rId));
     navigate("/board", { replace: true, state: { raffleSelected: rId } });
-  }
+  };
 
   const fetchRaffles = async (idC: number): Promise<void> => {
     try {
@@ -169,34 +180,35 @@ const Dashboard = () => {
                       No hay registros
                     </td>
                   </tr>
-                ) : (raffles.map((r) => {
+                ) : (raffles.map((r: Raffle) => {
                   const badge = statusColors[r.status] ?? statusColors.draft;
                   const sold = r.numbers.filter((n) => n.status === "sold").length;
                   const pct = Math.round((sold / r.totalNumbers) * 100);
+
                   return (
                     <tr key={r.id} style={{ borderBottom: "1px solid var(--border)", transition: "background 0.15s" }}
                       onMouseEnter={(e) => (e.currentTarget.style.background = "var(--bg)")}
                       onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
                     >
-                      <td style={{ padding: "14px 16px", color: "var(--text-primary)", fontWeight: 500, maxWidth: 180, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      <td style={{ padding: "14px", color: "var(--text-primary)", fontWeight: 500, maxWidth: 180, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                         {r.name}
                         <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 2 }}>{pct}% vendido</div>
                       </td>
-                      <td style={{ padding: "14px 16px", color: "var(--text-secondary)", whiteSpace: "nowrap", fontFamily: "var(--font-mono)", fontSize: 12 }}>
+                      <td style={{ padding: "14px", color: "var(--text-secondary)", whiteSpace: "nowrap", fontFamily: "var(--font-mono)", fontSize: 12 }}>
                         {new Date(r.drawDate).toLocaleDateString(lang === "es" ? "es-CO" : "en-US", { day: "2-digit", month: "short", year: "numeric" })}
                       </td>
-                      <td style={{ padding: "14px 16px" }}>
+                      <td style={{ padding: "14px" }}>
                         <span style={{ padding: "3px 10px", borderRadius: 99, fontSize: 11, fontWeight: 600, background: badge.bg, color: badge.color }}>
                           {tr(r.status, lang)}
                         </span>
                       </td>
-                      <td style={{ padding: "14px 16px", fontFamily: "var(--font-mono)", fontWeight: 600, color: r.winnerNumber != null ? "#F6AD55" : "var(--text-muted)" }}>
-                        {r.winnerNumber != null ? String(r.winnerNumber).padStart(r.digits, "0") : "—"}
+                      <td style={{ padding: "14px", fontFamily: "var(--font-mono)", fontWeight: 600, color: r.winnerNumber != null ? "#F6AD55" : "var(--text-muted)" }}>
+                        {r.winnerNumber != null ? `# ${String(r.winnerNumber).padStart(r.digits, "0")}` : "—"}
                       </td>
-                      <td style={{ padding: "14px 16px", color: "var(--text-secondary)", maxWidth: 140, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                        {r.winnerName ?? "—"}
+                      <td style={{ padding: "14px", color: "var(--text-secondary)", maxWidth: 140, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                        {r.winnerName ? truncarText(r.winnerName, 14, true) : "—"}
                       </td>
-                      <td style={{ padding: "14px 16px" }}>
+                      <td style={{ padding: "14px" }}>
                         <button
                           onClick={() => openBoard(r.id)}
                           style={{
@@ -280,6 +292,6 @@ const Dashboard = () => {
       </div>
     </div>
   );
-}
+};
 
 export default Dashboard;

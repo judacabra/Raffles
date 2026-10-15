@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { NavigateFunction, useNavigate } from "react-router-dom";
 
 import { logout, User } from "../store/slices/authSlice";
@@ -8,11 +8,17 @@ import { toggleTheme, toggleLanguage, toggleSidebar, Language, Theme, } from "..
 import { tr } from "../i18n/translations";
 
 import { appConfig } from "../config";
+import { extract_TIME_AGO } from "../utils/date-time";
+
+import { GetNotifications } from "../api/notificationAPI";
+import Notification from "./Notification";
 
 export default function Header() {
   const dispatch = useAppDispatch();
 
   const navigate: NavigateFunction = useNavigate();
+
+  const company = useAppSelector((s) => s.auth.activeCompany);
 
   const { uploadsFolder } = appConfig;
 
@@ -22,6 +28,23 @@ export default function Header() {
 
   const [menuOpen, setMenuOpen] = useState<boolean>(false);
   const [notifOpen, setNotifOpen] = useState<boolean>(false);
+
+  const [notificationsFounded, setNotificationsDounded] = useState<boolean>(false);
+  const [notifications, setNotifications] = useState<any[]>([]);
+  
+  const NOTIFICATION_MOCK: any[] = [
+    { 
+      icon: "🎉", msg: lang === "es" ? "Rifa Navideña vendió 47 números hoy" : "Christmas Raffle sold 47 numbers today", 
+      time: "Hace 5 min", url: "/board", params: { raffleSelected: 2, } },
+    { 
+      icon: "⚠️", msg: lang === "es" ? "Número 047 en estado Reservado por 24h" : "Number 047 reserved for 24h", 
+      time: "Hace 1h", url: "", params: {} },
+    { 
+      icon: "✅", msg: lang === "es" ? "Sorteo Solidario completado exitosamente" : "Solidarity Raffle completed", 
+      time: "Ayer", url: "", params: {} 
+    },
+  ];
+
   const [text, setText] = useState<string>("");
 
   const handleSearch = (txt: string): void => {
@@ -33,6 +56,24 @@ export default function Header() {
     navigate(`search?text=${text}`, { replace: true });
     setText("");
   };
+
+  const fetchNotifications = async (idC: number): Promise<void> => {
+    try {
+      const result = await GetNotifications(idC);
+      if (result) {
+        const rnew: any[] = [...result, ...result, ];
+        setNotifications(rnew);
+      }
+    } catch (err: any) {
+      console.error(`Error al obtener las notificaciones de la empresa id #${idC}: `, err);
+    } finally {
+      setNotificationsDounded(true);
+    }
+  };
+
+  useEffect(() => {
+    if (company && !notificationsFounded) fetchNotifications(Number(company.id));
+  }, [company, notificationsFounded]);
 
   return (
     <header style={{
@@ -128,51 +169,7 @@ export default function Header() {
         </button>
 
         {/* Notifications */}
-        <div style={{ position: "relative" }}>
-          <button
-            onClick={() => setNotifOpen(!notifOpen)}
-            style={{
-              width: 36, height: 36, borderRadius: 8, border: "1px solid var(--border)",
-              background: "var(--bg)", cursor: "pointer", fontSize: 16, position: "relative",
-              display: "flex", alignItems: "center", justifyContent: "center",
-            }}
-            aria-label={tr("notifications", lang)}
-          >
-            🔔
-            <span style={{
-              position: "absolute", top: 6, right: 6, width: 8, height: 8,
-              borderRadius: "50%", background: "#FC8181", border: "2px solid var(--bg-header)",
-            }} />
-          </button>
-          {notifOpen && (
-            <div style={{
-              position: "absolute", top: "calc(100% + 8px)", right: 0, width: 320,
-              background: "var(--bg-card)", border: "1px solid var(--border)",
-              borderRadius: 12, boxShadow: "0 8px 24px #0000001A", zIndex: 100,
-              overflow: "hidden",
-            }}>
-              <div style={{ padding: "14px 16px", borderBottom: "1px solid var(--border)", fontWeight: 600, fontSize: 14, color: "var(--text-primary)" }}>
-                {tr("notifications", lang)}
-              </div>
-              {[
-                { icon: "🎉", msg: lang === "es" ? "Rifa Navideña vendió 47 números hoy" : "Christmas Raffle sold 47 numbers today", time: "Hace 5 min" },
-                { icon: "⚠️", msg: lang === "es" ? "Número 047 en estado Reservado por 24h" : "Number 047 reserved for 24h", time: "Hace 1h" },
-                { icon: "✅", msg: lang === "es" ? "Sorteo Solidario completado exitosamente" : "Solidarity Raffle completed", time: "Ayer" },
-              ].map((n, i) => (
-                <div key={i} style={{ padding: "12px 16px", display: "flex", gap: 12, alignItems: "flex-start", borderBottom: "1px solid var(--border)", cursor: "pointer" }}
-                  onMouseEnter={(e) => (e.currentTarget.style.background = "var(--bg)")}
-                  onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
-                >
-                  <span style={{ fontSize: 20 }}>{n.icon}</span>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 13, color: "var(--text-primary)", lineHeight: 1.4 }}>{n.msg}</div>
-                    <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 4 }}>{n.time}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+        <Notification />
 
         {/* User menu */}
         <div style={{ position: "relative" }}>

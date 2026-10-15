@@ -6,6 +6,7 @@ export interface UserRow {
   email: string;
   company: string;
   role: RoleType;
+  roleId?: number;
   isActive: boolean;
   imageURL?: string;
 }
