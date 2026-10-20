@@ -1,16 +1,26 @@
 import type { SweetAlertOptions } from 'sweetalert2';
 
+import { useAppSelector } from '../store/hooks';
+import { Language } from '../store/slices/uiSlice';
+
+import { tr } from '../i18n/translations';
+
 import Swal from 'sweetalert2';
 
 export const useAlert = () => {
+  const lang: Language = useAppSelector((s: any) => s.ui.language);
+  
   const sAlert = (sProps: SweetAlertOptions, funct?: (param?: any) => void): void => {
     sProps.topLayer = true;
     sProps.title = sProps.title || '';
-    sProps.html = sProps.html || '';
+    sProps.html = sProps.html + '<br /> <br />' || '<br /> <br />';
     sProps.icon = sProps.icon || 'info';
-    sProps.confirmButtonText = sProps.confirmButtonText || 'Ok';
+    sProps.showConfirmButton = sProps.showConfirmButton;
+    sProps.confirmButtonText = sProps.confirmButtonText || tr("understood", lang);
     sProps.confirmButtonColor = sProps.confirmButtonColor || '#ff5630';
-    
+
+    if (!sProps.showConfirmButton) sProps.timer = 2000;
+
     Swal.fire(sProps)
     .then(()=>{
       if (funct) {
@@ -25,7 +35,7 @@ export const useAlert = () => {
     sProps.allowOutsideClick = false;
     sProps.confirmButtonColor = sProps.confirmButtonColor || '#1877F2';
     sProps.showDenyButton = sProps.showDenyButton || true;
-    sProps.denyButtonText = sProps.denyButtonText || 'Cancelar';
+    sProps.denyButtonText = sProps.denyButtonText || tr("cancel", lang);
     sProps.denyButtonColor = sProps.denyButtonColor || '#ff5630';
     
     Swal.fire(sProps)
@@ -43,11 +53,12 @@ export const useAlert = () => {
     sProps.allowOutsideClick = false;
     sProps.confirmButtonColor = sProps.confirmButtonColor || '#1877F2';
     sProps.showDenyButton = sProps.showDenyButton || true;
-    sProps.denyButtonText = sProps.denyButtonText || 'Cancelar';
+    sProps.denyButtonText = sProps.denyButtonText || tr("cancel", lang);
     sProps.denyButtonColor = sProps.denyButtonColor || '#ff5630';
     sProps.input = sProps.input || 'text';
     sProps.inputLabel = sProps.inputLabel || '';
     sProps.inputValue = sProps.inputValue || '';
+    
     sProps.inputValidator = validateField;
 
     const result = await Swal.fire(sProps);

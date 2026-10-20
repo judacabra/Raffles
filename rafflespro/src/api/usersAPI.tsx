@@ -25,9 +25,9 @@ export const SetUser = async(dataSend: any): Promise<any> => {
   }
 }
 
-export const GetUsers = async(idC: number): Promise<any> => {
+export const GetUsers = async(idCompany: number): Promise<any> => {
   try {
-    const { data } = await axios.get(`${baseURL}/users/all/${idC}`);
+    const { data } = await axios.get(`${baseURL}/users/all/${idCompany}`);
 
     return data;
   } catch (error: any) {

@@ -14,7 +14,7 @@ export interface User {
   name: string;
   email: string;
   avatar: string;
-  role: "superadmin" | "admin" | "seller" | "viewer";
+  roleId: number
   companies: Company[];
 }
 

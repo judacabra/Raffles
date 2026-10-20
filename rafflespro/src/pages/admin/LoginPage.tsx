@@ -36,6 +36,7 @@ export default function LoginPage() {
           id: data.userResponse.id,
           name: data.userResponse.username,
           email: data.userResponse.email,
+          roleId: data.userResponse.roleId,
           avatar: data.userResponse.imageURL ?? 
             data.userResponse.username
               .split(" ").map((w: any) => w[0])

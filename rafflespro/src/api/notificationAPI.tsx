@@ -13,13 +13,13 @@ const config: Object = {
   }
 };
 
-export const GetNotifications = async(idC: number): Promise<any> => {
+export const GetNotifications = async(idCompany: number): Promise<any> => {
   try {
-    const { data } = await axios.get(`${baseURL}/notifications/all/${idC}`);
+    const { data } = await axios.get(`${baseURL}/notifications/all/${idCompany}`);
 
     return data;
   } catch (error: any) {
-    console.error(`Error al obtener las notificaciones de la empresa id #${idC}: `, error.response.data);
+    console.error(`Error al obtener las notificaciones de la empresa id #${idCompany}: `, error.response.data);
 
     return error.response.data;
   }

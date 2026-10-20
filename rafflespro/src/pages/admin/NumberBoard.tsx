@@ -164,11 +164,13 @@ const NumberBoard = () => {
   const fetchRaffles = async (idC: number): Promise<void> => {
     try {
       const data: Raffle[] = await GetRaffles(idC);
-      setRaffles(data);
+      const activeRaffles: Raffle[] = data.filter((r: Raffle) => r.status === "active");
+      
+      setRaffles(activeRaffles);
 
       const firstRaffle: Raffle | undefined = raffleSelected 
-        ? data.find((r: Raffle) => r.id === raffleSelected)
-        : data.find((r: Raffle) => r.status === "active");
+        ? activeRaffles.find((r: Raffle) => r.id === raffleSelected)
+        : activeRaffles.find((r: Raffle) => r.status === "active");
         
       setActiveRaffle(firstRaffle);
     } catch (err: any) {
@@ -236,14 +238,9 @@ const NumberBoard = () => {
               value={activeRaffle.id}
               onChange={(e) => setActiveRaffle(raffles.find((r: any) => r.id == e.target.value))}
               style={{
-                padding: "8px 12px",
-                borderRadius: 8,
-                border: "1px solid var(--border)",
-                background: "var(--bg-card)",
-                color: "var(--text-primary)",
-                fontSize: 14,
-                fontFamily: "var(--font-sans)",
-                cursor: "pointer",
+                padding: "8px 12px", borderRadius: 8, border: "1px solid var(--border)", 
+                background: "var(--bg-card)", color: "var(--text-primary)", fontSize: 14,
+                fontFamily: "var(--font-sans)", cursor: "pointer",
               }}
             >
               {raffles.map((r) => (
@@ -261,14 +258,9 @@ const NumberBoard = () => {
               if (validateNumber(value)) setSearch(value);
             }}
             style={{
-              padding: "8px 12px",
-              borderRadius: 8,
-              border: "1px solid var(--border)",
-              background: "var(--bg-card)",
-              color: "var(--text-primary)",
-              fontSize: 14,
-              fontFamily: "var(--font-mono)",
-              width: 160,
+              padding: "8px 12px", borderRadius: 8, border: "1px solid var(--border)", 
+              color: "var(--text-primary)", fontSize: 14, fontFamily: "var(--font-mono)", 
+              background: "var(--bg-card)", width: 160,
             }}
           />
           <div style={{ marginLeft: "auto", display: "flex", gap: 6 }}>
@@ -277,13 +269,8 @@ const NumberBoard = () => {
                 key={f}
                 onClick={() => setFilter(f)}
                 style={{
-                  padding: "6px 14px",
-                  borderRadius: 6,
-                  border: "none",
-                  cursor: "pointer",
-                  fontSize: 12,
-                  fontWeight: 600,
-                  fontFamily: "var(--font-sans)",
+                  padding: "6px 14px", borderRadius: 6, border: "none", cursor: "pointer",
+                  fontSize: 12, fontWeight: 600, fontFamily: "var(--font-sans)",
                   background: filter === f ? "#1A365D" : "var(--bg-card)",
                   color: filter === f ? "#fff" : "var(--text-secondary)",
                   boxShadow: filter === f ? "none" : "0 1px 2px #0000001A",
@@ -301,14 +288,7 @@ const NumberBoard = () => {
         </div>
 
         {/* Legend */}
-        <div
-          style={{
-            display: "flex",
-            gap: 16,
-            marginBottom: 16,
-            flexWrap: "wrap",
-          }}
-        >
+        <div style={{ display: "flex", gap: 16, marginBottom: 16, flexWrap: "wrap", }}>
           {[
             { cls: "num-available", label: tr("available", lang) },
             { cls: "num-sold", label: tr("sold", lang) },
@@ -328,13 +308,8 @@ const NumberBoard = () => {
               <div
                 className={cls}
                 style={{
-                  width: 24,
-                  height: 24,
-                  borderRadius: 4,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: 10,
+                  width: 24, height: 24, borderRadius: 4, display: "flex",
+                  alignItems: "center", justifyContent: "center", fontSize: 10,
                 }}
               >
                 {cls === "num-winner" ? "★" : ""}

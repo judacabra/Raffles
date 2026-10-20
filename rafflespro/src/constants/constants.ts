@@ -44,3 +44,7 @@ export const MODULES: Module[] = [
     description: "Consulta el historial de acciones realizadas dentro del sistema.",
   },
 ];
+
+export const ID_PROFILE_ADMIN: number = 1;
+export const ID_PROFILE_SELLER: number = 2;
+export const ID_PROFILE_VIEWER: number = 3;

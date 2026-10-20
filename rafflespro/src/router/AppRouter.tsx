@@ -23,16 +23,15 @@ export default function AppRouter() {
       {/* PUBLICS */}
       <Route path="/login" element={<LoginPage />} />
 
-
       {/* PRIVATES */}
       <Route element={<ProtectedRoute />}>
 
         {/* El layout SOLO existe en rutas privadas */}
         <Route element={<AppShell />}>
+          <Route path="/raffles" element={<RafflesPage />} />
           <Route path="/select-company" element={ <CompanySelect /> } />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/companies" element={<CompaniesPage />} />
-          <Route path="/raffles" element={<RafflesPage />} />
           <Route path="/raffles/editor" element={<RaffleEditor />} />
           <Route path="/board" element={<NumberBoard />} />
           <Route path="/users" element={<UsersPage />} />

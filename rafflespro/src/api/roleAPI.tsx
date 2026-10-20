@@ -12,7 +12,7 @@ const config: Object = {
 
 export const Roles = async (idCompany: number): Promise<any> => {
   try {
-    const { data } = await axios.get<any>(`${baseURL}/roles/${idCompany}/all`);
+    const { data } = await axios.get<any>(`${baseURL}/roles/all/${idCompany}`);
 
     return data;
   } catch (error: any) {

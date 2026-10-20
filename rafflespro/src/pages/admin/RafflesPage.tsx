@@ -1,17 +1,21 @@
 import { useEffect, useState } from "react";
+import { NavigateFunction, useNavigate } from "react-router-dom";
 
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 
 import { addToast, Language } from "../../store/slices/uiSlice";
 import { setActiveRaffle } from "../../store/slices/raffleSlice";
+import { User } from "../../store/slices/authSlice";
 
 import { tr } from "../../i18n/translations";
 import { appConfig } from "../../config";
 
 import { GetRaffles } from "../../api/raffleAPI";
 
-import { Raffle } from "@/interfaces/raffle.interfaces";
-import { NavigateFunction, useNavigate } from "react-router-dom";
+import { Raffle } from "../../interfaces/raffle.interfaces";
+
+import { ID_PROFILE_ADMIN } from "../../constants/constants";
+import { truncarText } from "../../utils/format-words";
 
 function RafflesPage () {
   const dispatch = useAppDispatch();
@@ -22,6 +26,7 @@ function RafflesPage () {
 
   const lang: Language = useAppSelector((s) => s.ui.language);
   const company: any = useAppSelector((s) => s.auth.activeCompany);
+  const user: User | null = useAppSelector((s) => s.auth.user);
 
   const [rafflesFounded, setRafflesFounded] = useState<boolean>(false);
   const [raffles, setRaffles] = useState<Raffle[]>([]);
@@ -41,20 +46,23 @@ function RafflesPage () {
   };
 
   const themeEmoji: Record<string, string> = {
-    default: "🎰", christmas: "🎄", sports: "⚽", lottery: "🎱",
+    default: "🎰", 
+    christmas: "🎄", 
+    sports: "⚽", 
+    lottery: "🎱",
   };
 
   const openBoard = (id: string): void => {
     dispatch(setActiveRaffle(id));
     navigate("/board", { replace: true, state: { raffleSelected: id } });
-  }
+  };
 
   const openEditor = (r?: Raffle): void => {
     const objEdit: any = { replace: true, state: {} };
     if (r) objEdit.state.raffleSelected = r;
 
     navigate("/raffles/editor", objEdit);
-  }
+  };
 
   const fetchRaffles = async (idC: number): Promise<void> => {
     try {
@@ -65,12 +73,10 @@ function RafflesPage () {
     } finally {
       setRafflesFounded(true);
     }
-  }
-
-  console.log(company)
+  };
 
   useEffect(() => {
-    if (!rafflesFounded) fetchRaffles(company.id);
+    if (!rafflesFounded) fetchRaffles(company && company.id);
   }, [rafflesFounded, company]);
 
   return (
@@ -84,16 +90,18 @@ function RafflesPage () {
             {filtered.length > 0 && filtered.length + " " + tr("total_raffles" , lang)}
           </p>
         </div>
-        <button 
-          onClick={() => openEditor()}
-          style={{ 
-            padding: "10px 20px", borderRadius: 8, border: "none", background: "#1A365D", 
-            color: "#fff", cursor: "pointer", fontSize: 14, fontWeight: 700, 
-            boxShadow: "0 4px 12px #1A365D40",
-          }}
-        >
-          + {tr("new_raffle", lang)}
-        </button>
+        {(user && user.roleId === ID_PROFILE_ADMIN) && (
+          <button 
+            onClick={() => openEditor()}
+            style={{ 
+              padding: "10px 20px", borderRadius: 8, border: "none", background: "#1A365D", 
+              color: "#fff", cursor: "pointer", fontSize: 14, fontWeight: 700, 
+              boxShadow: "0 4px 12px #1A365D40",
+            }}
+          >
+            + {tr("new_raffle", lang)}
+          </button>
+        )}
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: 20 }}>
@@ -172,36 +180,37 @@ function RafflesPage () {
                     >
                       <span style={{ fontSize: 16 }}>🏆</span>
                       <span style={{ fontSize: 13, color: "#7B4F12", fontWeight: 600 }}>
-                        #{String(r.winnerNumber).padStart(r.digits, "0")} · {r.winnerName}
+                        #{r.winnerNumber.padStart(r.digits, "0")} &nbsp; ★ &nbsp; {truncarText(r.winnerName!, 27, true)}
                       </span>
                     </div>
                   )}
-
-                  <div style={{ display: "flex", gap: 8 }}>
-                    <button 
-                      onClick={() => openBoard(r.id)}
-                      style={{ 
-                        flex: 1, padding: "9px", borderRadius: 8, border: "none", background: "#1A365D", 
-                        color: "#fff", cursor: "pointer", fontSize: 13, fontWeight: 600, 
-                      }}
-                    >
-                      {tr("view_board", lang)}
-                    </button>
-                    {r.status == "active" && (
+                  {r.status == "active" && (
+                    <div style={{ display: "flex", gap: 8 }}>
                       <button 
-                        onClick={() => { 
-                          openEditor(r); 
-                          dispatch(addToast({ type: "info", message: lang === "es" ? "Modo edición" : "Edit mode" })); 
-                        }}
+                        onClick={() => openBoard(r.id)}
                         style={{ 
-                          padding: "9px 14px", borderRadius: 8, border: "1px solid var(--border)", 
-                          background: "none", color: "var(--text-secondary)", cursor: "pointer", fontSize: 13,
+                          flex: 1, padding: "9px", borderRadius: 8, border: "none", background: "#1A365D", 
+                          color: "#fff", cursor: "pointer", fontSize: 13, fontWeight: 600, 
                         }}
                       >
-                        {tr("edit", lang)}
+                        {tr("view_board", lang)}
                       </button>
-                    )}
-                  </div>
+                      {user && user.roleId == ID_PROFILE_ADMIN && (
+                        <button 
+                          onClick={() => { 
+                            openEditor(r); 
+                            dispatch(addToast({ type: "info", message: lang === "es" ? "Modo edición" : "Edit mode" })); 
+                          }}
+                          style={{ 
+                            padding: "9px 14px", borderRadius: 8, border: "1px solid var(--border)", 
+                            background: "none", color: "var(--text-secondary)", cursor: "pointer", fontSize: 13,
+                          }}
+                        >
+                          {tr("edit", lang)}
+                        </button>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             );

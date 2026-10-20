@@ -15,7 +15,7 @@ const config: Object = {
 
 export const GetRaffles = async (idCompany: number): Promise<any> => {
   try {
-    const { data } = await axios.get<any>(`${baseURL}/raffles/${idCompany}/all`);
+    const { data } = await axios.get<any>(`${baseURL}/raffles/all/${idCompany}`);
 
     return data;
   } catch (error: any) {

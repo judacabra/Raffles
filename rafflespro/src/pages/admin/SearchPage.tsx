@@ -7,7 +7,7 @@ import { Language } from "../../store/slices/uiSlice";
 import { tr } from "../../i18n/translations";
 
 import { Module } from "../../interfaces/module.interfaces";
-import { MODULES } from "../../constants/modules";
+import { MODULES } from "../../constants/constants";
 
 const SearchPage = () => {
   const navigate: NavigateFunction = useNavigate();

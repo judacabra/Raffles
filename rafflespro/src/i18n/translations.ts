@@ -104,9 +104,9 @@ export const t: Record<string, Record<string, string>> = {
   viewer: { es: "Visualizador", en: "Viewer" },
   save_changes: { es: "Guardar Cambios", en: "Save Changes" },
   registered_users: { es: "usuarios registrados", en: "registered users" },
-  user_saved: {es: "Usuario guardado", en: "User saved"},
-  user_deleted: {es: "Usuario eliminado", en: "User deleted"},
-  status_updated: {es: "Estado actualizado", en: "Status updated"},
+  user_saved: { es: "Usuario guardado", en: "User saved" },
+  user_deleted: { es: "Usuario eliminado", en: "User deleted" },
+  status_updated_successfully: { es: "Estado actualizado", en: "Status updated"},
 
   // Logs
   audit_log: { es: "Bitácora de Auditoría", en: "Audit Log" },
@@ -126,7 +126,7 @@ export const t: Record<string, Record<string, string>> = {
   no_data: { es: "Sin datos", en: "No data" },
   loading: { es: "Cargando...", en: "Loading..." },
   success: { es: "Éxito", en: "Success" },
-  error: { es: "Error", en: "Error" },
+  failure: { es: "Error", en: "Failure" },
   page: { es: "Página", en: "Page" },
   of: { es: "de", en: "of" },
   o: { es: "o", en: "o" },
@@ -136,6 +136,7 @@ export const t: Record<string, Record<string, string>> = {
   username: { es: "Nombre de usuario", en: "Username" },
   language_switch: { es: "Cambiar a ingles", en: "Switch to spanish" },
   sought: { es: "Buscado", en: "Sought" },
+  motive: { es: "Motivo", en: "Motive" },
 
   // Companies
   new_company: { es: "Nueva Empresa", en: "New Company "},
@@ -184,6 +185,20 @@ export const t: Record<string, Record<string, string>> = {
   credit_card: { es: "Tarjeta de credito ", en: "Credit card" }, 
   payments_ok: { es: "Estas al día, no tienes pagos pendientes", en: "Payments up to date." },
 
+  // users
+  failed_user_deleted: { es: "El usuario no pudo ser eliminado.", en: "Failed user deleted" },
+  are_you_sure_you_want_to_delete_this_user: {
+    es: "¿Estás seguro de eliminar este usuario?",
+    en: "¿Are you sure you want to delete this user?"
+  },
+  you_are_about_to_delete_user_x_please_provide_a_motive: { 
+    es: "Está a punto de eliminar el usuario #{id}, <br /> por favor indique un motivo",
+    en: "You are about to delete user #{id}, <br /> please provide a motive",
+  },
+  user_saved_successfully: { es: "Usuario guardado exitosamente", en: "User saved successfully" },
+  user_updated_successfully: { es: "Usuario actualizado exitosamente", en: "User updated successfully" },
+  user_deleted_successfully: { es: "Usuario eliminado exitosamente.", en: "User deleted successfully" },
+
   // images
   remove_image: { es: "Quitar imagen", en: "Remove image" },
 
@@ -192,6 +207,11 @@ export const t: Record<string, Record<string, string>> = {
 
   // empty
   no_notifications: { es: "No hay nofiticaciónes para mostrar", en: "No notifications" },
+
+  // alerts
+  understood: { es: "Entendido", en: "Understood" },
+  yes_delete: { es: "Si, eliminar", en: "Yes, delete" },
+  the_motive_is_required: { es: "El motivo es obligatorio", en: "The motive is required" },
 
   // errors
   user_inactive_please_contact_admin: { 
@@ -203,8 +223,21 @@ export const t: Record<string, Record<string, string>> = {
     es: "Por favor escribe alguna palabra para realizar la busqueda.", 
     en: "please_write_something_for_search" 
   },
+  failed_to_update_status: { es: "Error al actualizar el estado", en: "Failed to update status" },
+  failed_to_get_users: { es: "Error al obtener los usuarios", en: "Failed to get users" },
+  failed_to_save_user: { es: "Error al guardar el usuario", en: "Failed to save user" },
+  failed_to_update_user: { es: "Error al actualizar el usuario", en: "Failed to update user" },
+  failed_to_delete_user: { es: "Error al eliminar el usuario", en: "Failed to delete user" },
 };
 
-export function tr(key: string, lang: "es" | "en"): string {
-  return t[key]?.[lang] ?? key;
+export function tr(key: string, lang: "es" | "en", params?: Record<string, any>): string {
+  let text = t[key]?.[lang] ?? key;
+
+  if (params) {
+    Object.entries(params).forEach(([k, v]) => {
+      text = text.replace(new RegExp(`\\{${k}\\}`, "g"), String(v));
+    });
+  }
+
+  return text;
 }

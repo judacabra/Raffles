@@ -25,7 +25,7 @@ const ProfilePage = () => {
   const [user, setUser] = useState<any>(userAuth);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+    const file: File | undefined = e.target.files?.[0];
 
     if (!file) return;
 
@@ -40,7 +40,7 @@ const ProfilePage = () => {
     if (!user) return;
 
     try {
-      const dataSend = new FormData();
+      const dataSend: FormData = new FormData();
 
       dataSend.append('username', user.name);
       dataSend.append('email', user.email);
@@ -67,9 +67,7 @@ const ProfilePage = () => {
       if (!enterPage) {
         setEnterPage(true);
 
-        if (user.avatar.startsWith("uploads/")) {
-          setImagePreview(uploadsFolder + "/" + user.avatar);
-        }
+        if (user.avatar.startsWith("uploads/")) setImagePreview(uploadsFolder + "/" + user.avatar);
       }
     };
   }, [enterPage, user]);
@@ -137,12 +135,8 @@ const ProfilePage = () => {
         <div key={f} style={{ width: "100%", marginTop: lk === "name" ? 15 : 0 }}>
           <label
             style={{
-              display: "block",
-              fontSize: 12,
-              fontWeight: 600,
-              color: "var(--text-muted)",
-              marginBottom: 6,
-              textTransform: "uppercase",
+              display: "block", fontSize: 12, fontWeight: 600, color: "var(--text-muted)",
+              marginBottom: 6, textTransform: "uppercase",
             }}
           >
             {tr(lk, lang)}
@@ -151,14 +145,8 @@ const ProfilePage = () => {
             value={v}
             onChange={(e) => setUser({ ...user, [f]: e.target.value })}
             style={{
-              width: "100%",
-              padding: "10px 14px",
-              borderRadius: 8,
-              border: "2px solid var(--border)",
-              background: "var(--bg-header)",
-              color: "var(--text-primary)",
-              fontSize: 14,
-              outline: "none",
+              width: "100%", padding: "10px 14px", borderRadius: 8, border: "2px solid var(--border)",
+              background: "var(--bg-header)", color: "var(--text-primary)", fontSize: 14, outline: "none",
               boxSizing: "border-box",
             }}
             onFocus={(e) => (e.target.style.borderColor = "#1A365D")}

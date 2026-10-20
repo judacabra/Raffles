@@ -12,7 +12,7 @@ const config: Object = {
 
 export const GetSales = async (idCompany: number): Promise<any> => {
   try {
-    const { data } = await axios.get<any>(`${baseURL}/sales/${idCompany}/all`);
+    const { data } = await axios.get<any>(`${baseURL}/sales/all/${idCompany}`);
 
     return data;
   } catch (error: any) {

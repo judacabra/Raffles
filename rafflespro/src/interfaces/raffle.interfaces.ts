@@ -17,7 +17,7 @@ export interface Raffle {
   digits: number;
   pricePerNumber: number;
   status: "draft" | "active" | "closed" | "completed";
-  winnerNumber?: number;
+  winnerNumber?: string;
   winnerName?: string;
   theme: "default" | "christmas" | "sports" | "lottery";
   fontFamily: string;

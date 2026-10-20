@@ -1,23 +1,26 @@
 import { useEffect, useState } from "react";
 
-import { useAppSelector, useAppDispatch } from "../../store/hooks";
-import { addToast, Language } from "../../store/slices/uiSlice";
+import { useAppSelector, } from "../../store/hooks";
+import { Language } from "../../store/slices/uiSlice";
 import { tr } from "../../i18n/translations";
 
 import { UserRow } from "@/interfaces/user.interfaces";
 
 import { GetUsers, PutUser, PutUserStatus, SetUser, DeleteUser } from "../../api/usersAPI";
 import { appConfig } from "../../config";
+import { useAlert } from "../../utils/useAlert";
+import { SweetAlertOptions } from "sweetalert2";
 
 const UsersPage = () => {
-  const dispatch = useAppDispatch();
-
   const lang: Language = useAppSelector((s: any) => s.ui.language);
-  const company: any = useAppSelector((s) => s.auth.activeCompany);
+  const company: any = useAppSelector((s: any) => s.auth.activeCompany);
+  const user: any = useAppSelector((s: any) => s.auth.user);
   
   const { uploadsFolder, } = appConfig;
+  const { sAlert, sInput, sConfirm } = useAlert();
 
   const roleColors: Record<string, { bg: string; color: string }> = {
+    superadmin:  { bg: "#ffebeb", color: "#b02f2b", },
     admin:  { bg: "#EBF4FF", color: "#2B6CB0", },
     seller: { bg: "#F0FFF4", color: "#276749", },
     viewer: { bg: "#FFFFF0", color: "#7B6B00", },
@@ -38,13 +41,13 @@ const UsersPage = () => {
   const [search, setSearch] = useState<string>("");
 
   const ROLES: any[] = [
-    { id: 1, name: "admin", }, 
-    { id: 2, name: "seller", }, 
-    { id: 3, name: "viewer", },
+    { id: 2, name: "admin", }, 
+    { id: 3, name: "seller", }, 
+    { id: 4, name: "viewer", },
   ];
 
   const filtered: UserRow[] = users.length > 0 
-    ? users.filter((u) =>
+    ? users.filter((u: UserRow) =>
       u.username.toLowerCase().includes(search.toLowerCase()) ||
       u.email.toLowerCase().includes(search.toLowerCase())
     ) : [];
@@ -62,41 +65,63 @@ const UsersPage = () => {
   const saveUser = async (): Promise<void> => {
     if (!editing) return;
     
-    const { role, ...rest } = editing;
+    const { role, ...rest }: any = editing;
 
-    const dataSend = {
+    const dataSend: any = {
       ...rest,
-      roleId: ROLES.find((r: any) => r.name === role)?.id,
+      roleId: ROLES.find((r: any) => r.name === role)!.id,
     };
 
-    console.log(dataSend);
-
     try {
+      let data: any = {};
+      const newUser: boolean = dataSend.id !== undefined;
+
       if (dataSend.id) {
-        await PutUser(dataSend.id, dataSend);
+        data = await PutUser(dataSend.id, dataSend);
       } else {
-        await SetUser(dataSend);
+        data = await SetUser(dataSend);
       }
+
+      const msg: string = !data.statusCode 
+        ? newUser 
+          ? tr("user_saved_successfully", lang) 
+          : tr("user_updated_successfully", lang) 
+        : newUser 
+          ? tr("failed_to_save_user", lang) 
+          : tr("failed_to_update_user", lang);
+
+      const sProps: SweetAlertOptions = {
+        title: !data.statusCode ? tr("success", lang) : tr("failure", lang),
+        html: msg,
+        icon: !data.statusCode ? 'success' : 'error',
+        showConfirmButton: false,
+      };
+
+      sAlert(sProps);
     } catch (err: any) {
-      console.error(`Error al ${(editing.id ? "actualizar" : "guardar")} el usuario: `, err);
+      console.error(`${tr(editing.id ? "failed_to_update_user" : "failed_to_save_user", lang)}: `, err);
     } finally {
       await fetchUsers(company.id);
-
-      dispatch(addToast({ type: "success", message: tr("user_saved", lang) }));
-
       setModalOpen(false);
     }
   };
 
   const changeUserStatus = async (id: number, status: boolean): Promise<void> => {
     try {
-      await PutUserStatus(id, status);
+      const data = await PutUserStatus(id, status);
+
+      const sProps: SweetAlertOptions = {
+        title: !data.statusCode ? tr("success", lang) : tr("failure", lang),
+        html: !data.statusCode ? tr("status_updated_successfully", lang) : tr("failed_to_update_status", lang),
+        icon: !data.statusCode ? 'success' : 'error',
+        showConfirmButton: false,
+      };
+
+      sAlert(sProps);
     } catch (err: any) {
-      console.error(`Error al actualizar el estado del usuario: `, err);
+      console.error(`${tr("failed_to_update_user", lang)}: `, err);
     } finally {
       await fetchUsers(company.id);
-
-      dispatch(addToast({ type: "success", message: tr("status_updated", lang) }));
     }
   };
 
@@ -107,17 +132,44 @@ const UsersPage = () => {
     await changeUserStatus(id, !user.isActive);
   };
 
-  const deleteUser = async (id: number): Promise<void> => {
+  const handleDeleteUser = (id: number): void => {
+    const sProps: SweetAlertOptions = {
+      html: tr("are_you_sure_you_want_to_delete_this_user", lang),
+      icon: 'question',
+      confirmButtonText: tr("yes_delete", lang),
+    };
+
+    sConfirm(sProps, () => deleteUserMotive(id));
+  };
+
+  const deleteUserMotive = (id: number): void => {
+    const sProps: SweetAlertOptions = {
+      title: tr("motive", lang),
+      html: tr("you_are_about_to_delete_user_x_please_provide_a_motive", lang, { id: id }),
+      confirmButtonText: tr("delete", lang),
+    }
+
+    const motiveLabel: string = tr("the_motive_is_required", lang);
+
+    sInput(sProps, motiveLabel, (e) => tryDeleteUser(id, e));
+  };
+
+  const tryDeleteUser = async (id: number, value: string): Promise<void> => {
     try {
-      await DeleteUser(id);
-    } catch (err: any) {
-      console.error('Error al eliminar el usuario: ', err);
+      const response = await DeleteUser(id);
+
+      const sProps: SweetAlertOptions = {
+        title: !response.statusCode ? tr("success", lang) : tr("failure", lang),
+        html: !response.statusCode ? tr("user_deleted_successfully", lang) : tr("failed_user_deleted", lang),
+        icon: !response.statusCode ? 'success' : 'error',
+        showConfirmButton: false,
+      };
+
+      sAlert(sProps);
+    } catch(err: any) {
+      console.error(`${tr("failed_to_delete_user", lang)}: `, err);
     } finally {
       await fetchUsers(company.id);
-
-      dispatch(addToast({ type: "info", message: tr("user_deleted", lang) }));
-
-      setModalOpen(false);
     }
   };
 
@@ -126,7 +178,7 @@ const UsersPage = () => {
       const data: UserRow[] = await GetUsers(idC);
       setUsers(data);
     } catch (err: any) {
-      console.error('Error al obtener los usuarios: ', err);
+      console.error(`${tr("failed_to_get_users", lang)}: `, err);
     } finally {
       setUsersFounded(true);
     }
@@ -219,7 +271,7 @@ const UsersPage = () => {
                     </td>
                     <td style={{ padding: "14px 16px", color: "var(--text-secondary)", fontFamily: "var(--font-mono)", fontSize: 12 }}>{u.email}</td>
                     <td style={{ padding: "14px 16px" }}>
-                      <span style={{ padding: "3px 10px", borderRadius: 99, fontSize: 11, fontWeight: 700, background: rc.bg, color: rc.color }}>
+                      <span style={{ padding: "3px 10px", borderRadius: 99, fontSize: 11, fontWeight: 700, background: rc.bg, color: rc.color, border: `solid .5px ${rc.color}` }}>
                         {tr(u.role, lang)}
                       </span>
                     </td>
@@ -243,20 +295,22 @@ const UsersPage = () => {
                       </label>
                     </td>
                     <td style={{ padding: "14px 16px" }}>
-                      <div style={{ display: "flex", gap: 6 }}>
-                        <button 
-                          onClick={() => openEdit(u)}
-                          title={tr("edit", lang)}
-                          style={{ padding: "5px 12px", borderRadius: 6, border: "1px solid #1A365D", background: "rgb(185, 229, 250)", cursor: "pointer", fontSize: 12, color: "#1A365D", fontWeight: 600, marginRight: 10, }}>
-                            {tr("edit", lang)}
-                        </button>
-                        <button 
-                          onClick={() => deleteUser(u.id!)}
-                          title={tr("delete", lang)}
-                          style={{ padding: "5px 10px", borderRadius: 6, border: "1px solid #d13939", background: "rgb(250, 162, 162)", cursor: "pointer", fontSize: 12, color: "#d13939", fontWeight: 600 }}>
-                          {tr("delete", lang)}
-                        </button>
-                      </div>
+                      {(user && user.id !== u.id) && (
+                        <div style={{ display: "flex", gap: 6 }}>
+                          <button 
+                            onClick={() => openEdit(u)}
+                            title={tr("edit", lang)}
+                            style={{ padding: "5px 12px", borderRadius: 6, border: "1px solid #1A365D", background: "rgb(185, 229, 250)", cursor: "pointer", fontSize: 12, color: "#1A365D", fontWeight: 600, marginRight: 10, }}>
+                              {tr("edit", lang)}
+                          </button>
+                          <button 
+                            onClick={() => handleDeleteUser(u.id!)}
+                            title={tr("delete", lang)}
+                            style={{ padding: "5px 10px", borderRadius: 6, border: "1px solid #d13939", background: "rgb(250, 162, 162)", cursor: "pointer", fontSize: 12, color: "#d13939", fontWeight: 600 }}>
+                            {tr("delete", lang)}
+                          </button>
+                        </div>
+                      )}
                     </td>
                   </tr>
                 );

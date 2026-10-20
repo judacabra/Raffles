@@ -208,18 +208,20 @@ const Dashboard = () => {
                       <td style={{ padding: "14px", color: "var(--text-secondary)", maxWidth: 140, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                         {r.winnerName ? truncarText(r.winnerName, 14, true) : "—"}
                       </td>
-                      <td style={{ padding: "14px" }}>
-                        <button
-                          onClick={() => openBoard(r.id)}
-                          style={{
-                            padding: "5px 12px", borderRadius: 6, border: "1px solid var(--border)",
-                            background: "none", cursor: "pointer", fontSize: 12, color: theme === "dark" ? "#fff" : "#1A365D",
-                            fontWeight: 600, whiteSpace: "nowrap",
-                          }}
-                        >
-                          {tr("view_board", lang)}
-                        </button>
-                      </td>
+                      {r.status == "active" && (
+                        <td style={{ padding: "14px" }}>
+                          <button
+                            onClick={() => openBoard(r.id)}
+                            style={{
+                              padding: "5px 12px", borderRadius: 6, border: "1px solid var(--border)",
+                              background: "none", cursor: "pointer", fontSize: 12, color: theme === "dark" ? "#fff" : "#1A365D",
+                              fontWeight: 600, whiteSpace: "nowrap",
+                            }}
+                          >
+                            {tr("view_board", lang)}
+                          </button>
+                        </td>
+                      )}
                     </tr>
                   );
                 }))}
