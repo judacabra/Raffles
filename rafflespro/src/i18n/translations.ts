@@ -4,6 +4,8 @@ export const t: Record<string, Record<string, string>> = {
   sign_in: { es: "Iniciar Sesión", en: "Sign In" },
   email: { es: "Correo electrónico", en: "Email" },
   password: { es: "Contraseña", en: "Password" },
+  new_password: { es: "Nueva Contraseña", en: "New Password" },
+  confirm_password: { es: "Confirmar contraseña", en: "Confirm Password" },
   remember_me: { es: "Recordarme", en: "Remember me" },
   forgot_password: { es: "¿Olvidaste tu contraseña?", en: "Forgot password?" },
   signing_in: { es: "Iniciando sesión...", en: "Signing in..." },
@@ -129,7 +131,7 @@ export const t: Record<string, Record<string, string>> = {
   failure: { es: "Error", en: "Failure" },
   page: { es: "Página", en: "Page" },
   of: { es: "de", en: "of" },
-  o: { es: "o", en: "o" },
+  or: { es: "o", en: "or" },
   new: { es: "Nuevo", en: "New" },
   date: { es: "Fecha", en: "Date" },
   all: { es: "Todo", en: "All" },
@@ -137,6 +139,7 @@ export const t: Record<string, Record<string, string>> = {
   language_switch: { es: "Cambiar a ingles", en: "Switch to spanish" },
   sought: { es: "Buscado", en: "Sought" },
   motive: { es: "Motivo", en: "Motive" },
+  my_first_login: { es: "Mi primer ingreso", en: "My first login" },
 
   // Companies
   new_company: { es: "Nueva Empresa", en: "New Company "},
@@ -228,6 +231,7 @@ export const t: Record<string, Record<string, string>> = {
   failed_to_save_user: { es: "Error al guardar el usuario", en: "Failed to save user" },
   failed_to_update_user: { es: "Error al actualizar el usuario", en: "Failed to update user" },
   failed_to_delete_user: { es: "Error al eliminar el usuario", en: "Failed to delete user" },
+  passwords_are_differents: { es: "Las contraseñas son diferentes", en: "passwords_are_differents" },
 };
 
 export function tr(key: string, lang: "es" | "en", params?: Record<string, any>): string {

@@ -45,6 +45,7 @@ export const MODULES: Module[] = [
   },
 ];
 
-export const ID_PROFILE_ADMIN: number = 1;
-export const ID_PROFILE_SELLER: number = 2;
-export const ID_PROFILE_VIEWER: number = 3;
+export const ID_PROFILE_SUPERADMIN: number = 1;
+export const ID_PROFILE_ADMIN: number = 2;
+export const ID_PROFILE_SELLER: number = 3;
+export const ID_PROFILE_VIEWER: number = 4;

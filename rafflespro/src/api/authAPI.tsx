@@ -35,3 +35,29 @@ export const Auth = async(dataSend: any): Promise<any> => {
     };
   }
 }
+
+export const FirstLogin = async(dataSend: any): Promise<any> => {
+  try {
+    const { data } = await axios.post(`${baseURL}/auth/first-login`, dataSend, config);
+
+    return data;
+  } catch (error: any) {
+    if (error.response) {
+      console.error(`Error del servidor:`, error.response.data);
+      return error.response.data;
+    }
+    
+    if (error.request) {
+      console.error(`Error de red: No se recibió respuesta del servidor`);
+      return { 
+        error: true, 
+        message: 'No se pudo conectar con el servidor. Verifica tu conexión.' 
+      };
+    }
+    console.error(`Error:`, error.message);
+    return { 
+      error: true, 
+      message: error.message || 'Error desconocido al autenticar' 
+    };
+  }
+}

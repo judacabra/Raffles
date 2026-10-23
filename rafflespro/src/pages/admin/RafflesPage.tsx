@@ -5,7 +5,7 @@ import { useAppDispatch, useAppSelector } from "../../store/hooks";
 
 import { addToast, Language } from "../../store/slices/uiSlice";
 import { setActiveRaffle } from "../../store/slices/raffleSlice";
-import { User } from "../../store/slices/authSlice";
+import { User, Company } from "../../store/slices/authSlice";
 
 import { tr } from "../../i18n/translations";
 import { appConfig } from "../../config";
@@ -25,7 +25,7 @@ function RafflesPage () {
   const { uploadsFolder } = appConfig;
 
   const lang: Language = useAppSelector((s) => s.ui.language);
-  const company: any = useAppSelector((s) => s.auth.activeCompany);
+  const company: Company | null = useAppSelector((s) => s.auth.activeCompany);
   const user: User | null = useAppSelector((s) => s.auth.user);
 
   const [rafflesFounded, setRafflesFounded] = useState<boolean>(false);
@@ -76,8 +76,10 @@ function RafflesPage () {
   };
 
   useEffect(() => {
-    if (!rafflesFounded) fetchRaffles(company && company.id);
+    if (!rafflesFounded && company) fetchRaffles(company.id);
   }, [rafflesFounded, company]);
+
+  console.log(company)
 
   return (
     <div className="animate-fade-in" style={{ padding: 28, maxWidth: 1100, margin: "0 auto" }}>
@@ -90,18 +92,29 @@ function RafflesPage () {
             {filtered.length > 0 && filtered.length + " " + tr("total_raffles" , lang)}
           </p>
         </div>
-        {(user && user.roleId === ID_PROFILE_ADMIN) && (
-          <button 
-            onClick={() => openEditor()}
-            style={{ 
-              padding: "10px 20px", borderRadius: 8, border: "none", background: "#1A365D", 
-              color: "#fff", cursor: "pointer", fontSize: 14, fontWeight: 700, 
-              boxShadow: "0 4px 12px #1A365D40",
+        <div>
+          <input
+            value={search} onChange={(e) => setSearch(e.target.value)}
+            placeholder={tr("search", lang)}
+            style={{
+              padding: "11px 14px", borderRadius: 8, border: "1px solid var(--border)",
+              background: "var(--bg-card)", color: "var(--text-primary)", fontSize: 13,
+              fontFamily: "var(--font-sans)", width: 220, marginRight: 10, 
             }}
-          >
-            + {tr("new_raffle", lang)}
-          </button>
-        )}
+            />
+          {(user && user.roleId <= ID_PROFILE_ADMIN) && (
+            <button 
+              onClick={() => openEditor()}
+              style={{ 
+                padding: "10px 20px", borderRadius: 8, border: "none", background: "#1A365D", 
+                color: "#fff", cursor: "pointer", fontSize: 14, fontWeight: 700, 
+                boxShadow: "0 4px 12px #1A365D40",
+              }}
+            >
+              + {tr("new_raffle", lang)}
+            </button>
+          )}
+        </div>
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: 20 }}>
@@ -195,7 +208,7 @@ function RafflesPage () {
                       >
                         {tr("view_board", lang)}
                       </button>
-                      {user && user.roleId == ID_PROFILE_ADMIN && (
+                      {user && user.roleId <= ID_PROFILE_ADMIN && (
                         <button 
                           onClick={() => { 
                             openEditor(r); 

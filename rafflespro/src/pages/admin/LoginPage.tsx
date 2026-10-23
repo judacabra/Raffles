@@ -30,6 +30,11 @@ export default function LoginPage() {
 
     const data: any = await Auth({ email, password });
 
+    if (data.isFirstLogin) {
+      navigate("/first-login", { replace: true, state: { email: email, } });
+      dispatch(addToast({ type: "info", message: 'Redirigido a "Mi primer ingreso"' }));
+    }
+
     if (data.token) {
       if (data.userResponse.isActive){
         const user: any = {
@@ -37,14 +42,15 @@ export default function LoginPage() {
           name: data.userResponse.username,
           email: data.userResponse.email,
           roleId: data.userResponse.roleId,
+          rolePermissions: data.userResponse.rolePermissions,
           avatar: data.userResponse.imageURL ?? 
             data.userResponse.username
               .split(" ").map((w: any) => w[0])
               .join("").slice(0, 2).toUpperCase(),
           companies: data.userResponse.companies,
         };
-  
-        dispatch(login({ user, email, password, rememberMe: remember }));
+        
+        dispatch(login({ user, token: data.token }));
         dispatch(addToast({ type: "success", message: tr("welcome_back", lang) }));
   
         if (user.companies.length > 1) {
@@ -57,7 +63,7 @@ export default function LoginPage() {
         dispatch(addToast({ type: "error", message: `${tr("user_inactive_please_contact_admin", lang)} ${appName}.` }));
       }
     } else {
-      dispatch(addToast({ type: "error", message: data.message }));
+      if (!data.isFirstLogin) dispatch(addToast({ type: "error", message: data.message }));
     }
 
     setLoading(false);
@@ -79,9 +85,9 @@ export default function LoginPage() {
         position: "relative",
       }}>
         {/* Logo */}
-        <div style={{ textAlign: "center", marginBottom: 36, }}>
-          <img src="/images/logo_rifas.png" alt="logo_de_rifas" style={{ width: "55%", margin: "-30px auto -10px", }} />
-          <p style={{ color: "#718096", fontSize: 14, marginTop: 0 }}>
+        <div style={{ textAlign: "center", marginBottom: 20, }}>
+          <img src="/images/logo_rifas.png" alt="logo_de_rifas" style={{ width: "55%", margin: "-40px auto -10px", }} />
+          <p style={{ color: "#718096", fontSize: 14, }}>
             {tr("welcome_back", lang)}
           </p>
         </div>
@@ -130,11 +136,17 @@ export default function LoginPage() {
           </div>
 
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", fontSize: 14, color: "#4A5568" }}>
-              <input type="checkbox" checked={remember} onChange={(e) => setRemember(e.target.checked)}
-                style={{ width: 16, height: 16, accentColor: "#1A365D" }} />
-              {tr("remember_me", lang)}
-            </label>
+            <button 
+              type="button" 
+              style={{ 
+                background: "#F6AD55", border: "solid .5px #F6AD55", 
+                color: "#fff", fontSize: 13, cursor: "pointer", fontWeight: 600,
+                padding: "6px 10px", borderRadius: 10,
+              }}
+              onClick={() => navigate("/first-login", { replace: true })}
+            >
+              {tr("my_first_login", lang)} {'->'}
+            </button>
             <button type="button" style={{ background: "none", border: "none", color: "#F6AD55", fontSize: 13, cursor: "pointer", fontWeight: 600 }}>
               {tr("forgot_password", lang)}
             </button>

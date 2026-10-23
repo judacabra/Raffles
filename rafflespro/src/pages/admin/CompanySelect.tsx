@@ -20,11 +20,9 @@ const CompanySelect = () => {
   const navigate: NavigateFunction = useNavigate();
 
   const lang: Language = useAppSelector((s) => s.ui.language);
-  const user: User | null = useAppSelector((s) => s.auth.user);
+  const user: any = useAppSelector((s) => s.auth.user);
 
   const { uploadsFolder } = appConfig;
-
-  if (!user) return null;
 
   return (
     <div style={{
@@ -43,7 +41,7 @@ const CompanySelect = () => {
             display: "inline-flex", alignItems: "center", justifyContent: "center",
             color: "#FFF", fontSize: 20, fontWeight: 700, marginBottom: 16,
           }}>
-            {user?.avatar.startsWith("uploads/") ? (
+            {user && user?.avatar.startsWith("uploads/") ? (
               <img src={uploadsFolder + "/" + user?.avatar} style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "50%", }} />
             ) : (
               user?.avatar
@@ -58,7 +56,7 @@ const CompanySelect = () => {
         </div>
 
         <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-          {user.companies.map((company: Company) => (
+          {user && user.companies.map((company: Company) => (
             <button
               key={company.id}
               onClick={() => {

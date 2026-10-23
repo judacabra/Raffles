@@ -8,17 +8,16 @@ import { toggleTheme, toggleLanguage, toggleSidebar, Language, Theme, } from "..
 import { tr } from "../i18n/translations";
 
 import { appConfig } from "../config";
-import { extract_TIME_AGO } from "../utils/date-time";
 
-import { GetNotifications } from "../api/notificationAPI";
 import Notification from "./Notification";
+import { useAlert } from "../utils/useAlert";
 
 export default function Header() {
+  const { sConfirm, } = useAlert();
+
   const dispatch = useAppDispatch();
 
   const navigate: NavigateFunction = useNavigate();
-
-  const company = useAppSelector((s) => s.auth.activeCompany);
 
   const { uploadsFolder } = appConfig;
 
@@ -27,23 +26,6 @@ export default function Header() {
   const user: User | null = useAppSelector((s) => s.auth.user);
 
   const [menuOpen, setMenuOpen] = useState<boolean>(false);
-  const [notifOpen, setNotifOpen] = useState<boolean>(false);
-
-  const [notificationsFounded, setNotificationsDounded] = useState<boolean>(false);
-  const [notifications, setNotifications] = useState<any[]>([]);
-  
-  const NOTIFICATION_MOCK: any[] = [
-    { 
-      icon: "🎉", msg: lang === "es" ? "Rifa Navideña vendió 47 números hoy" : "Christmas Raffle sold 47 numbers today", 
-      time: "Hace 5 min", url: "/board", params: { raffleSelected: 2, } },
-    { 
-      icon: "⚠️", msg: lang === "es" ? "Número 047 en estado Reservado por 24h" : "Number 047 reserved for 24h", 
-      time: "Hace 1h", url: "", params: {} },
-    { 
-      icon: "✅", msg: lang === "es" ? "Sorteo Solidario completado exitosamente" : "Solidarity Raffle completed", 
-      time: "Ayer", url: "", params: {} 
-    },
-  ];
 
   const [text, setText] = useState<string>("");
 
@@ -57,23 +39,20 @@ export default function Header() {
     setText("");
   };
 
-  const fetchNotifications = async (idC: number): Promise<void> => {
-    try {
-      const result = await GetNotifications(idC);
-      if (result) {
-        const rnew: any[] = [...result, ...result, ];
-        setNotifications(rnew);
-      }
-    } catch (err: any) {
-      console.error(`Error al obtener las notificaciones de la empresa id #${idC}: `, err);
-    } finally {
-      setNotificationsDounded(true);
-    }
-  };
+  const handleLogout = (): void => {
+    setMenuOpen(false);
 
-  useEffect(() => {
-    if (company && !notificationsFounded) fetchNotifications(Number(company.id));
-  }, [company, notificationsFounded]);
+    const sProps: any = {
+      html: `¿Estás seguro de cerrar la sesión?`,
+      icon: 'question',
+      confirmButtonText: 'Si, salir',
+    }
+
+    sConfirm(sProps, () => {
+      dispatch(logout());
+      navigate("/login", { replace: true });
+    });
+  };
 
   return (
     <header style={{
@@ -156,17 +135,19 @@ export default function Header() {
           {theme === "dark" ? "☀️" : "🌙"}
         </button>
 
-        <button
-          onClick={() => navigate("/select-company", { replace: true })}
-          style={{
-            padding: "5px 8px", borderRadius: 6, border: "1px solid var(--border)",
-            background: "var(--bg)", color: "var(--text-secondary)", cursor: "pointer",
-            fontSize: 15, fontWeight: 700, fontFamily: "var(--font-mono)", letterSpacing: "0.05em",
-          }}
-          title={tr("language_switch", lang)}
-        >
-          🏢
-        </button>
+        {(user && user.companies.length > 1) && (
+          <button
+            onClick={() => navigate("/select-company", { replace: true })}
+            style={{
+              padding: "5px 8px", borderRadius: 6, border: "1px solid var(--border)",
+              background: "var(--bg)", color: "var(--text-secondary)", cursor: "pointer",
+              fontSize: 15, fontWeight: 700, fontFamily: "var(--font-mono)", letterSpacing: "0.05em",
+            }}
+            title={tr("language_switch", lang)}
+          >
+            🏢
+          </button>
+        )}
 
         {/* Notifications */}
         <Notification />
@@ -232,10 +213,7 @@ export default function Header() {
               ))}
               <div style={{ borderTop: "1px solid var(--border)" }}>
                 <button
-                  onClick={() => {
-                    dispatch(logout());
-                    navigate("/login", { replace: true });
-                  }}
+                  onClick={handleLogout}
                   style={{
                     display: "flex", alignItems: "center", gap: 10, width: "100%",
                     padding: "10px 16px", border: "none", background: "none", cursor: "pointer",

@@ -4,23 +4,29 @@ import { useAppSelector } from "../store/hooks";
 
 import { tr } from "../i18n/translations";
 
-
-const navItems = [
-  { view: "dashboard", icon: "⊞", key: "dashboard" },
-  { view: "companies", icon: "🏢", key: "companies" },
-  { view: "raffles", icon: "🎟", key: "raffles" },
-  { view: "board", icon: "🔢", key: "number_board" },
-  { view: "users", icon: "👥", key: "users" },
-  { view: "logs", icon: "📋", key: "logs" },
-];
+import { Language } from "@/store/slices/uiSlice";
+import { Company, User } from "@/store/slices/authSlice";
+import { View } from "@/interfaces/sidebar.interfaces";
 
 export default function Sidebar({ open }: { open: boolean }) {
   const navigate: NavigateFunction = useNavigate();
 
-  const lang = useAppSelector((s) => s.ui.language);
-  const company = useAppSelector((s) => s.auth.activeCompany);
+  const lang: Language = useAppSelector((s) => s.ui.language);
+  const user: User | null = useAppSelector((s) => s.auth.user);
+  const company: Company | null = useAppSelector((s) => s.auth.activeCompany);
 
   const location: Location = useLocation();
+
+  const navItems: View[] = [
+    { view: "dashboard", icon: "⊞", key: "dashboard" },
+    { view: "companies", icon: "🏢", key: "companies" },
+    { view: "raffles", icon: "🎟", key: "raffles" },
+    { view: "board", icon: "🔢", key: "number_board" },
+    { view: "users", icon: "👥", key: "users" },
+    { view: "logs", icon: "📋", key: "logs" },
+  ];
+
+  const filteredNavItems: View[] = navItems.filter((n: View) => user && user.rolePermissions && user.rolePermissions.includes(n.view));
 
   return (
     <aside style={{
@@ -51,7 +57,7 @@ export default function Sidebar({ open }: { open: boolean }) {
 
       {/* Nav */}
       <nav style={{ flex: 1, padding: "12px 8px", display: "flex", flexDirection: "column", gap: 4 }}>
-        {navItems.map((item) => {
+        {filteredNavItems.map((item: View) => {
           const isActive = location.pathname.slice(1,location.pathname.length) == item.view;
 
           return (

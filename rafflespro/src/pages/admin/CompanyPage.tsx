@@ -318,9 +318,9 @@ const CompaniesPage = () => {
             value={search} onChange={(e) => setSearch(e.target.value)}
             placeholder={tr("search", lang)}
             style={{
-              padding: "8px 14px", borderRadius: 8, border: "1px solid var(--border)",
+              padding: "9px 14px", borderRadius: 8, border: "1px solid var(--border)",
               background: "var(--bg-card)", color: "var(--text-primary)", fontSize: 13,
-              fontFamily: "var(--font-sans)", width: 220,
+              fontFamily: "var(--font-sans)", width: 220, 
             }}
           />
           <button onClick={openNew}

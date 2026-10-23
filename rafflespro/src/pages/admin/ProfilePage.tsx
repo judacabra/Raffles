@@ -110,22 +110,23 @@ const ProfilePage = () => {
               }}
             />
           </label>
-
-          <div
-            style={{
-              borderRadius: "50%", padding: "1% 1% 1.25%", color: "#b61e1e", position: "absolute", 
-              border: "0.5px solid #b61e1e", width: 30, height: 30, background: "#fff", display: "flex",
-              justifyContent: "center", alignItems: "center", bottom: 10, right: 140, cursor: "pointer",
-            }}
-            title={tr("remove_image", lang)}
-            onClick={(e) => {
-              e.preventDefault();
-              setImagePreview(imageNotFound);
-              setUser({ ...user, avatar: null, });
-            }}
-          >
-            x
-          </div>
+          {imagePreview !== imageNotFound && (
+            <div
+              style={{
+                borderRadius: "50%", padding: "1% 1% 1.25%", color: "#b61e1e", position: "absolute", 
+                border: "0.5px solid #b61e1e", width: 30, height: 30, background: "#fff", display: "flex",
+                justifyContent: "center", alignItems: "center", bottom: 10, right: 140, cursor: "pointer",
+              }}
+              title={tr("remove_image", lang)}
+              onClick={(e) => {
+                e.preventDefault();
+                setImagePreview(imageNotFound);
+                setUser({ ...user, avatar: null, });
+              }}
+            >
+              x
+            </div>
+          )}
         </div>
       </div>
       {[

@@ -4,6 +4,7 @@ import { NavigateFunction, useNavigate, } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../store/hooks"; 
 import { Language, Theme } from "../../store/slices/uiSlice"; 
 import { setActiveRaffle } from "../../store/slices/raffleSlice"; 
+import { Company, User } from "@/store/slices/authSlice";
 
 import { tr } from "../../i18n/translations"; 
 
@@ -12,6 +13,7 @@ import { GetRaffles } from "../../api/raffleAPI";
 import { KPIs, StatusColor, Time } from "@/interfaces/dashboard.interfaces"; 
 import { Raffle, RaffleNumber } from "@/interfaces/raffle.interfaces"; 
 import { truncarText } from "../../utils/format-words";
+import { ID_PROFILE_ADMIN } from "../../constants/constants";
 
 const useCountdown = (targetDate: string): Time => {
   const [time, setTime] = useState<Time>({ days: 0, hours: 0, mins: 0, secs: 0 });
@@ -54,7 +56,8 @@ const Dashboard = () => {
 
   const lang: Language = useAppSelector((s) => s.ui.language);
   const theme: Theme = useAppSelector((s) => s.ui.theme);
-  const company: any = useAppSelector((s) => s.auth.activeCompany);
+  const user: User | null = useAppSelector((s) => s.auth.user);
+  const company: Company | null = useAppSelector((s) => s.auth.activeCompany);
 
   // const raffles = useAppSelector((s) => s.raffle.raffles);
 
@@ -117,7 +120,7 @@ const Dashboard = () => {
   };
 
   useEffect(() => {
-    if (!rafflesFounded) fetchRaffles(company.id);
+    if (!rafflesFounded && company) fetchRaffles(company.id);
   }, [rafflesFounded, company]);
 
   return (
@@ -143,24 +146,32 @@ const Dashboard = () => {
         ))}
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 340px", gap: 20, marginBottom: 28 }}>
+      <div 
+        style={{ 
+          display: "grid", gap: 20, marginBottom: 28, width: "100%", 
+          gridTemplateColumns: nextRaffle ? "1fr 340px" : "1fr",
+        }}
+      >
         {/* Recent Raffles */}
         <div style={{ background: "var(--bg-card)", borderRadius: 12, boxShadow: "var(--shadow-sm)", overflow: "hidden" }}>
           <div style={{ padding: "18px 24px", borderBottom: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
             <h2 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: "var(--text-primary)", fontFamily: "var(--font-display)" }}>
               {tr("recent_raffles", lang)}
             </h2>
-            <button
-              onClick={() => 
-                navigate("/raffles", { replace: true, })}
-              style={{
-                padding: "6px 14px", borderRadius: 6, border: "none", cursor: "pointer",
-                background: "#1A365D", color: "#FFFFFF", fontSize: 13, fontWeight: 600,
-                fontFamily: "var(--font-sans)",
-              }}
-            >
-              + {tr("new_raffle", lang)}
-            </button>
+
+            {(user && user.roleId <= ID_PROFILE_ADMIN) && (
+              <button
+                onClick={() => 
+                  navigate("/raffles", { replace: true, })}
+                style={{
+                  padding: "6px 14px", borderRadius: 6, border: "none", cursor: "pointer",
+                  background: "#1A365D", color: "#FFFFFF", fontSize: 13, fontWeight: 600,
+                  fontFamily: "var(--font-sans)",
+                }}
+              >
+                + {tr("new_raffle", lang)}
+              </button>
+            )}
           </div>
           <div style={{ overflowX: "auto" }}>
             <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>

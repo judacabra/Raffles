@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
+import { NavigateFunction, useLocation, useNavigate } from "react-router-dom";
 
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { addToast, Language } from "../../store/slices/uiSlice";
+import { Company, User } from "../../store/slices/authSlice";
 
 import { tr } from "../../i18n/translations";
 
@@ -12,8 +14,10 @@ import { useIP } from "../../utils/useIP";
 
 import { Sale } from "@/interfaces/numberBoard.interfaces";
 import { Raffle, RaffleNumber } from "@/interfaces/raffle.interfaces";
-import { NavigateFunction, useLocation, useNavigate } from "react-router-dom";
+
 import { truncarText } from "../../utils/format-words";
+
+import { ID_PROFILE_ADMIN } from "../../constants/constants";
 
 
 const NumberBoard = () => {
@@ -26,8 +30,8 @@ const NumberBoard = () => {
   const navigate: NavigateFunction = useNavigate();
 
   const lang: Language = useAppSelector((s) => s.ui.language);
-  const company: any = useAppSelector((s) => s.auth.activeCompany);
-  const user: any = useAppSelector((s) => s.auth.user);
+  const company: Company | null = useAppSelector((s) => s.auth.activeCompany);
+  const user: User | null = useAppSelector((s) => s.auth.user);
 
   const { getIP } = useIP();
 
@@ -110,7 +114,7 @@ const NumberBoard = () => {
   };
 
   const confirmSale = async (): Promise<void> => {
-    if (!selected || !buyer.trim() || !phone.trim() || (!total || total === 0)) return;
+    if (!company || !selected || !buyer.trim() || !phone.trim() || (!total || total === 0)) return;
 
     // dispatch(updateNumberStatus({ raffleId: activeRaffle.id, num: selected.num, status: "sold", buyer: buyer.trim(), phone: phone.trim() }));
     // dispatch(setActiveRaffle(activeRaffle.id));
@@ -181,7 +185,7 @@ const NumberBoard = () => {
   };
 
   useEffect(() => {
-    if (!rafflesFounded) fetchRaffles(company.id);
+    if (!rafflesFounded && company) fetchRaffles(company.id);
   }, [rafflesFounded, company]);
 
   if (!activeRaffle) {
@@ -189,27 +193,30 @@ const NumberBoard = () => {
       <div
         style={{
           display: "flex", flexDirection: "column", alignItems: "center",
-          justifyContent: "center", height: 400, gap: 16,
+          justifyContent: "center", height: 400,
         }}
       >
         <div style={{ fontSize: 48 }}>🎟</div>
         <p style={{ color: "var(--text-muted)", fontSize: 16 }}>
           {tr("no_active_raffles", lang)}
         </p>
-        <button
-          onClick={() => navigate("/raffles", { replace: true })}
-          style={{
-            padding: "10px 20px",
-            borderRadius: 8,
-            border: "none",
-            background: "#1A365D",
-            color: "#fff",
-            cursor: "pointer",
-            fontWeight: 600,
-          }}
-        >
-          {tr("new_raffle", lang)}
-        </button>
+
+        {user && user.id <= ID_PROFILE_ADMIN && (
+          <button
+            onClick={() => navigate("/raffles", { replace: true })}
+            style={{
+              padding: "10px 20px",
+              borderRadius: 8,
+              border: "none",
+              background: "#1A365D",
+              color: "#fff",
+              cursor: "pointer",
+              fontWeight: 600,
+            }}
+          >
+            {tr("new_raffle", lang)}
+          </button>
+        )}
       </div>
     );
   }
@@ -233,7 +240,7 @@ const NumberBoard = () => {
             flexWrap: "wrap",
           }}
         >
-          {user && user.id == 1 && (
+          {user && user.id <= ID_PROFILE_ADMIN && (
             <select
               value={activeRaffle.id}
               onChange={(e) => setActiveRaffle(raffles.find((r: any) => r.id == e.target.value))}
@@ -259,8 +266,8 @@ const NumberBoard = () => {
             }}
             style={{
               padding: "8px 12px", borderRadius: 8, border: "1px solid var(--border)", 
-              color: "var(--text-primary)", fontSize: 14, fontFamily: "var(--font-mono)", 
-              background: "var(--bg-card)", width: 160,
+              color: "var(--text-primary)", fontSize: 13, background: "var(--bg-card)", 
+              fontFamily: "var(--font-sans)", width: 220, 
             }}
           />
           <div style={{ marginLeft: "auto", display: "flex", gap: 6 }}>

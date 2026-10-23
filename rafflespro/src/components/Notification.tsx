@@ -14,9 +14,7 @@ export default function Notification() {
   const navigate: NavigateFunction = useNavigate();
 
   const company = useAppSelector((s) => s.auth.activeCompany);
-
   const lang: Language = useAppSelector((s) => s.ui.language);
-  const theme: Theme = useAppSelector((s) => s.ui.theme);
 
   const [notifOpen, setNotifOpen] = useState<boolean>(false);
 

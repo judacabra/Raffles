@@ -10,11 +10,12 @@ import { GetUsers, PutUser, PutUserStatus, SetUser, DeleteUser } from "../../api
 import { appConfig } from "../../config";
 import { useAlert } from "../../utils/useAlert";
 import { SweetAlertOptions } from "sweetalert2";
+import { Company, User } from "../../store/slices/authSlice";
 
 const UsersPage = () => {
   const lang: Language = useAppSelector((s: any) => s.ui.language);
-  const company: any = useAppSelector((s: any) => s.auth.activeCompany);
-  const user: any = useAppSelector((s: any) => s.auth.user);
+  const company: Company | null = useAppSelector((s: any) => s.auth.activeCompany);
+  const user: User | null = useAppSelector((s: any) => s.auth.user);
   
   const { uploadsFolder, } = appConfig;
   const { sAlert, sInput, sConfirm } = useAlert();
@@ -29,7 +30,7 @@ const UsersPage = () => {
   const initialUser: any = {
     username: "", 
     email: "", 
-    companyId: company.id, 
+    companyId: company && company.id, 
     role: "seller", 
     isActive: true,
   };
@@ -101,7 +102,7 @@ const UsersPage = () => {
     } catch (err: any) {
       console.error(`${tr(editing.id ? "failed_to_update_user" : "failed_to_save_user", lang)}: `, err);
     } finally {
-      await fetchUsers(company.id);
+      if (company) await fetchUsers(company.id);
       setModalOpen(false);
     }
   };
@@ -121,7 +122,7 @@ const UsersPage = () => {
     } catch (err: any) {
       console.error(`${tr("failed_to_update_user", lang)}: `, err);
     } finally {
-      await fetchUsers(company.id);
+      if (company) await fetchUsers(company.id);
     }
   };
 
@@ -169,7 +170,7 @@ const UsersPage = () => {
     } catch(err: any) {
       console.error(`${tr("failed_to_delete_user", lang)}: `, err);
     } finally {
-      await fetchUsers(company.id);
+      if (company) await fetchUsers(company.id);
     }
   };
 
@@ -185,7 +186,7 @@ const UsersPage = () => {
   };
 
   useEffect(() => {
-    if (!usersFounded) fetchUsers(company.id);
+    if (!usersFounded && company) fetchUsers(company.id);
   }, [usersFounded, company]);
 
   return (

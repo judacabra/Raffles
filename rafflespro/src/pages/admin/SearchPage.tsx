@@ -8,24 +8,29 @@ import { tr } from "../../i18n/translations";
 
 import { Module } from "../../interfaces/module.interfaces";
 import { MODULES } from "../../constants/constants";
+import { User } from "../../store/slices/authSlice";
 
 const SearchPage = () => {
+  const lang: Language = useAppSelector((s: any) => s.ui.language);
+  const user: User | null = useAppSelector((s: any) => s.auth.user);
+
   const navigate: NavigateFunction = useNavigate();
   
   const [searchParams, setSearchParams] = useSearchParams();
+
   const urlText: string | null = searchParams.get("text");
 
-  const lang: Language = useAppSelector((s: any) => s.ui.language);
   
-  const [infoFounded, setInfoFounded] = useState<boolean>(false);
   const [text, setText] = useState<string>("");
 
-  const modules: Module[] = MODULES.filter((m: Module): boolean =>
+  const modFiltered: Module[] = MODULES.filter((m: Module) => user && user.rolePermissions && user.rolePermissions.includes(m.url.split("/")[1].toLowerCase()));
+
+  const modules: Module[] = modFiltered.filter((m: Module): boolean =>
     m.title.toLowerCase().includes(text.toLowerCase()) ||
     m.description.toLowerCase().includes(text.toLowerCase())
   );
 
-  const highlightText = (v: string, text: string) => {
+  const highlightText = (v: string, text: string): any => {
     if (!text) return v;
 
     const parts: string[] = v.split(new RegExp(`(${text})`, "gi"));
