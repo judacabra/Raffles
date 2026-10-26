@@ -75,19 +75,18 @@ const UsersPage = () => {
 
     try {
       let data: any = {};
-      const newUser: boolean = dataSend.id !== undefined;
 
       if (dataSend.id) {
-        data = await PutUser(dataSend.id, dataSend);
+        data = await PutUser(30, dataSend);
       } else {
         data = await SetUser(dataSend);
       }
-
+      
       const msg: string = !data.statusCode 
-        ? newUser 
-          ? tr("user_saved_successfully", lang) 
-          : tr("user_updated_successfully", lang) 
-        : newUser 
+        ? dataSend.id !== undefined 
+          ? tr("user_updated_successfully", lang) 
+          : tr("user_saved_successfully", lang) 
+        : dataSend.id !== undefined 
           ? tr("failed_to_save_user", lang) 
           : tr("failed_to_update_user", lang);
 
@@ -96,7 +95,7 @@ const UsersPage = () => {
         html: msg,
         icon: !data.statusCode ? 'success' : 'error',
         showConfirmButton: false,
-      };
+      }; 
 
       sAlert(sProps);
     } catch (err: any) {
@@ -135,7 +134,7 @@ const UsersPage = () => {
 
   const handleDeleteUser = (id: number): void => {
     const sProps: SweetAlertOptions = {
-      html: tr("are_you_sure_you_want_to_delete_this_user", lang),
+      html: tr("are_you_sure_you_want_to_delete_x", lang, { x: "this_user" }),
       icon: 'question',
       confirmButtonText: tr("yes_delete", lang),
     };
@@ -152,10 +151,10 @@ const UsersPage = () => {
 
     const motiveLabel: string = tr("the_motive_is_required", lang);
 
-    sInput(sProps, motiveLabel, (e) => tryDeleteUser(id, e));
+    sInput(sProps, motiveLabel, () => tryDeleteUser(id));
   };
 
-  const tryDeleteUser = async (id: number, value: string): Promise<void> => {
+  const tryDeleteUser = async (id: number,): Promise<void> => {
     try {
       const response = await DeleteUser(id);
 

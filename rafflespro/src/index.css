@@ -5,8 +5,8 @@ html, body, #root {
   height: 100%;
 }
 
-input, select, textarea {
-  outline: none;
+input, select, textarea, button {
+  outline: none !important;
 }
 
 /* ── Design tokens ─────────────────────────────────────── */

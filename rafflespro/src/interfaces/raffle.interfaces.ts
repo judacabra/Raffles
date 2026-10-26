@@ -1,4 +1,4 @@
-import { NumberStatus } from "@/types/raffle.types";
+import { FilterStatusLabel, FilterStatusValue, NumberStatus, OrderByLabel, OrderByValue } from "@/types/raffle.types";
 
 export interface RaffleNumber {
   num: number;
@@ -16,7 +16,7 @@ export interface Raffle {
   totalNumbers: number;
   digits: number;
   pricePerNumber: number;
-  status: "draft" | "active" | "closed" | "completed";
+  status: "active" | "inactive" | "completed";
   winnerNumber?: string;
   winnerName?: string;
   theme: "default" | "christmas" | "sports" | "lottery";
@@ -35,4 +35,13 @@ export interface RaffleState {
   activeRaffle: Raffle | null;
   editorStep: number;
   editorDraft: Partial<Raffle>;
+}
+
+export interface OrderByOpt {
+  value: OrderByValue;
+  label: OrderByLabel;
+}
+export interface FilterStatus {
+  value: FilterStatusValue;
+  label: FilterStatusLabel;
 }

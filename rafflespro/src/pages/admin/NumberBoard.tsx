@@ -205,13 +205,8 @@ const NumberBoard = () => {
           <button
             onClick={() => navigate("/raffles", { replace: true })}
             style={{
-              padding: "10px 20px",
-              borderRadius: 8,
-              border: "none",
-              background: "#1A365D",
-              color: "#fff",
-              cursor: "pointer",
-              fontWeight: 600,
+              padding: "10px 20px", borderRadius: 8, border: "none", background: "#1A365D",
+              color: "#fff", cursor: "pointer", fontWeight: 600, marginTop: 20,
             }}
           >
             {tr("new_raffle", lang)}

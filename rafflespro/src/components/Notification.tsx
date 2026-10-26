@@ -1,72 +1,86 @@
 import { useEffect, useState } from "react";
 import { NavigateFunction, useNavigate } from "react-router-dom";
 
-import { useAppSelector } from "../store/hooks";
-import { Language, Theme, } from "../store/slices/uiSlice";
+import { SweetAlertOptions } from "sweetalert2";
+
+import { useAppDispatch, useAppSelector } from "../store/hooks";
+
+import { User, } from "../store/slices/authSlice";
+import { addToast, Language } from "../store/slices/uiSlice";
 
 import { tr } from "../i18n/translations";
 
 import { extract_TIME_AGO } from "../utils/date-time";
 
-import { GetNotifications } from "../api/notificationAPI";
+import { DeleteNotification, GetNotifications, PutNotification } from "../api/notificationAPI";
+
+import { useAlert } from "../utils/useAlert";
 
 export default function Notification() {
   const navigate: NavigateFunction = useNavigate();
 
-  const company = useAppSelector((s) => s.auth.activeCompany);
+  const dispatch = useAppDispatch();
+
+  const user: User | null = useAppSelector((s) => s.auth.user);
   const lang: Language = useAppSelector((s) => s.ui.language);
 
+  const { sConfirm } = useAlert();
+ 
   const [notifOpen, setNotifOpen] = useState<boolean>(false);
 
-  const [notificationsFounded, setNotificationsDounded] = useState<boolean>(false);
+  const [notificationsFounded, setNotificationsFounded] = useState<boolean>(false);
   const [notifications, setNotifications] = useState<any[]>([]);
 
-  const NOTIFICATION_MOCK: any[] = [
-    {
-      icon: "🎉",
-      msg:
-        lang === "es"
-          ? "Rifa Navideña vendió 47 números hoy"
-          : "Christmas Raffle sold 47 numbers today",
-      time: "Hace 5 min",
-      url: "/board",
-      params: { raffleSelected: 2 },
-    },
-    {
-      icon: "⚠️",
-      msg:
-        lang === "es"
-          ? "Número 047 en estado Reservado por 24h"
-          : "Number 047 reserved for 24h",
-      time: "Hace 1h",
-      url: "",
-      params: {},
-    },
-    {
-      icon: "✅",
-      msg:
-        lang === "es"
-          ? "Sorteo Solidario completado exitosamente"
-          : "Solidarity Raffle completed",
-      time: "Ayer",
-      url: "",
-      params: {},
-    },
-  ];
+  const pendingNotifications: boolean = notifications.some((n: any) => n.readedAt == null);
 
-  const handleDeleteNotification = (nId: number): void => {
+  const handleNotification = async (n: any): Promise<void> => {
+    setNotifOpen(false);
+
+    await setReadedNotification(n.id);
+    
+    navigate(n.data.url, {
+      replace: true,
+      state: n.data.params ? n.data.params : {},
+    });
+  }
+
+  const handleDeleteNotification = (id: number): void => {
     event?.preventDefault();
-    alert(`Eliminando notificación...`);
+    
+    const sProps: SweetAlertOptions = {
+      html: tr("are_you_sure_you_want_to_delete_x", lang, { x: tr("this_notification", lang) }),
+      icon: 'question',
+      confirmButtonText: tr("yes_delete", lang),
+    };
 
-    setTimeout(() => {
-      alert(`Notificación Eliminada`);
-      setNotifications(notifications.filter((n: any) => n.id !== nId))
-    }, 1500);
+    sConfirm(sProps, () => tryDeleteNotification(id));
+  };
+
+  const tryDeleteNotification = async (id: number): Promise<void> => {
+    try {
+      const response = await DeleteNotification(id);
+
+      if (!response.statusCode) setNotifOpen(false);
+
+      const bodyToast: any = {
+        type: !response.statusCode ? "success" : "error",
+        message: !response.statusCode 
+          ? tr("notification_deleted_successfully", lang) 
+          : tr("failed_to_delete_notification", lang),
+      };
+
+      dispatch(addToast(bodyToast));
+    } catch(err: any) {
+      console.error(`${tr("failed_to_delete_notification", lang)}: `, err);
+    } finally {
+      if (user) await fetchNotifications(user.id);
+    }
   };
 
   const fetchNotifications = async (idC: number): Promise<void> => {
     try {
       const result = await GetNotifications(idC);
+
       if (result) setNotifications(result);
     } catch (err: any) {
       console.error(
@@ -74,13 +88,26 @@ export default function Notification() {
         err,
       );
     } finally {
-      setNotificationsDounded(true);
+      setNotificationsFounded(true);
+    }
+  };
+
+  const setReadedNotification = async (id: number): Promise<void> => {
+    const date: string = new Date().toISOString().split("T")[0]
+    const hour: string = new Date().toISOString().split("T")[1].split(".")[0];
+
+    try {
+      await PutNotification(id, { readedAt: `${date} ${hour}`, });
+    } catch (err: any) {
+      console.error(`Error al actualizar la notaificación de id #${id}: `, err);
+    } finally {
+      if (user) await fetchNotifications(user.id);
     }
   };
 
   useEffect(() => {
-    if (company && !notificationsFounded) fetchNotifications(Number(company.id));
-  }, [company, notificationsFounded]);
+    if (user && !notificationsFounded) fetchNotifications(Number(user.id));
+  }, [user, notificationsFounded]);
 
   return (
     <div style={{ position: "relative" }}>
@@ -94,20 +121,22 @@ export default function Notification() {
         aria-label={tr("notifications", lang)}
       >
         🔔
-        <span
-          style={{
-            position: "absolute", top: 6, right: 6, width: 8, height: 8,
-            borderRadius: "50%", background: "#FC8181", border: "2px solid var(--bg-header)",
-          }}
-        />
+        {pendingNotifications && (
+          <span
+            style={{
+              position: "absolute", top: 6, right: 6, width: 10, height: 10,
+              borderRadius: "50%", background: "#FC8181", border: "2px solid var(--bg-header)",
+            }}
+          />
+        )}
       </button>
       {notifOpen && (
         <div
           style={{
             position: "absolute", top: "calc(100% + 8px)", right: 0, width: 320,
-            background: "var(--bg-card)", border: "1px solid var(--border)", zIndex: 100, borderRadius: 12,
-            boxShadow: "0 8px 24px #0000001A", maxHeight: "80vh", overflow: "hidden", display: "flex",
-            flexDirection: "column",
+            boxShadow: "0 8px 24px #0000001A", maxHeight: "80vh", overflow: "hidden", 
+            background: "var(--bg-card)", border: "1px solid var(--border)", zIndex: 100, 
+            display: "flex", flexDirection: "column", borderRadius: 12,
           }}
         >
           <div
@@ -137,14 +166,9 @@ export default function Notification() {
                     style={{
                       padding: "12px 16px", display: "flex", gap: 12, alignItems: "flex-start",
                       borderBottom: "1px solid var(--border)", cursor: "pointer", position: "relative",
+                      fontWeight: !n.readedAt ? "bold": "normal",
                     }}
-                    onClick={() => {
-                      setNotifOpen(false);
-                      navigate(n.data.url, {
-                        replace: true,
-                        state: n.data.params ? n.data.params : {},
-                      });
-                    }}
+                    onClick={() => handleNotification(n)}
                     onMouseEnter={(e) => e.currentTarget.style.background = "var(--bg)" }
                     onMouseLeave={(e) => e.currentTarget.style.background = "transparent" }
                   >

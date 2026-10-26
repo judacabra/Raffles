@@ -140,6 +140,12 @@ export const t: Record<string, Record<string, string>> = {
   sought: { es: "Buscado", en: "Sought" },
   motive: { es: "Motivo", en: "Motive" },
   my_first_login: { es: "Mi primer ingreso", en: "My first login" },
+  filters: { es: "Filtros", en: "Filters" },
+  clear_filters: { es: "Limpiar filtros", en: "Clear filters" },
+  order_by: { es: "Ordenar por", en: "Order by" },
+  most_relevants: { es: "Más relevantes", en: "Most relevants" },
+  most_recents_first: { es: "Más recientes primero", en: "Most recents first" },
+  oldest_first: { es: "Antiguos primero", en: "Oldest first" },
 
   // Companies
   new_company: { es: "Nueva Empresa", en: "New Company "},
@@ -189,11 +195,6 @@ export const t: Record<string, Record<string, string>> = {
   payments_ok: { es: "Estas al día, no tienes pagos pendientes", en: "Payments up to date." },
 
   // users
-  failed_user_deleted: { es: "El usuario no pudo ser eliminado.", en: "Failed user deleted" },
-  are_you_sure_you_want_to_delete_this_user: {
-    es: "¿Estás seguro de eliminar este usuario?",
-    en: "¿Are you sure you want to delete this user?"
-  },
   you_are_about_to_delete_user_x_please_provide_a_motive: { 
     es: "Está a punto de eliminar el usuario #{id}, <br /> por favor indique un motivo",
     en: "You are about to delete user #{id}, <br /> please provide a motive",
@@ -201,12 +202,15 @@ export const t: Record<string, Record<string, string>> = {
   user_saved_successfully: { es: "Usuario guardado exitosamente", en: "User saved successfully" },
   user_updated_successfully: { es: "Usuario actualizado exitosamente", en: "User updated successfully" },
   user_deleted_successfully: { es: "Usuario eliminado exitosamente.", en: "User deleted successfully" },
+  this_user: { es: "este usuario", en: "this user" },
 
   // images
   remove_image: { es: "Quitar imagen", en: "Remove image" },
 
   // notifications
+  this_notification: { es: "esta notificación", en: "this notification" },
   delete_notification: { es: "Eliminar notificación", en: "Delete notification" },
+  notification_deleted_successfully: { es: "Notificación eliminada exitosamente", en: "Notification deleted successfully" },
 
   // empty
   no_notifications: { es: "No hay nofiticaciónes para mostrar", en: "No notifications" },
@@ -215,6 +219,10 @@ export const t: Record<string, Record<string, string>> = {
   understood: { es: "Entendido", en: "Understood" },
   yes_delete: { es: "Si, eliminar", en: "Yes, delete" },
   the_motive_is_required: { es: "El motivo es obligatorio", en: "The motive is required" },
+  are_you_sure_you_want_to_delete_x: {
+    es: "¿Estás seguro de eliminar {x}?",
+    en: "¿Are you sure you want to delete {x}?"
+  },
 
   // errors
   user_inactive_please_contact_admin: { 
@@ -230,8 +238,10 @@ export const t: Record<string, Record<string, string>> = {
   failed_to_get_users: { es: "Error al obtener los usuarios", en: "Failed to get users" },
   failed_to_save_user: { es: "Error al guardar el usuario", en: "Failed to save user" },
   failed_to_update_user: { es: "Error al actualizar el usuario", en: "Failed to update user" },
-  failed_to_delete_user: { es: "Error al eliminar el usuario", en: "Failed to delete user" },
+  failed_to_delete_user: { es: "El usuario no pudo ser eliminado.", en: "Failed user deleted" },
   passwords_are_differents: { es: "Las contraseñas son diferentes", en: "passwords_are_differents" },
+  failed_to_update_notification: { es: "Error al actualizar la notificación", en: "Failed to update notification" },
+  failed_to_delete_notification: { es: "Error al eliminar la notificación", en: "Failed to delete notification" },
 };
 
 export function tr(key: string, lang: "es" | "en", params?: Record<string, any>): string {
