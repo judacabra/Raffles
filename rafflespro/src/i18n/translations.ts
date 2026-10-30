@@ -9,11 +9,14 @@ export const t: Record<string, Record<string, string>> = {
   remember_me: { es: "Recordarme", en: "Remember me" },
   forgot_password: { es: "¿Olvidaste tu contraseña?", en: "Forgot password?" },
   signing_in: { es: "Iniciando sesión...", en: "Signing in..." },
-  select_company: { es: "Selecciona tu Empresa", en: "Select your Company" },
-  select_company_sub: { es: "Eres miembro de varias empresas. ¿Con cuál deseas trabajar?", en: "You belong to multiple companies. Which one would you like to work with?" },
+  select_company: { es: "Selecciona tu empresa", en: "Select your Company" },
+  select_company_sub: { 
+    es: "Eres miembro de varias empresas. ¿Con cuál deseas trabajar?", 
+    en: "You belong to multiple companies. Which one would you like to work with?" 
+  },
   enter: { es: "Ingresar", en: "Enter" },
-  logout: { es: "Cerrar Sesión", en: "Log Out" },
-  my_profile: { es: "Mi Perfil", en: "My Profile" },
+  logout: { es: "Cerrar sesión", en: "Log out" },
+  my_profile: { es: "Mi perfil", en: "My profile" },
 
   // Nav
   dashboard: { es: "Dashboard", en: "Dashboard" },
@@ -25,23 +28,26 @@ export const t: Record<string, Record<string, string>> = {
   settings: { es: "Configuración", en: "Settings" },
 
   // Dashboard
-  active_raffles: { es: "Rifas Activas", en: "Active Raffles" },
-  sold_today: { es: "Vendidos Hoy", en: "Sold Today" },
-  total_sold: { es: "Total Vendidos", en: "Total Sold" },
+  active_raffles: { es: "Rifas activas", en: "Active raffles" },
+  sold_today: { es: "Vendidos hoy", en: "Sold today" },
+  total_sold: { es: "Total vendidos", en: "Total Sold" },
   estimated_revenue: { es: "Ingresos Estimados", en: "Estimated Revenue" },
-  next_draw: { es: "Próximo Sorteo", en: "Next Draw" },
+  next_draw: { es: "Próximo sorteo", en: "Next draw" },
+  day: { es: "Día", en: "Days" },
   days: { es: "Días", en: "Days" },
   hours: { es: "Horas", en: "Hours" },
   mins: { es: "Min", en: "Min" },
   secs: { es: "Seg", en: "Sec" },
-  recent_raffles: { es: "Últimas Rifas", en: "Recent Raffles" },
+  week: { es: "Semana", en: "Week" },
+  weeks: { es: "Semanas", en: "Weeks" },
+  recent_raffles: { es: "Últimas rifas", en: "Recent raffles" },
   raffle_name: { es: "Nombre", en: "Name" },
-  draw_date: { es: "Fecha Sorteo", en: "Draw Date" },
+  draw_date: { es: "Fecha sorteo", en: "Draw date" },
   status: { es: "Estado", en: "Status" },
-  winner_num: { es: "N° Ganador", en: "Winner #" },
+  winner_num: { es: "N° ganador", en: "Winner #" },
   winner: { es: "Ganador", en: "Winner" },
-  new_raffle: { es: "Nueva Rifa", en: "New Raffle" },
-  view_board: { es: "Ver Tablero", en: "View Board" },
+  new_raffle: { es: "Nueva rifa", en: "New raffle" },
+  view_board: { es: "Ver tablero", en: "View board" },
 
   // Status badges
   active: { es: "Activo", en: "Active" },
@@ -52,8 +58,8 @@ export const t: Record<string, Record<string, string>> = {
 
   // Raffle Editor
   no_raffles_found: { es: "No hay rifas registradas", en: "No raffles found" },
-  create_raffle: { es: "Crear Rifa", en: "Create Raffle" },
-  edit_raffle: { es: "Editar Rifa", en: "Edit Raffle" },
+  create_raffle: { es: "Crear rifa", en: "Create raffle" },
+  edit_raffle: { es: "Editar rifa", en: "Edit raffle" },
   step_data: { es: "Datos", en: "Data" },
   step_numbers: { es: "Numeración", en: "Numbers" },
   step_design: { es: "Diseño", en: "Design" },
@@ -137,6 +143,9 @@ export const t: Record<string, Record<string, string>> = {
   all: { es: "Todo", en: "All" },
   username: { es: "Nombre de usuario", en: "Username" },
   language_switch: { es: "Cambiar a ingles", en: "Switch to spanish" },
+  dark: { es: "Oscuro", en: "Dark" },
+  light: { es: "Claro", en: "Light" },
+  switch_to_x: { es: "Cambiar a {x}", en: "Switch to {x}" },
   sought: { es: "Buscado", en: "Sought" },
   motive: { es: "Motivo", en: "Motive" },
   my_first_login: { es: "Mi primer ingreso", en: "My first login" },
@@ -146,6 +155,9 @@ export const t: Record<string, Record<string, string>> = {
   most_relevants: { es: "Más relevantes", en: "Most relevants" },
   most_recents_first: { es: "Más recientes primero", en: "Most recents first" },
   oldest_first: { es: "Antiguos primero", en: "Oldest first" },
+  hour: { es: "hora", en: "hour" },
+  ago_a_b: { es: "Hace {a} {b}", en: "{a} {b} ago" },
+  ago_a_b_and_c_d: { es: "Hace {a} {b} y {c} {d}", en: "{a} {b} and {c} {d} ago" },
 
   // Companies
   new_company: { es: "Nueva Empresa", en: "New Company "},
@@ -167,6 +179,7 @@ export const t: Record<string, Record<string, string>> = {
   draw: { es: "Sorteo", en: "Draw" },
   numbers: { es: "Números", en: "Numbers" },
   price: { es: "Precio", en: "Price" },
+  raffle_photo: { es: "Foto de la rifa", en: "Raffle photo" },
 
   // Sale
   sale_failed: { 
@@ -242,6 +255,8 @@ export const t: Record<string, Record<string, string>> = {
   passwords_are_differents: { es: "Las contraseñas son diferentes", en: "passwords_are_differents" },
   failed_to_update_notification: { es: "Error al actualizar la notificación", en: "Failed to update notification" },
   failed_to_delete_notification: { es: "Error al eliminar la notificación", en: "Failed to delete notification" },
+  invalid_date: { es: "Fecha invalida", en: "Invalid date" },
+  invalid_hour: { es: "Hora invalida", en: "Invalid hour" },
 };
 
 export function tr(key: string, lang: "es" | "en", params?: Record<string, any>): string {

@@ -9,8 +9,10 @@ import { tr } from "../i18n/translations";
 
 import { appConfig } from "../config";
 
-import Notification from "./Notification";
 import { useAlert } from "../utils/useAlert";
+import { firstLetterUppercase } from "../utils/format-words";
+
+import Notification from "./Notification";
 
 export default function Header() {
   const { sConfirm, } = useAlert();
@@ -30,12 +32,18 @@ export default function Header() {
   const [text, setText] = useState<string>("");
 
   const handleSearch = (txt: string): void => {
-    const text: string = encodeURIComponent(txt);
-    setText(text);
+    setText(txt);
   };
 
   const goToSearch = (): void => {
-    navigate(`search?text=${text}`, { replace: true });
+    const value = text.trim();
+
+    if (!value) return;
+
+    navigate(`/search?text=${encodeURIComponent(value)}`, {
+      replace: true,
+    });
+
     setText("");
   };
 
@@ -67,7 +75,10 @@ export default function Header() {
       <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
         <button
           onClick={() => dispatch(toggleSidebar())}
-          style={{ background: "none", border: "none", cursor: "pointer", padding: 8, borderRadius: 8, color: "var(--text-secondary)", fontSize: 18 }}
+          style={{ 
+            background: "none", border: "none", cursor: "pointer", padding: 9, 
+            borderRadius: 8, color: "var(--text-secondary)", fontSize: 18 
+          }}
           aria-label="Toggle sidebar"
         >
           ☰
@@ -89,14 +100,20 @@ export default function Header() {
           {text && 
             <button 
               style={{ 
-                position: "absolute", right: 10, top: 5, border: "solid .5px #c2c2c2", 
-                padding: "1px 7px 2px", borderRadius: 20, marginBottom: 5, color: "#c2c2c2",
-                cursor: "pointer", 
+                position: "absolute", right: 10, top: 5, border: "solid .5px var(--border)", 
+                padding: "1px 7px 2px", borderRadius: 20, marginBottom: 5, cursor: "pointer", 
+                color: "var(--border)",
               }}
               title={tr("send", lang)}
               onClick={goToSearch}
-              onMouseEnter={(e) => ([e.currentTarget.style.borderColor = "#5272db", e.currentTarget.style.color = "#5272db",] )}
-              onMouseLeave={(e) => ([e.currentTarget.style.borderColor = "#c2c2c2", e.currentTarget.style.color = "#c2c2c2", ])}
+              onMouseEnter={(e) => ([
+                e.currentTarget.style.borderColor = "var(--bg-sidebar)", 
+                e.currentTarget.style.color = "var(--bg-sidebar)",
+              ])}
+              onMouseLeave={(e) => ([
+                e.currentTarget.style.borderColor = "var(--border)", 
+                e.currentTarget.style.color = "var(--border)", 
+              ])}
             > ➤ </button>}
           <span 
             style={{ 
@@ -112,7 +129,7 @@ export default function Header() {
         <button
           onClick={() => dispatch(toggleLanguage())}
           style={{
-            padding: "7.5px 10px", borderRadius: 6, border: "1px solid var(--border)",
+            width: 42, height: 42, borderRadius: 6, border: "1px solid var(--border)",
             background: "var(--bg)", color: "var(--text-secondary)", cursor: "pointer",
             fontSize: 12, fontWeight: 700, fontFamily: "var(--font-mono)", letterSpacing: "0.05em",
           }}
@@ -125,12 +142,11 @@ export default function Header() {
         <button
           onClick={() => dispatch(toggleTheme())}
           style={{
-            width: 36, height: 36, borderRadius: 8, border: "1px solid var(--border)",
+            borderRadius: 8, border: "1px solid var(--border)", width: 42, height: 42,
             background: "var(--bg)", cursor: "pointer", fontSize: 16,
             display: "flex", alignItems: "center", justifyContent: "center",
           }}
-          aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
-          title={theme === "dark" ? "Modo Claro" : "Modo Oscuro"}
+          title={firstLetterUppercase(tr("switch_to_x", lang, { x: theme === "dark" ? tr("light", lang) : tr("dark", lang) }))}
         >
           {theme === "dark" ? "☀️" : "🌙"}
         </button>
@@ -139,11 +155,11 @@ export default function Header() {
           <button
             onClick={() => navigate("/select-company", { replace: true })}
             style={{
-              padding: "5px 8px", borderRadius: 6, border: "1px solid var(--border)",
+              width: 42, height: 42, borderRadius: 6, border: "1px solid var(--border)",
               background: "var(--bg)", color: "var(--text-secondary)", cursor: "pointer",
               fontSize: 15, fontWeight: 700, fontFamily: "var(--font-mono)", letterSpacing: "0.05em",
             }}
-            title={tr("language_switch", lang)}
+            title={tr("select_company", lang)}
           >
             🏢
           </button>
@@ -215,14 +231,14 @@ export default function Header() {
                 <button
                   onClick={handleLogout}
                   style={{
-                    display: "flex", alignItems: "center", gap: 10, width: "100%",
+                    display: "flex", alignItems: "center", gap: 10, width: "100%", justifyContent: "center",
                     padding: "10px 16px", border: "none", background: "none", cursor: "pointer",
                     fontSize: 13, color: "#FC8181", fontFamily: "var(--font-sans)", textAlign: "left",
                   }}
                   onMouseEnter={(e) => (e.currentTarget.style.background = "#FFF5F5")}
                   onMouseLeave={(e) => (e.currentTarget.style.background = "none")}
                 >
-                  <span>🚪</span> {tr("logout", lang)}
+                  {tr("logout", lang)}
                 </button>
               </div>
             </div>

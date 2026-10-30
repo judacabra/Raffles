@@ -1,0 +1,122 @@
+
+#paginator {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  background: var(--bg-card);
+}
+
+.paginator-controls {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+/* Botones generales */
+
+.paginator-page,
+.paginator-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 32px;
+  height: 32px;
+  padding: 0;
+
+  border-radius: 50%;
+  border: 1px solid var(--border);
+
+  background: var(--bg-card);
+  color: var(--text-secondary);
+
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 500;
+
+  cursor: pointer;
+  user-select: none;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+/* Hover de páginas */
+
+.paginator-page:hover:not(.active) {
+  background: var(--color-primary-light);
+  color: var(--color-primary-fg);
+  border-color: var(--color-primary-light);
+  transform: translateY(-1px);
+}
+
+/* Página activa */
+
+.paginator-page.active {
+  background: var(--color-primary);
+  color: var(--color-primary-fg);
+  border: 2px solid var(--color-gold);
+  font-weight: 700;
+  cursor: default;
+  box-shadow: var(--shadow-sm);
+}
+
+/* Navegación anterior / siguiente */
+
+.paginator-nav {
+  font-size: 18px;
+  font-weight: 400;
+}
+
+.paginator-nav:hover:not(:disabled) {
+  background: var(--color-gold);
+  color: var(--color-gold-fg);
+  border-color: var(--color-gold);
+  transform: translateY(-1px);
+}
+
+/* Botones deshabilitados */
+
+.paginator-nav:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  background: var(--bg);
+  color: var(--text-muted);
+  border-color: var(--border);
+}
+
+/* Información de página */
+
+.paginator-info {
+  color: var(--text-muted);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* Responsive */
+
+@media (max-width: 480px) {
+  #paginator {
+    padding: 12px 8px;
+    gap: 8px;
+  }
+
+  .paginator-controls {
+    gap: 4px;
+  }
+
+  .paginator-page,
+  .paginator-nav {
+    width: 29px;
+    height: 29px;
+  }
+
+  .paginator-info {
+    font-size: 11px;
+  }
+}

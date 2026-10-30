@@ -9,6 +9,8 @@ import { GetCompanyPayments, SetCompanyPayment } from "../../api/companyPayments
 
 import { CompanyRow } from "@/interfaces/company.interfaces";
 
+import Paginator from "../../components/Paginator";
+
 import { appConfig } from "../../config";
 import { truncarText } from "../../utils/format-words";
 
@@ -35,28 +37,9 @@ const CompaniesPage = () => {
 
   const [selected, setSelected] = useState<"history_payments" | "new_payment">("history_payments");
 
-  const [historyPage, setHistoryPage] = useState<number>(1);
-
   const [payments, setPayments] = useState<any[]>([]);
 
   const [voucherPreview, setVoucherPreview] = useState<string | null>(null);
-
-  const [minNumVisible, setMinNumVisible] = useState<number>(1);
-  const [maxNumVisible, setMaxNumVisible] = useState<number>(2);
-
-  const [maxPerPage, setMaxPerPage] = useState<number>(5);
-
-  const totalPages: number = payments ? Math.ceil(payments.length / maxPerPage) : 0;
-
-  const visiblePayments: number[] = Array.from(
-    { length: totalPages },
-    (_, index) => index + 1
-  ).slice(minNumVisible - 1, maxNumVisible);
-  
-  const start: number = (historyPage - 1) * maxPerPage;
-  const end: number = start + maxPerPage;
-
-  const filteredPayments = payments ? payments.slice(start, end) : [];
 
   const initialCompany: CompanyRow = {
     name: "",
@@ -73,6 +56,28 @@ const CompaniesPage = () => {
       c.name.toLowerCase().includes(search.toLowerCase()) ||
       c.taxId.toLowerCase().includes(search.toLowerCase())
     ) : [];
+
+  /* PAGINATOR COMPANIES */
+  const [page, setPage] = useState<number>(1);
+  const maxPerPage: number = 6;
+  const totalPages: number = Math.ceil(filtered.length / maxPerPage);
+  const start: number = (page - 1) * maxPerPage;
+  const paginated: any[] = filtered.slice(start, start + maxPerPage);
+  
+  /* PAGINATOR PAYMENTS */
+  const [pagePayments, setPagePayments] = useState<number>(1);
+  const maxPaymentsPerPage: number = 5;
+  const totalPaymentsPages: number = Math.ceil(payments.length / maxPaymentsPerPage);
+  const startPayments: number = (pagePayments - 1) * maxPaymentsPerPage;
+  const paginatedPayments: any[] = payments.slice(startPayments, startPayments + maxPaymentsPerPage);
+
+  const PAYMENT_FIELDS_ARR: any[] = [
+    { lk: "ID", w: "10", }, 
+    { lk: "date", w: "20" }, 
+    { lk: "payment_method", w: "25" }, 
+    { lk: "voucher", w: "15" }, 
+    { lk: "total", w: "30" },
+  ]; 
 
   const openEdit = (u: CompanyRow): void => { 
     setEditing({ ...u }); 
@@ -184,49 +189,6 @@ const CompaniesPage = () => {
     return diffDays;
   };
 
-  const handlePagination = (page: number, action?: "first" | "last" | "prevDots" | "nextDots"): void => {
-    if (action === "first") {
-      setMinNumVisible(1);
-      setMaxNumVisible(Math.min(2, totalPages));
-      setHistoryPage(1);
-      return;
-    }
-
-    if (action === "last") {
-      const newMax: number = totalPages;
-      const newMin: number = Math.max(1, newMax - 1);
-
-      setMinNumVisible(newMin);
-      setMaxNumVisible(newMax);
-      setHistoryPage(totalPages);
-      return;
-    }
-
-    if (action === "prevDots") {
-      const newMin: number = Math.max(1, minNumVisible - 1);
-      const newMax: number = Math.min(totalPages, newMin + 1);
-
-      setMinNumVisible(newMin);
-      setMaxNumVisible(newMax);
-      setHistoryPage(historyPage - 1);
-      return;
-    }
-
-    if (action === "nextDots") {
-      const newMax: number = Math.min(totalPages, maxNumVisible + 1);
-      const newMin: number = Math.max(1, newMax - 1);
-
-      setMinNumVisible(newMin);
-      setMaxNumVisible(newMax);
-      setHistoryPage(historyPage + 1);
-      return;
-    }
-
-    if (page < 1 || page > totalPages) return;
-
-    setHistoryPage(page);
-  };
-
   const handleVoucherChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
 
@@ -310,7 +272,7 @@ const CompaniesPage = () => {
             {tr("companies_management", lang)}
           </h1>
           <p style={{ margin: "4px 0 0", fontSize: 14, color: "var(--text-muted)" }}>
-            {filtered.length} {tr("registered_companys", lang)}
+            {paginated.length} {tr("registered_companys", lang)}
           </p>
         </div>
         <div style={{ display: "flex", gap: 10 }}>
@@ -352,7 +314,7 @@ const CompaniesPage = () => {
             </tr>
           </thead>
           <tbody>
-            {filtered.length === 0 ? (
+            {paginated.length === 0 ? (
               <tr
                 key="empty"
                 style={{ borderBottom: "1px solid var(--border)", transition: "background 0.15s" }}
@@ -360,7 +322,8 @@ const CompaniesPage = () => {
                 <td colSpan={5} style={{ padding: "14px 16px", textAlign: "center", }}> No hay registros </td>
               </tr>
             ) : (
-              filtered.map((u) => {
+              <>
+              {paginated.map((u: any) => {
                 return (
                   <tr key={u.id} style={{ borderBottom: "1px solid var(--border)", transition: "background 0.15s" }}
                     onMouseEnter={(e) => (e.currentTarget.style.background = "var(--bg)")}
@@ -378,7 +341,7 @@ const CompaniesPage = () => {
                           {u.logoURL ? (
                             <img src={uploadsFolder + "/" + u.logoURL} alt="logo company" />
                           ) : (
-                            u.logoURL || u.name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase()
+                            u.logoURL || u.name.split(" ").map((w: any) => w[0]).join("").slice(0, 2).toUpperCase()
                           )}
                         </div>
                         <div>
@@ -392,7 +355,7 @@ const CompaniesPage = () => {
                         <button 
                           style={{ 
                             padding: 10, background: "rgb(162, 222, 245)", borderRadius: 10, 
-                            cursor: "pointer", color: "#6e6e6e", 
+                            cursor: "pointer", color: "#000", 
                           }}
                           onClick={() => openNewTab(u.website!)}
                           onMouseEnter={(e) => (e.currentTarget.style.background = "rgb(101, 194, 228)", e.currentTarget.style.fontWeight = "bold")}
@@ -461,7 +424,18 @@ const CompaniesPage = () => {
                     </td>
                   </tr>
                 );
-              })
+              })}
+              <tr>
+                <td colSpan={4}>
+                  <Paginator 
+                    page={page}
+                    totalPages={totalPages}
+                    onPageChange={setPage}
+                    lang={lang}
+                  />
+                </td>
+              </tr>
+              </>
             )}
           </tbody>
         </table>
@@ -591,10 +565,7 @@ const CompaniesPage = () => {
                           <table>
                             <thead>
                               <tr>
-                                {[{ lk: "ID", w: "10", }, { lk: "date", w: "20" }, 
-                                  { lk: "payment_method", w: "25" }, { lk: "voucher", w: "15" }, 
-                                  { lk: "total", w: "30" },
-                                ].map((th: any) =>(
+                                {PAYMENT_FIELDS_ARR.map((th: any) =>(
                                   <th 
                                     key={th.lk}
                                     style={{ 
@@ -609,7 +580,7 @@ const CompaniesPage = () => {
                               </tr>
                             </thead>
                             <tbody>
-                              {filteredPayments && filteredPayments.length === 0 ? (
+                              {paginatedPayments && paginatedPayments.length === 0 ? (
                                 <tr 
                                   key="payments-empty"
                                   style={{ 
@@ -620,7 +591,7 @@ const CompaniesPage = () => {
                                   <td style={{ textAlign: "center", padding:  4, width: "10%", fontSize: 13, }} colSpan={5}>  No hay registros </td>
                                 </tr>
                               ) : (
-                                filteredPayments.map((row: any, i: number) => (
+                                paginatedPayments.map((row: any, i: number) => (
                                   <tr 
                                     key={row.id}
                                     style={{ 
@@ -646,110 +617,12 @@ const CompaniesPage = () => {
                             </tbody>
                           </table>
                         </div>
-                        <div 
-                          id="paginator" 
-                          style={{ 
-                            display: "flex", "justifyContent": "space-between", alignItems: "center", 
-                            padding: 15, height: "20%", borderRadius: "0 0 10px 10px", 
-                          }}
-                        >
-                          <div id="paginator-pages" style={{ display: "flex", gap: 10, }}>
-                            <div 
-                              style={{ 
-                                display: "flex", justifyContent: "center", alignItems: "center", 
-                                border: "0.5px solid #c2c2c2", width: 30, height: 30, paddingBottom: 0.5, 
-                                borderRadius: "50%", cursor: historyPage == 1 ? "not-allowed" : "pointer",
-                              }}
-                              onMouseEnter={(e) => {
-                                if (historyPage !== 1) e.currentTarget.style.background = "var(--bg)";
-                              }}
-                              onMouseLeave={(e) => {
-                                if (historyPage !== 1) e.currentTarget.style.background = "transparent";
-                              }}
-                              onClick={() => {
-                                if (historyPage !== 1) handlePagination(1, "first");
-                              }}
-                              title={tr("go_to_start", lang)}
-                            > 
-                              <small> « </small>
-                            </div>
-                            {minNumVisible > 1 && (
-                              <div
-                                style={{
-                                  display: "flex",
-                                  justifyContent: "center",
-                                  alignItems: "center",
-                                  border: "0.5px solid #c2c2c2",
-                                  width: 30,
-                                  height: 30,
-                                  paddingBottom: 0.5,
-                                  borderRadius: "50%",
-                                  cursor: "pointer",
-                                }}
-                                onMouseEnter={(e) =>
-                                  (e.currentTarget.style.background = "var(--bg)")
-                                }
-                                onMouseLeave={(e) =>
-                                  (e.currentTarget.style.background = "transparent")
-                                }
-                                onClick={() =>
-                                  handlePagination(historyPage - 1, "prevDots")
-                                }
-                              >
-                                <small>{'<'}</small>
-                              </div>
-                            )}
-                            {visiblePayments.map((p) => (
-                              <div
-                                key={p}
-                                style={{
-                                  display: "flex", justifyContent: "center", alignItems: "center",
-                                  border: "0.5px solid #c2c2c2", width: 30, height: 30,
-                                  borderRadius: "50%", cursor: "pointer",
-                                  boxShadow: historyPage === p ? "inset 0 1px 20px rgba(135, 195, 223, 0.8)" : "",
-                                  background: historyPage === p ? "rgb(185, 229, 250)" : "#fff",
-                                }}
-                                onClick={() => handlePagination(p)}
-                                onMouseEnter={(e) => e.currentTarget.style.background = "var(--bg)"}
-                                onMouseLeave={(e) => e.currentTarget.style.background = historyPage === p ? "rgb(185, 229, 250)" : "transparent"}
-                              >
-                                <small>{p}</small>
-                              </div>
-                            ))}
-                            {(maxNumVisible < totalPages) && (
-                              <div
-                                style={{
-                                  display: "flex", justifyContent: "center", alignItems: "center",
-                                  border: "0.5px solid #c2c2c2", width: 30, height: 30, paddingBottom: 0.5,
-                                  borderRadius: "50%", cursor: "pointer",
-                                }}
-                                onMouseEnter={(e) => e.currentTarget.style.background = "var(--bg)"}
-                                onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
-                                onClick={() => handlePagination(historyPage + 1, "nextDots")}
-                              >
-                                <small>{'>'}</small>
-                              </div>
-                            )}
-                            <div 
-                              style={{ 
-                                display: "flex", justifyContent: "center", alignItems: "center", 
-                                paddingBottom: 0.5, border: "0.5px solid #c2c2c2", width: 30, height: 30, 
-                                borderRadius: "50%", cursor: (historyPage == totalPages) ? "not-allowed" : "pointer", 
-                              }}
-                              onMouseEnter={(e) => (e.currentTarget.style.background = "var(--bg)")}
-                              onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
-                              onClick={() => {
-                                if (historyPage !== totalPages) {
-                                  handlePagination(totalPages, "last");
-                                }
-                              }}
-                              title={tr("go_to_end", lang)}
-                            > 
-                              <small> » </small>
-                            </div>
-                          </div>
-                          <small> {tr("page", lang)} {historyPage} {tr("of", lang)} {totalPages === 0 ? 1 : totalPages} </small> 
-                        </div>
+                        <Paginator
+                          page={pagePayments}
+                          totalPages={totalPaymentsPages}
+                          onPageChange={setPagePayments}
+                          lang={lang}
+                        />
                       </>
                     ) : (
                       !payment.available ? (

@@ -6,11 +6,12 @@ import { SweetAlertOptions } from "sweetalert2";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 
 import { User, } from "../store/slices/authSlice";
-import { addToast, Language } from "../store/slices/uiSlice";
+import { addToast, Language, Theme } from "../store/slices/uiSlice";
 
 import { tr } from "../i18n/translations";
 
 import { extract_TIME_AGO } from "../utils/date-time";
+import { firstLetterUppercase } from "../utils/format-words";
 
 import { DeleteNotification, GetNotifications, PutNotification } from "../api/notificationAPI";
 
@@ -22,6 +23,7 @@ export default function Notification() {
   const dispatch = useAppDispatch();
 
   const user: User | null = useAppSelector((s) => s.auth.user);
+  const theme: Theme = useAppSelector((s) => s.ui.theme);
   const lang: Language = useAppSelector((s) => s.ui.language);
 
   const { sConfirm } = useAlert();
@@ -32,6 +34,13 @@ export default function Notification() {
   const [notifications, setNotifications] = useState<any[]>([]);
 
   const pendingNotifications: boolean = notifications.some((n: any) => n.readedAt == null);
+
+  const maxNumbersPerPage: number = 6;
+  const [visibleCount, setVisibleCount] = useState<number>(maxNumbersPerPage);
+  
+  const visibleNotifications: any[] = notifications.slice(0, visibleCount);
+
+  const existMore: boolean = visibleNotifications.length < notifications.length;
 
   const handleNotification = async (n: any): Promise<void> => {
     setNotifOpen(false);
@@ -49,7 +58,6 @@ export default function Notification() {
     
     const sProps: SweetAlertOptions = {
       html: tr("are_you_sure_you_want_to_delete_x", lang, { x: tr("this_notification", lang) }),
-      icon: 'question',
       confirmButtonText: tr("yes_delete", lang),
     };
 
@@ -80,7 +88,7 @@ export default function Notification() {
   const fetchNotifications = async (idC: number): Promise<void> => {
     try {
       const result = await GetNotifications(idC);
-
+      
       if (result) setNotifications(result);
     } catch (err: any) {
       console.error(
@@ -105,6 +113,10 @@ export default function Notification() {
     }
   };
 
+  const showMoreNotifications = (): void => {
+    setVisibleCount(prev => prev + maxNumbersPerPage);
+  };
+
   useEffect(() => {
     if (user && !notificationsFounded) fetchNotifications(Number(user.id));
   }, [user, notificationsFounded]);
@@ -114,7 +126,7 @@ export default function Notification() {
       <button
         onClick={() => setNotifOpen(!notifOpen)}
         style={{
-          width: 36, height: 36, borderRadius: 8, border: "1px solid var(--border)",
+          width: 42, height: 42, borderRadius: 8, border: "1px solid var(--border)",
           background: "var(--bg)", cursor: "pointer", fontSize: 16, position: "relative",
           display: "flex", alignItems: "center", justifyContent: "center",
         }}
@@ -149,18 +161,18 @@ export default function Notification() {
           </div>
           <div style={{ flex: 1, overflowY: "auto", minHeight: 0, }}
           >
-            {notifications && notifications.length === 0 ? (
+            {visibleNotifications && visibleNotifications.length === 0 ? (
               <p
                 style={{
-                  height: 45, fontSize: 13, textAlign: "center", width: "315px",
-                  paddingTop: 12,
+                  height: 45, fontSize: 13, textAlign: "center", 
+                  width: "315px", paddingTop: 12,
                 }}
               >
                 {tr("no_notifications", lang)}
               </p>
             ) : (
               <>
-                {notifications.map((n, i) => (
+                {visibleNotifications.map((n, i) => (
                   <div
                     key={i}
                     style={{
@@ -183,13 +195,13 @@ export default function Notification() {
                         {n.message}
                       </div>
                       <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 4, }}>
-                        {extract_TIME_AGO(n.data.time, "2026-10-15")}
+                        {firstLetterUppercase(extract_TIME_AGO(n.data.time, n.createdAt, lang))}
                       </div>
                     </div>
                     <small 
                       title={tr("delete_notification", lang)} 
                       style={{ 
-                        color: "#c53030", position: "absolute", fontSize: 10, bottom: 10, 
+                        color: theme == "dark" ? "#fff" : "#c53030", position: "absolute", fontSize: 10, bottom: 10, 
                         right: 13, border: "solid 0.5px", padding: ".6px 8px", borderRadius: 10,
                       }}
                       onClick={(e) => {
@@ -201,15 +213,15 @@ export default function Notification() {
                         e.currentTarget.style.color = "#fff",
                       ]}
                       onMouseLeave={(e) => [
-                        e.currentTarget.style.background = "#fff", 
-                        e.currentTarget.style.color = "#c53030",
+                        e.currentTarget.style.background = theme == "dark" ? "var(--bg)" : "#fff", 
+                        e.currentTarget.style.color = theme == "dark" ? "#fff" : "#c53030",
                       ]}
                     >
                       {tr("delete", lang)}
                     </small>
                   </div>
                 ))}
-                {notifications && (notifications.length >= 1 && notifications.length <= 20) && (
+                {(visibleNotifications.length > 0 && existMore) && (
                   <button
                     style={{
                       padding: "10px 25px",
@@ -217,15 +229,15 @@ export default function Notification() {
                       width: "100%",
                       cursor: "pointer",
                     }}
-                    onClick={() => {
-                      const nots = [...notifications, ...notifications];
-                      setNotifications(nots);
-                    }}
+                    onClick={showMoreNotifications}
                     onMouseEnter={(e) => e.currentTarget.style.background = "var(--bg)" }
                     onMouseLeave={(e) => e.currentTarget.style.background = "transparent" }
                   >
                     Ver más
                   </button>
+                )}
+                {(visibleNotifications.length > 0 && !existMore) && (
+                  <div style={{ padding: "6px" }}>{' '}</div>
                 )}
               </>
             )}

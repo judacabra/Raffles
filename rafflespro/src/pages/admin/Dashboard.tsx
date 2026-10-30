@@ -10,10 +10,15 @@ import { tr } from "../../i18n/translations";
 
 import { GetRaffles } from "../../api/raffleAPI"; 
 
+import { appConfig } from "../../config";
+
 import { KPIs, StatusColor, Time } from "@/interfaces/dashboard.interfaces"; 
 import { Raffle, RaffleNumber } from "@/interfaces/raffle.interfaces"; 
+
 import { truncarText } from "../../utils/format-words";
 import { ID_PROFILE_ADMIN } from "../../constants/constants";
+
+import Paginator from "../../components/Paginator";
 
 const useCountdown = (targetDate: string): Time => {
   const [time, setTime] = useState<Time>({ days: 0, hours: 0, mins: 0, secs: 0 });
@@ -52,6 +57,8 @@ const statusColors: Record<string, StatusColor> = {
 const Dashboard = () => {
   const dispatch = useAppDispatch();
 
+  const { uploadsFolder } = appConfig;
+
   const navigate: NavigateFunction = useNavigate();
 
   const lang: Language = useAppSelector((s) => s.ui.language);
@@ -66,7 +73,7 @@ const Dashboard = () => {
 
   const activeRaffles: Raffle[] = raffles ? raffles.filter((r: Raffle) => r.status === "active") : [];
 
-  const now = new Date();
+  const now: Date = new Date();
 
   const nextRaffle: Raffle | undefined = [...activeRaffles]
     .filter((raffle) => new Date(raffle.drawDate).getTime() >= now.getTime())
@@ -77,7 +84,7 @@ const Dashboard = () => {
     )[0];
 
   const countdown: Time = useCountdown(nextRaffle?.drawDate);
-
+  
   const totalSold: number = activeRaffles.reduce((sum, r) => sum + r.numbers.filter((n) => n.status === "sold").length, 0);
   
   const today: string = new Date().toISOString().split("T")[0];
@@ -103,6 +110,13 @@ const Dashboard = () => {
     { label: tr("estimated_revenue", lang), value: getStringValue(revenue), icon: "💰", color: "#553C9A", bg: "#EBF4FF" },
   ];
 
+  /* PAGINATOR RECENT RAFFLES */
+  const [page, setPage] = useState<number>(1);
+  const maxPerPage: number = 4;
+  const totalPages: number = Math.ceil(raffles.length / maxPerPage);
+  const start: number = (page - 1) * maxPerPage;
+  const paginated: any[] = raffles.slice(start, start + maxPerPage);
+
   const openBoard = (rId: string): void => {
     dispatch(setActiveRaffle(rId));
     navigate("/board", { replace: true, state: { raffleSelected: rId } });
@@ -124,7 +138,7 @@ const Dashboard = () => {
   }, [rafflesFounded, company]);
 
   return (
-    <div className="animate-fade-in" style={{ padding: 28, maxWidth: 1200, margin: "0 auto" }}>
+    <div className="animate-fade-in" style={{ paddingTop: 28, maxWidth: 1200, margin: "0 auto" }}>
       {/* Stats */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 20, marginBottom: 28 }}>
         {stats.map((s) => (
@@ -153,7 +167,10 @@ const Dashboard = () => {
         }}
       >
         {/* Recent Raffles */}
-        <div style={{ background: "var(--bg-card)", borderRadius: 12, boxShadow: "var(--shadow-sm)", overflow: "hidden" }}>
+        <div style={{
+          background: "var(--bg-card)", borderRadius: 12, boxShadow: "var(--shadow-sm)", overflow: "hidden",
+          display: "flex", flexDirection: "column", minWidth: 0,
+        }}>
           <div style={{ padding: "18px 24px", borderBottom: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
             <h2 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: "var(--text-primary)", fontFamily: "var(--font-display)" }}>
               {tr("recent_raffles", lang)}
@@ -173,95 +190,148 @@ const Dashboard = () => {
               </button>
             )}
           </div>
-          <div style={{ overflowX: "auto" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
+          <div style={{ overflowX: "auto", flex: 1, }}>
+            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14, }}>
               <thead>
                 <tr style={{ background: "var(--bg)" }}>
-                  {[tr("raffle_name", lang), tr("draw_date", lang), tr("status", lang), tr("winner_num", lang), tr("winner", lang), ""].map((h) => (
-                    <th key={h} style={{ padding: "10px 16px", textAlign: "left", fontSize: 12, fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.05em", whiteSpace: "nowrap" }}>
+                  {[
+                    tr("raffle_name", lang), tr("draw_date", lang), tr("status", lang), 
+                    tr("winner_num", lang), tr("winner", lang), ""
+                   ].map((h: any) => (
+                    <th 
+                      key={h} 
+                      style={{ 
+                        padding: "10px 16px", textAlign: "left", fontSize: 12, fontWeight: 600, 
+                        color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.05em", 
+                        whiteSpace: "nowrap",
+                      }}
+                    >
                       {h}
                     </th>
                   ))}
                 </tr>
               </thead>
               <tbody>
-                {raffles && raffles.length === 0 ? (
+                {paginated && paginated.length === 0 ? (
                   <tr>
                     <td colSpan={6} style={{ textAlign: "center", padding: 15, }}>
                       No hay registros
                     </td>
                   </tr>
-                ) : (raffles.map((r: Raffle) => {
-                  const badge = statusColors[r.status] ?? statusColors.draft;
-                  const sold = r.numbers.filter((n) => n.status === "sold").length;
-                  const pct = Math.round((sold / r.totalNumbers) * 100);
+                ) : (
+                  paginated.map((r: Raffle) => {
+                    const badge = statusColors[r.status] ?? statusColors.draft;
+                    const sold = r.numbers.filter((n) => n.status === "sold").length;
+                    const pct = Math.round((sold / r.totalNumbers) * 100);
 
-                  return (
-                    <tr key={r.id} style={{ borderBottom: "1px solid var(--border)", transition: "background 0.15s" }}
-                      onMouseEnter={(e) => (e.currentTarget.style.background = "var(--bg)")}
-                      onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
-                    >
-                      <td style={{ padding: "14px", color: "var(--text-primary)", fontWeight: 500, maxWidth: 180, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                        {r.name}
-                        <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 2 }}>{pct}% vendido</div>
-                      </td>
-                      <td style={{ padding: "14px", color: "var(--text-secondary)", whiteSpace: "nowrap", fontFamily: "var(--font-mono)", fontSize: 12 }}>
-                        {new Date(r.drawDate).toLocaleDateString(lang === "es" ? "es-CO" : "en-US", { day: "2-digit", month: "short", year: "numeric" })}
-                      </td>
-                      <td style={{ padding: "14px" }}>
-                        <span style={{ padding: "3px 10px", borderRadius: 99, fontSize: 11, fontWeight: 600, background: badge.bg, color: badge.color }}>
-                          {tr(r.status, lang)}
-                        </span>
-                      </td>
-                      <td style={{ padding: "14px", fontFamily: "var(--font-mono)", fontWeight: 600, color: r.winnerNumber != null ? "#F6AD55" : "var(--text-muted)" }}>
-                        {r.winnerNumber != null ? `# ${String(r.winnerNumber).padStart(r.digits, "0")}` : "—"}
-                      </td>
-                      <td style={{ padding: "14px", color: "var(--text-secondary)", maxWidth: 140, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                        {r.winnerName ? truncarText(r.winnerName, 14, true) : "—"}
-                      </td>
-                      {r.status == "active" && (
-                        <td style={{ padding: "14px" }}>
-                          <button
-                            onClick={() => openBoard(r.id)}
-                            style={{
-                              padding: "5px 12px", borderRadius: 6, border: "1px solid var(--border)",
-                              background: "none", cursor: "pointer", fontSize: 12, color: theme === "dark" ? "#fff" : "#1A365D",
-                              fontWeight: 600, whiteSpace: "nowrap",
-                            }}
-                          >
-                            {tr("view_board", lang)}
-                          </button>
+                    return (
+                      <tr 
+                        key={r.id} 
+                        style={{ borderBottom: "1px solid var(--border)", transition: "background 0.15s" }}
+                        onMouseEnter={(e) => (e.currentTarget.style.background = "var(--bg)")}
+                        onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+                      >
+                        <td style={{ padding: "14px", color: "var(--text-primary)", fontWeight: 500, maxWidth: 180, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                          {r.name}
+                          <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 2 }}>{pct}% vendido</div>
                         </td>
-                      )}
-                    </tr>
-                  );
-                }))}
+                        <td style={{ padding: "14px", color: "var(--text-secondary)", whiteSpace: "nowrap", fontFamily: "var(--font-mono)", fontSize: 12 }}>
+                          {new Date(r.drawDate).toLocaleDateString(lang === "es" ? "es-CO" : "en-US", { day: "2-digit", month: "short", year: "numeric" })}
+                        </td>
+                        <td style={{ padding: "14px" }}>
+                          <span style={{ padding: "3px 10px", borderRadius: 99, fontSize: 11, fontWeight: 600, background: badge.bg, color: badge.color }}>
+                            {tr(r.status, lang)}
+                          </span>
+                        </td>
+                        <td style={{ padding: "14px", fontFamily: "var(--font-mono)", fontWeight: 600, color: r.winnerNumber != null ? "#F6AD55" : "var(--text-muted)" }}>
+                          {r.winnerNumber != null ? `# ${String(r.winnerNumber).padStart(r.digits, "0")}` : "—"}
+                        </td>
+                        <td style={{ padding: "14px", color: "var(--text-secondary)", maxWidth: 140, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                          {r.winnerName ? truncarText(r.winnerName, 14, true) : "—"}
+                        </td>
+                        {r.status == "active" && (
+                          <td style={{ padding: "14px" }}>
+                            <button
+                              onClick={() => openBoard(r.id)}
+                              style={{
+                                padding: "5px 12px", borderRadius: 6, border: "1px solid var(--border)",
+                                background: "none", cursor: "pointer", fontSize: 12, color: theme === "dark" ? "#fff" : "#1A365D",
+                                fontWeight: 600, whiteSpace: "nowrap",
+                              }}
+                            >
+                              {tr("view_board", lang)}
+                            </button>
+                          </td>
+                        )}
+                      </tr>
+                    );
+                  })
+                )}
               </tbody>
             </table>
           </div>
+          <Paginator
+            page={page}
+            totalPages={totalPages}
+            onPageChange={setPage}
+            lang={lang}
+            border={{ top: true }}
+          />
         </div>
 
         {/* Countdown */}
         {nextRaffle && (
           <div style={{
-            background: "linear-gradient(135deg, #1A365D 0%, #2D4A7F 100%)",
-            borderRadius: 12, padding: 24, color: "#FFFFFF", boxShadow: "var(--shadow-md)",
+            background: "linear-gradient(135deg, var(--bg-sidebar) 0%, var(--bg-sidebar) 100%)",
+            borderRadius: 12, color: "#fff", boxShadow: "var(--shadow-md)",
+            maxHeight: nextRaffle.image ? "65vh" : "45vh"
           }}>
-            <div style={{ fontSize: 12, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.1em", color: "#F6AD5599", marginBottom: 8 }}>
+            <div 
+              style={{ 
+                fontSize: 12, fontWeight: 600, textTransform: "uppercase", 
+                letterSpacing: "0.1em", color: "#F6AD5599", 
+                padding: "15px 24px 10px"
+              }}
+            >
               {tr("next_draw", lang)}
             </div>
-            <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 20, lineHeight: 1.3, color: "#FFFFFF" }}>
+            {nextRaffle.image && (
+              <div style={{ width: "100%",}}>
+                <img 
+                  src={`${uploadsFolder}/${nextRaffle.image}`} 
+                  alt={tr("raffle_photo", lang)} 
+                  style={{ width: "100%", height: 150, objectFit: "cover", objectPosition: "50% 20%", }}
+                />
+              </div>
+            )}
+            <div 
+              style={{ 
+                fontSize: 15, fontWeight: 600, marginBottom: 10, 
+                lineHeight: 1.3, color: "#fff", paddingTop: 10, paddingLeft: 24, paddingRight: 24,
+              }}
+            >
               {nextRaffle.name}
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, marginBottom: 20 }}>
+            <div 
+              style={{ 
+                display: "grid", gridTemplateColumns: "repeat(4, 1fr)", 
+                gap: 8, marginBottom: 20, paddingLeft: 24, paddingRight: 24,
+              }}
+            >
               {[
                 { v: countdown.days, l: tr("days", lang) },
                 { v: countdown.hours, l: tr("hours", lang) },
                 { v: countdown.mins, l: tr("mins", lang) },
                 { v: countdown.secs, l: tr("secs", lang) },
               ].map(({ v, l }) => (
-                <div key={l} style={{ textAlign: "center", background: "#FFFFFF15", borderRadius: 8, padding: "12px 4px" }}>
+                <div 
+                  key={l} 
+                  style={{ 
+                    textAlign: "center", background: "#FFFFFF15", 
+                    borderRadius: 8, padding: "12px 4px" 
+                  }}
+                >
                   <div style={{
                     fontFamily: "var(--font-mono)", fontSize: 28, fontWeight: 700,
                     color: "#F6AD55", lineHeight: 1,
@@ -274,8 +344,8 @@ const Dashboard = () => {
               ))}
             </div>
 
-            <div style={{ marginBottom: 20 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, color: "#FFFFFF80", marginBottom: 6 }}>
+            <div style={{ marginBottom: nextRaffle.image ? 20 : 30, paddingLeft: 24, paddingRight: 24, }}>
+              <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, color: "#FFFFFF80", marginBottom: 6, }}>
                 <span>{tr("total_sold", lang)}</span>
                 <span style={{ color: "#F6AD55", fontWeight: 600 }}>
                   {nextRaffle.numbers.filter((n) => n.status === "sold").length} {tr("of", lang)} {nextRaffle.totalNumbers}
@@ -290,16 +360,18 @@ const Dashboard = () => {
               </div>
             </div>
 
-            <button
-              onClick={() => openBoard(nextRaffle.id)}
-              style={{
-                width: "100%", padding: "12px", borderRadius: 8, border: "none",
-                background: "#F6AD55", color: "#7B4F12", fontWeight: 700, cursor: "pointer",
-                fontFamily: "var(--font-display)", fontSize: 14,
-              }}
-            >
-              {tr("view_board", lang)} →
-            </button>
+            <div style={{ paddingBottom: 15, paddingLeft: 24, paddingRight: 24, }}>
+              <button
+                onClick={() => openBoard(nextRaffle.id)}
+                style={{
+                  width: "100%", padding: "12px", borderRadius: 8, border: "none",
+                  background: "#F6AD55", color: "#7B4F12", fontWeight: 700, cursor: "pointer",
+                  fontFamily: "var(--font-display)", fontSize: 14,
+                }}
+                >
+                {tr("view_board", lang)} →
+              </button>
+            </div>
           </div>
         )}
       </div>

@@ -1,6 +1,11 @@
 import { useState } from "react";
-import { useAppSelector } from "../../store/hooks";
+
 import { tr } from "../../i18n/translations";
+
+import { useAppSelector } from "../../store/hooks";
+import { Language } from "../../store/slices/uiSlice";
+
+import Paginator from "../../components/Paginator";
 
 interface LogEntry {
   id: string;
@@ -25,20 +30,26 @@ const MOCK_LOGS: LogEntry[] = [
 ];
 
 export default function LogsPage() {
-  const lang = useAppSelector((s) => s.ui.language);
-  const [detail, setDetail] = useState<LogEntry | null>(null);
-  const [search, setSearch] = useState("");
-  const [page, setPage] = useState(1);
-  const PER_PAGE = 6;
+  const lang: Language = useAppSelector((s) => s.ui.language);
 
-  const filtered = MOCK_LOGS.filter((l) =>
-    l.user.toLowerCase().includes(search.toLowerCase()) ||
-    l.action.toLowerCase().includes(search.toLowerCase()) ||
-    l.table.toLowerCase().includes(search.toLowerCase())
+  const [detail, setDetail] = useState<LogEntry | null>(null);
+  const [search, setSearch] = useState<string>("");
+
+  const [page, setPage] = useState<number>(1);
+
+  const maxPerPage: number = 6;
+
+  const filteredLogs: LogEntry[] = MOCK_LOGS.filter((l) => 
+    l.user.toLowerCase().includes(search.toLowerCase()) || 
+    l.action.toLowerCase().includes(search.toLowerCase()) || 
+    l.table.toLowerCase().includes(search.toLowerCase()) 
   );
 
-  const pages = Math.ceil(filtered.length / PER_PAGE);
-  const visible = filtered.slice((page - 1) * PER_PAGE, page * PER_PAGE);
+  const totalPages: number = Math.ceil(filteredLogs.length / maxPerPage);
+
+  const start: number = (page - 1) * maxPerPage;
+
+  const paginatedLogs: LogEntry[] = filteredLogs.slice(start, start + maxPerPage,);
 
   return (
     <div className="animate-fade-in" style={{ padding: 28, maxWidth: 1100, margin: "0 auto" }}>
@@ -48,11 +59,11 @@ export default function LogsPage() {
             {tr("audit_log", lang)}
           </h1>
           <p style={{ margin: "4px 0 0", fontSize: 14, color: "var(--text-muted)" }}>
-            {filtered.length} {lang === "es" ? "registros encontrados" : "records found"}
+            {paginatedLogs.length} {lang === "es" ? "registros encontrados" : "records found"}
           </p>
         </div>
         <input
-          value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+          value={search} onChange={(e) => { setSearch(e.target.value); }}
           placeholder={tr("search", lang)}
           style={{
             padding: "8px 14px", borderRadius: 8, border: "1px solid var(--border)",
@@ -73,7 +84,7 @@ export default function LogsPage() {
             </tr>
           </thead>
           <tbody>
-            {visible.map((log) => (
+            {paginatedLogs.map((log) => (
               <tr key={log.id} style={{ borderBottom: "1px solid var(--border)", transition: "background 0.15s" }}
                 onMouseEnter={(e) => (e.currentTarget.style.background = "var(--bg)")}
                 onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
@@ -113,24 +124,12 @@ export default function LogsPage() {
         </table>
 
         {/* Pagination */}
-        <div style={{ padding: "14px 16px", display: "flex", alignItems: "center", justifyContent: "space-between", borderTop: "1px solid var(--border)" }}>
-          <span style={{ fontSize: 13, color: "var(--text-muted)" }}>
-            {lang === "es" ? "Página" : "Page"} {page} {tr("of", lang)} {pages}
-          </span>
-          <div style={{ display: "flex", gap: 6 }}>
-            {Array.from({ length: pages }, (_, i) => i + 1).map((p) => (
-              <button key={p} onClick={() => setPage(p)}
-                style={{
-                  width: 32, height: 32, borderRadius: 6, border: "1px solid var(--border)",
-                  background: p === page ? "#1A365D" : "var(--bg-card)",
-                  color: p === page ? "#fff" : "var(--text-secondary)",
-                  cursor: "pointer", fontSize: 13, fontWeight: 600,
-                }}>
-                {p}
-              </button>
-            ))}
-          </div>
-        </div>
+        <Paginator
+          page={page}
+          totalPages={totalPages}
+          onPageChange={setPage}
+          lang={lang}
+        />
       </div>
 
       {/* Detail Modal */}

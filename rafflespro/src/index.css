@@ -51,16 +51,16 @@ input, select, textarea, button {
 .dark {
   --bg:           #0F172A;
   --bg-card:      #1E293B;
-  --bg-sidebar:   #0F172A;
-  --bg-header:    #1E293B;
+  --bg-sidebar:   #1E293B;
+  --bg-header:    #4A5568;
   --text-primary:   #F1F5F9;
   --text-secondary: #CBD5E0;
   --text-muted:     #94A3B8;
   --border:         #334155;
   --border-focus:   #F6AD55;
   --ring:           #F6AD5533;
-  --color-primary:       #2D4ED8;
-  --color-primary-light: #3B63F7;
+  --color-primary:       #0F172A;
+  --color-primary-light: #4A5568;
 }
 
 /* ── Base ──────────────────────────────────────────────── */
@@ -75,12 +75,17 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* ── Scrollbar ─────────────────────────────────────────── */
-* { scrollbar-width: thin; scrollbar-color: transparent transparent; }
-*:hover { scrollbar-color: #CBD5E080 transparent; }
-::-webkit-scrollbar { width: 5px; height: 5px; }
-::-webkit-scrollbar-thumb { background: transparent; border-radius: 99px; }
-*:hover::-webkit-scrollbar-thumb { background: #CBD5E080; }
+/* Scrollbar global */
+* { scrollbar-width: thin; scrollbar-color: var(--color-primary) var(--bg);}
+
+/* Chrome, Edge, Safari */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: var(--bg); border-radius: 10px; }
+::-webkit-scrollbar-thumb {  background: var(--color-primary); border-radius: 10px; border: 2px solid var(--bg); }
+::-webkit-scrollbar-thumb:hover { background: var(--color-gold); }
+
+/* Esquinas */
+::-webkit-scrollbar-corner { background: var(--bg); }
 
 /* ── Animations ────────────────────────────────────────── */
 @keyframes fadeIn    { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
@@ -95,6 +100,19 @@ body {
 .animate-slide-in  { animation: slideIn 0.3s cubic-bezier(.25,.46,.45,.94) both; }
 .animate-pulse-bg  { animation: pulse-bg 1.8s ease-in-out infinite; }
 .animate-toast-in  { animation: toastIn 0.35s cubic-bezier(.25,.46,.45,.94) both; }
+
+.btn-logout {
+  color: red;
+  border: solid .5px red;
+  background:#fad4d4;
+}
+
+.btn-logout:hover {
+  font-weight: bold;
+  color: #fad4d4;
+  border: solid .5px red;
+  background: red;
+}
 
 .search-results {
   scrollbar-width: thin;

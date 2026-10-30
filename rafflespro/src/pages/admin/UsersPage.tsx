@@ -2,15 +2,19 @@ import { useEffect, useState } from "react";
 
 import { useAppSelector, } from "../../store/hooks";
 import { Language } from "../../store/slices/uiSlice";
+import { Company, User } from "../../store/slices/authSlice";
+
 import { tr } from "../../i18n/translations";
 
-import { UserRow } from "@/interfaces/user.interfaces";
+import { UserRow } from "../../interfaces/user.interfaces";
 
 import { GetUsers, PutUser, PutUserStatus, SetUser, DeleteUser } from "../../api/usersAPI";
 import { appConfig } from "../../config";
+
 import { useAlert } from "../../utils/useAlert";
 import { SweetAlertOptions } from "sweetalert2";
-import { Company, User } from "../../store/slices/authSlice";
+
+import Paginator from "../../components/Paginator";
 
 const UsersPage = () => {
   const lang: Language = useAppSelector((s: any) => s.ui.language);
@@ -53,6 +57,13 @@ const UsersPage = () => {
       u.email.toLowerCase().includes(search.toLowerCase())
     ) : [];
 
+  /* PAGINATOR USERS */
+  const [page, setPage] = useState<number>(1);
+  const maxPerPage: number = 6;
+  const totalPages: number = Math.ceil(filtered.length / maxPerPage);
+  const start: number = (page - 1) * maxPerPage;
+  const paginated: any[] = filtered.slice(start, start + maxPerPage);
+  
   const openEdit = (u: UserRow): void => { 
     setEditing({ ...u }); 
     setModalOpen(true); 
@@ -134,8 +145,8 @@ const UsersPage = () => {
 
   const handleDeleteUser = (id: number): void => {
     const sProps: SweetAlertOptions = {
-      html: tr("are_you_sure_you_want_to_delete_x", lang, { x: "this_user" }),
       icon: 'question',
+      html: tr("are_you_sure_you_want_to_delete_x", lang, { x: tr("this_user", lang) }),
       confirmButtonText: tr("yes_delete", lang),
     };
 
@@ -196,7 +207,7 @@ const UsersPage = () => {
             {tr("user_management", lang)}
           </h1>
           <p style={{ margin: "4px 0 0", fontSize: 14, color: "var(--text-muted)" }}>
-            {filtered.length} {tr("registered_users", lang)}
+            {paginated.length} {tr("registered_users", lang)}
           </p>
         </div>
         <div style={{ display: "flex", gap: 10 }}>
@@ -231,7 +242,7 @@ const UsersPage = () => {
             </tr>
           </thead>
           <tbody>
-            {filtered.length === 0 ? (
+            {paginated.length === 0 ? (
               <tr
                 key="empty"
                 style={{ borderBottom: "1px solid var(--border)", transition: "background 0.15s" }}
@@ -239,7 +250,8 @@ const UsersPage = () => {
                 <td colSpan={5} style={{ padding: "14px 16px", textAlign: "center", }}>No hay registros</td>
               </tr>
             ) : (
-              filtered.map((u: UserRow) => {
+              <>
+              {paginated.map((u: UserRow) => {
                 const rc = roleColors[u.role];
                 return (
                   <tr key={u.id} style={{ borderBottom: "1px solid var(--border)", transition: "background 0.15s" }}
@@ -276,20 +288,30 @@ const UsersPage = () => {
                       </span>
                     </td>
                     <td style={{ padding: "14px 16px" }}>
-                      <label style={{ display: "inline-flex", alignItems: "center", gap: 8, cursor: "pointer" }}>
-                        <div style={{ position: "relative", width: 40, height: 22 }} onClick={() => toggleActive(u.id!)}>
-                          <div style={{
-                            width: 40, height: 22, borderRadius: 99,
-                            background: u.isActive ? "#48BB78" : "#CBD5E0",
-                            transition: "background 0.2s",
-                          }} />
-                          <div style={{
-                            position: "absolute", top: 3, left: u.isActive ? 21 : 3,
-                            width: 16, height: 16, borderRadius: "50%", background: "#fff",
-                            transition: "left 0.2s", boxShadow: "0 1px 3px #0000002A",
-                          }} />
+                      <label style={{ display: "inline-flex", alignItems: "center", gap: 8, cursor: (user && user.id !== u.id) ? "pointer" : "default" }}>
+                        <div 
+                          style={{ position: "relative", width: 40, height: 22 }} 
+                          onClick={() => {
+                            if (user && user.id !== u.id) toggleActive(u.id!);
+                          }}
+                        >
+                          <div 
+                            style={{
+                              width: 40, height: 22, borderRadius: 99,
+                              background: (user && user.id !== u.id) && u.isActive ? "#48BB78" : "#CBD5E0",
+                              transition: "background 0.2s",
+                            }} 
+                          />
+                          <div 
+                            style={{
+                              position: "absolute", top: 3, left: u.isActive ? 21 : 3,
+                              width: 16, height: 16, borderRadius: "50%", 
+                              background: (user && user.id !== u.id) ? "#fff" : "#eee",
+                              transition: "left 0.2s", boxShadow: "0 1px 3px #0000002A",
+                            }} 
+                          />
                         </div>
-                        <span style={{ fontSize: 12, color: u.isActive ? "#276749" : "var(--text-muted)", fontWeight: 500 }}>
+                        <span style={{ fontSize: 12, color: (user && user.id !== u.id) && u.isActive ? "#276749" : "var(--text-muted)", fontWeight: 500 }}>
                           {tr(u.isActive ? "active" : "inactive", lang)}
                         </span>
                       </label>
@@ -314,7 +336,18 @@ const UsersPage = () => {
                     </td>
                   </tr>
                 );
-              })
+              })}
+              <tr>
+                <td colSpan={5}>
+                  <Paginator 
+                    page={page}
+                    totalPages={totalPages}
+                    onPageChange={setPage}
+                    lang={lang}
+                  />
+                </td>
+              </tr>
+              </>
             )}
           </tbody>
         </table>
