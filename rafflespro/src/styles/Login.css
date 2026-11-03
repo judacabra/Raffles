@@ -1,0 +1,145 @@
+.background-shapes {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.background-orb {
+  position: absolute;
+  left: 0;
+  top: 0;
+  border-radius: 50%;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+
+/* Tamaños */
+.orb-one {
+  width: 400px;
+  height: 400px;
+  animation: moveOrbOne 19s ease-in-out infinite;
+}
+
+.orb-two {
+  width: 300px;
+  height: 300px;
+  animation: moveOrbTwo 17s ease-in-out infinite;
+}
+
+.orb-three {
+  width: 230px;
+  height: 230px;
+  animation: moveOrbThree 21s ease-in-out infinite;
+}
+
+.orb-four {
+  width: 180px;
+  height: 180px;
+  animation: moveOrbFour 15s ease-in-out infinite;
+}
+
+.orb-five {
+  width: 270px;
+  height: 270px;
+  animation: moveOrbFive 23s ease-in-out infinite;
+}
+
+.orb-six {
+  width: 150px;
+  height: 150px;
+  animation: moveOrbSix 18s ease-in-out infinite;
+}
+
+/* Colores según el tema */
+.background-orb.dark {
+  background: #77777723;
+}
+
+.background-orb.light {
+  background: #F6AD5520;
+}
+
+/* Bola 1: recorrido superior y derecho */
+@keyframes moveOrbOne {
+  0%   { transform: translate(75vw, -20vh) scale(.8); opacity: 0; }
+  15%  { transform: translate(65vw, 5vh) scale(1); opacity: 1; }
+  30%  { transform: translate(48vw, 18vh) scale(.9); opacity: .8; }
+  45%  { transform: translate(58vw, 32vh) scale(.75); opacity: .9; }
+  60%  { transform: translate(70vw, 55vh) scale(1); opacity: .8; }
+  80%  { transform: translate(58vw, 80vh) scale(.8); opacity: .5; }
+  90%  { transform: translate(105vw, 70vh) scale(.6); opacity: 0; }
+  100% { transform: translate(75vw, -20vh) scale(.8); opacity: 0; }
+}
+
+/* Bola 2: recorrido inferior y izquierdo */
+@keyframes moveOrbTwo {
+  0%   { transform: translate(-25vw, 80vh) scale(.7); opacity: 0; }
+  15%  { transform: translate(10vw, 75vh) scale(1); opacity: 1; }
+  30%  { transform: translate(22vw, 60vh) scale(.9); opacity: .8; }
+  45%  { transform: translate(30vw, 48vh) scale(.75); opacity: .9; }
+  60%  { transform: translate(22vw, 30vh) scale(1); opacity: .8; }
+  80%  { transform: translate(10vw, 10vh) scale(.8); opacity: .5; }
+  90%  { transform: translate(-30vw, -15vh) scale(.6); opacity: 0; }
+  100% { transform: translate(-25vw, 80vh) scale(.7); opacity: 0; }
+}
+
+/* Bola 3: diagonal de izquierda a derecha */
+@keyframes moveOrbThree {
+  0%   { transform: translate(-20vw, 10vh) scale(.6); opacity: 0; }
+  15%  { transform: translate(10vw, 25vh) scale(1); opacity: .7; }
+  35%  { transform: translate(35vw, 38vh) scale(.85); opacity: .9; }
+  50%  { transform: translate(48vw, 55vh) scale(.7); opacity: .6; }
+  70%  { transform: translate(75vw, 35vh) scale(1); opacity: .8; }
+  85%  { transform: translate(105vw, 15vh) scale(.6); opacity: 0; }
+  100% { transform: translate(-20vw, 10vh) scale(.6); opacity: 0; }
+}
+
+/* Bola 4: sube desde abajo */
+@keyframes moveOrbFour {
+  0%   { transform: translate(35vw, 110vh) scale(.7); opacity: 0; }
+  15%  { transform: translate(45vw, 80vh) scale(1); opacity: .8; }
+  35%  { transform: translate(30vw, 65vh) scale(.8); opacity: .7; }
+  50%  { transform: translate(18vw, 45vh) scale(.65); opacity: .9; }
+  70%  { transform: translate(40vw, 25vh) scale(1); opacity: .7; }
+  85%  { transform: translate(55vw, -20vh) scale(.6); opacity: 0; }
+  100% { transform: translate(35vw, 110vh) scale(.7); opacity: 0; }
+}
+
+/* Bola 5: movimiento desde arriba hacia abajo */
+@keyframes moveOrbFive {
+  0%   { transform: translate(15vw, -30vh) scale(.7); opacity: 0; }
+  15%  { transform: translate(30vw, 5vh) scale(1); opacity: .6; }
+  35%  { transform: translate(55vw, 20vh) scale(.85); opacity: .8; }
+  50%  { transform: translate(65vw, 40vh) scale(.7); opacity: .7; }
+  70%  { transform: translate(50vw, 65vh) scale(1); opacity: .8; }
+  85%  { transform: translate(25vw, 110vh) scale(.6); opacity: 0; }
+  100% { transform: translate(15vw, -30vh) scale(.7); opacity: 0; }
+}
+
+/* Bola 6: recorrido horizontal y diagonal */
+@keyframes moveOrbSix {
+  0%   { transform: translate(110vw, 85vh) scale(.6); opacity: 0; }
+  15%  { transform: translate(80vw, 70vh) scale(1); opacity: .8; }
+  35%  { transform: translate(60vw, 55vh) scale(.8); opacity: .6; }
+  50%  { transform: translate(42vw, 35vh) scale(.7); opacity: .9; }
+  70%  { transform: translate(20vw, 20vh) scale(1); opacity: .7; }
+  85%  { transform: translate(-20vw, 35vh) scale(.6); opacity: 0; }
+  100% { transform: translate(110vw, 85vh) scale(.6); opacity: 0; }
+}
+
+/* Accesibilidad */
+@media (prefers-reduced-motion: reduce) {
+  .background-orb {
+    animation: none;
+    opacity: .35;
+  }
+
+  .orb-one { transform: translate(70vw, 0); }
+  .orb-two { transform: translate(0, 65vh); }
+  .orb-three { transform: translate(10vw, 10vh); }
+  .orb-four { transform: translate(70vw, 70vh); }
+  .orb-five { transform: translate(40vw, 0); }
+  .orb-six { transform: translate(75vw, 40vh); }
+}

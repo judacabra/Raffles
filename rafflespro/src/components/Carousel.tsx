@@ -4,10 +4,11 @@ import { RefObject, useRef, } from "react";
 import { tr } from "../i18n/translations";
 
 import "../styles/Carousel.css";
+import { Language } from "../store/slices/uiSlice";
 
 export const Carousel = (
   { items, lang }: 
-  { items: any, lang: "es" | "en" }
+  { items: any, lang: Language }
 ) => {
   const carouselRef: React.RefObject<HTMLDivElement | null> = useRef<HTMLDivElement>(null);
 

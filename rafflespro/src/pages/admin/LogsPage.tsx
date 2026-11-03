@@ -59,7 +59,7 @@ export default function LogsPage() {
             {tr("audit_log", lang)}
           </h1>
           <p style={{ margin: "4px 0 0", fontSize: 14, color: "var(--text-muted)" }}>
-            {paginatedLogs.length} {lang === "es" ? "registros encontrados" : "records found"}
+            {paginatedLogs.length} {tr("logs_found", lang)}
           </p>
         </div>
         <input

@@ -87,14 +87,10 @@ export default function Notification() {
 
   const fetchNotifications = async (idC: number): Promise<void> => {
     try {
-      const result = await GetNotifications(idC);
-      
-      if (result) setNotifications(result);
+      const data = await GetNotifications(idC);
+      if (data) setNotifications(data);
     } catch (err: any) {
-      console.error(
-        `Error al obtener las notificaciones de la empresa id #${idC}: `,
-        err,
-      );
+      console.error(`Error al obtener las notificaciones de la empresa id #${idC}: `, err);
     } finally {
       setNotificationsFounded(true);
     }
@@ -192,7 +188,7 @@ export default function Notification() {
                           lineHeight: 1.4,
                         }}
                       >
-                        {n.message}
+                        {tr(n.message, lang)}
                       </div>
                       <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 4, }}>
                         {firstLetterUppercase(extract_TIME_AGO(n.data.time, n.createdAt, lang))}

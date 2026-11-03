@@ -124,8 +124,7 @@ export const RaffleCard = ({ r }: { r: any }) => {
             lineHeight: 1.5,
           }}
         >
-          {r.description ||
-            (lang === "es" ? "Sin descripción" : "No description")}
+          {r.description || (tr("no_description", lang))}
         </p>
 
         <div
@@ -140,15 +139,12 @@ export const RaffleCard = ({ r }: { r: any }) => {
             {
               l: tr("draw", lang),
               v: new Date(r.drawDate).toLocaleDateString(
-                lang === "es" ? "es-CO" : "en-US",
+                tr("to_locale_date_string", lang),
                 { day: "2-digit", month: "short" },
               ),
             },
             { l: tr("numbers", lang), v: r.totalNumbers.toLocaleString() },
-            {
-              l: tr("price", lang),
-              v: `$${r.pricePerNumber.toLocaleString()}`,
-            },
+            { l: tr("price", lang), v: `$${r.pricePerNumber.toLocaleString()}`, },
             { l: tr("digits", lang), v: r.digits.toString() },
           ].map(({ l, v }) => (
             <div
@@ -195,7 +191,7 @@ export const RaffleCard = ({ r }: { r: any }) => {
             }}
           >
             <span>
-              {lang === "es" ? "Progreso de ventas" : "Sales progress"}
+              {tr("sales_progress", lang)}
             </span>
             <span style={{ color: "#48BB78", fontWeight: 700 }}>{pct}%</span>
           </div>
@@ -215,8 +211,7 @@ export const RaffleCard = ({ r }: { r: any }) => {
           <div
             style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 4 }}
           >
-            {sold} {tr("of", lang)} {r.totalNumbers}{" "}
-            {lang === "es" ? "vendidos" : "sold"}
+            {sold} {tr("of", lang)} {r.totalNumbers} {tr("sold", lang).toLowerCase()}
           </div>
         </div>
 
@@ -265,7 +260,7 @@ export const RaffleCard = ({ r }: { r: any }) => {
                   dispatch(
                     addToast({
                       type: "info",
-                      message: lang === "es" ? "Modo edición" : "Edit mode",
+                      message: tr("edit_mode", lang),
                     }),
                   );
                 }}

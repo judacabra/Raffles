@@ -11,6 +11,8 @@ export const useAlert = () => {
   const lang: Language = useAppSelector((s: any) => s.ui.language);
   
   const sAlert = (sProps: SweetAlertOptions, funct?: (param?: any) => void): void => {
+    sProps.background = "var(--bg-header)";
+    sProps.color = "var(--text-primary)";
     sProps.topLayer = true;
     sProps.title = sProps.title || '';
     sProps.html = sProps.html + '<br /> <br />' || '<br /> <br />';
@@ -27,13 +29,15 @@ export const useAlert = () => {
         funct();
       }
     });
-  }
+  };
 
   const sConfirm = (sProps: SweetAlertOptions, funct?: (param?: any) => void): void => {
+    sProps.background = "var(--bg-header)";
+    sProps.color = "var(--text-primary)";
     sProps.topLayer = true;
     sProps.title = sProps.title || '';
     sProps.allowOutsideClick = false;
-    sProps.confirmButtonColor = sProps.confirmButtonColor || '#1877F2';
+    sProps.confirmButtonColor = sProps.confirmButtonColor || "var(--bg-sidebar)";
     sProps.showDenyButton = sProps.showDenyButton || true;
     sProps.denyButtonText = sProps.denyButtonText || tr("cancel", lang);
     sProps.denyButtonColor = sProps.denyButtonColor || '#ff5630';
@@ -44,14 +48,16 @@ export const useAlert = () => {
         if (action.isConfirmed){ funct(); }
       }
     });
-  }
+  };
 
   const sInput = async(sProps: SweetAlertOptions, inputValidatorText: string,  funct?: (param?: any) => void): Promise<string> => {
     const validateField = (value: any): string | void => !value ? inputValidatorText : undefined;
 
+    sProps.background = "var(--bg-header)";
+    sProps.color = "var(--text-primary)";
     sProps.topLayer = true;
     sProps.allowOutsideClick = false;
-    sProps.confirmButtonColor = sProps.confirmButtonColor || '#1877F2';
+    sProps.confirmButtonColor = sProps.confirmButtonColor || "var(--bg-sidebar)";
     sProps.showDenyButton = sProps.showDenyButton || true;
     sProps.denyButtonText = sProps.denyButtonText || tr("cancel", lang);
     sProps.denyButtonColor = sProps.denyButtonColor || '#ff5630';
@@ -71,11 +77,7 @@ export const useAlert = () => {
     }
     
     return '';
-  } 
+  };
 
-  return {
-    sAlert,
-    sConfirm,
-    sInput,
-  }
+  return { sAlert, sConfirm, sInput, };
 }

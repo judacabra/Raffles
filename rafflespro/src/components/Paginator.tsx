@@ -1,12 +1,15 @@
 
+import { Language } from "../store/slices/uiSlice";
+
 import { tr } from "../i18n/translations";
+
 import "../styles/Paginator.css";
 
 export interface PaginatorProps {
   page: number;
   totalPages: number;
   onPageChange: (p: number) => void;
-  lang: "es" | "en";
+  lang: Language;
   border?: any;
 }
 

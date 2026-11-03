@@ -227,8 +227,8 @@ const CompaniesPage = () => {
 
   const fetchCompanyPayments = async (idC: number): Promise<void> => {
     try {
-      const data: any[] = await GetCompanyPayments(idC);
-      setPayments(data);
+      // const data: any[] = await GetCompanyPayments(idC);
+      // setPayments(data);
     } catch (err: any) {
       console.error(`Error al obtener los pagos de la empresa #${idC}: `, err);
     } finally {
@@ -253,8 +253,8 @@ const CompaniesPage = () => {
   }, [companiesFounded]);
 
   useEffect(() => {
-    if (!companyPaymentsFounded) fetchCompanyPayments(1);
-  }, [companyPaymentsFounded]);
+    if (!companyPaymentsFounded && company) fetchCompanyPayments(company.id);
+  }, [companyPaymentsFounded, company]);
 
   useEffect(() => {
     return () => {
@@ -272,7 +272,7 @@ const CompaniesPage = () => {
             {tr("companies_management", lang)}
           </h1>
           <p style={{ margin: "4px 0 0", fontSize: 14, color: "var(--text-muted)" }}>
-            {paginated.length} {tr("registered_companys", lang)}
+            {paginated.length} {tr("registered_companies", lang)}
           </p>
         </div>
         <div style={{ display: "flex", gap: 10 }}>

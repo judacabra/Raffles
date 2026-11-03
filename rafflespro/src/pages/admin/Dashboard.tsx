@@ -236,7 +236,10 @@ const Dashboard = () => {
                           <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 2 }}>{pct}% vendido</div>
                         </td>
                         <td style={{ padding: "14px", color: "var(--text-secondary)", whiteSpace: "nowrap", fontFamily: "var(--font-mono)", fontSize: 12 }}>
-                          {new Date(r.drawDate).toLocaleDateString(lang === "es" ? "es-CO" : "en-US", { day: "2-digit", month: "short", year: "numeric" })}
+                          {new Date(r.drawDate)
+                            .toLocaleDateString(tr("to_locale_date_string", lang), 
+                            { day: "2-digit", month: "short", year: "numeric" }
+                          )}
                         </td>
                         <td style={{ padding: "14px" }}>
                           <span style={{ padding: "3px 10px", borderRadius: 99, fontSize: 11, fontWeight: 600, background: badge.bg, color: badge.color }}>

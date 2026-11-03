@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-export type Language = "es" | "en";
+export type Language = "es" | "en" | "br";
 export type Theme = "light" | "dark";
 
 interface UiState {
@@ -40,8 +40,8 @@ const uiSlice = createSlice({
       state.theme = action.payload;
       localStorage.setItem("theme", state.theme);
     },
-    toggleLanguage(state) {
-      state.language = state.language === "es" ? "en" : "es";
+    toggleLanguage(state, action: PayloadAction<Language>) {
+      state.language = action.payload;
       localStorage.setItem("language", state.language);
     },
     setLanguage(state, action: PayloadAction<Language>) {

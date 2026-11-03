@@ -101,19 +101,6 @@ body {
 .animate-pulse-bg  { animation: pulse-bg 1.8s ease-in-out infinite; }
 .animate-toast-in  { animation: toastIn 0.35s cubic-bezier(.25,.46,.45,.94) both; }
 
-.btn-logout {
-  color: red;
-  border: solid .5px red;
-  background:#fad4d4;
-}
-
-.btn-logout:hover {
-  font-weight: bold;
-  color: #fad4d4;
-  border: solid .5px red;
-  background: red;
-}
-
 .search-results {
   scrollbar-width: thin;
   scrollbar-color: #4a5568 transparent;

@@ -14,4 +14,4 @@ export const IP = async(): Promise<any> => {
 
     return error.response.data;
   }
-}
+};

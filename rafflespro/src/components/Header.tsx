@@ -28,8 +28,17 @@ export default function Header() {
   const user: User | null = useAppSelector((s) => s.auth.user);
 
   const [menuOpen, setMenuOpen] = useState<boolean>(false);
+  const [lngOpen, setLngOpen] = useState<boolean>(false);
 
   const [text, setText] = useState<string>("");
+
+  const LNGS_ARR: any[] = [
+    { label: "es", icon: "🇨🇴", },
+    { label: "en", icon: "🇺🇸", },
+    { label: "br", icon: "🇧🇷", },
+  ];
+
+  const langSelected: any = LNGS_ARR.find((l: any) => l.label === lang);
 
   const handleSearch = (txt: string): void => {
     setText(txt);
@@ -126,17 +135,46 @@ export default function Header() {
 
       {/* Right */}
       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-        <button
-          onClick={() => dispatch(toggleLanguage())}
-          style={{
-            width: 42, height: 42, borderRadius: 6, border: "1px solid var(--border)",
-            background: "var(--bg)", color: "var(--text-secondary)", cursor: "pointer",
-            fontSize: 12, fontWeight: 700, fontFamily: "var(--font-mono)", letterSpacing: "0.05em",
-          }}
-          title={tr("language_switch", lang)}
-        >
-          {lang.toUpperCase()}
-        </button>
+        <div style={{ position: "relative" }}>
+          <button
+            onClick={() => { setLngOpen(!lngOpen); }}
+            style={{
+              width: 72, height: 42, borderRadius: 6, border: "1px solid var(--border)",
+              background: "var(--bg)", color: "var(--text-secondary)", cursor: "pointer",
+              fontSize: 13,  
+            }}
+            title={tr("language_switch", lang)}
+          >
+            {langSelected.icon} &nbsp; {langSelected.label.toUpperCase()}
+          </button>
+
+          {lngOpen && (
+            <div style={{
+              position: "absolute", top: "calc(100% + 8px)", right: 0, width: 80,
+              background: "var(--bg-card)", border: "1px solid var(--border)",
+              borderRadius: 12, boxShadow: "0 8px 24px #0000001A", zIndex: 100, overflow: "hidden",
+            }}>
+              {LNGS_ARR.map((item) => (
+                <button 
+                  key={item.label} 
+                  style={{
+                    display: "flex", alignItems: "center", gap: 10, width: "100%",
+                    padding: "10px 16px", border: "none", background: "none", cursor: "pointer",
+                    fontSize: 13, color: "var(--text-secondary)", fontFamily: "var(--font-sans)", textAlign: "left",
+                  }}
+                  onClick={() => {
+                    dispatch(toggleLanguage(item.label as Language))
+                    setLngOpen(false);
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.background = "var(--bg)")}
+                  onMouseLeave={(e) => (e.currentTarget.style.background = "none")}
+                >
+                  <span>{item.icon}</span> {item.label.toUpperCase()}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
 
         {/* Theme toggle */}
         <button
@@ -235,7 +273,7 @@ export default function Header() {
                     padding: "10px 16px", border: "none", background: "none", cursor: "pointer",
                     fontSize: 13, color: "#FC8181", fontFamily: "var(--font-sans)", textAlign: "left",
                   }}
-                  onMouseEnter={(e) => (e.currentTarget.style.background = "#FFF5F5")}
+                  onMouseEnter={(e) => (e.currentTarget.style.background = "var(--bg)")}
                   onMouseLeave={(e) => (e.currentTarget.style.background = "none")}
                 >
                   {tr("logout", lang)}

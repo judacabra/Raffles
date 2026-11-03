@@ -20,15 +20,16 @@ const UsersPage = () => {
   const lang: Language = useAppSelector((s: any) => s.ui.language);
   const company: Company | null = useAppSelector((s: any) => s.auth.activeCompany);
   const user: User | null = useAppSelector((s: any) => s.auth.user);
+  const theme: any = useAppSelector((s: any) => s.ui.theme);
   
   const { uploadsFolder, } = appConfig;
   const { sAlert, sInput, sConfirm } = useAlert();
 
   const roleColors: Record<string, { bg: string; color: string }> = {
-    superadmin:  { bg: "#ffebeb", color: "#b02f2b", },
-    admin:  { bg: "#EBF4FF", color: "#2B6CB0", },
-    seller: { bg: "#F0FFF4", color: "#276749", },
-    viewer: { bg: "#FFFFF0", color: "#7B6B00", },
+    superadmin:  { bg: "#f6cdc6", color: "#b02f2b", },
+    admin:  { bg: "#c6dff6", color: "#2B6CB0", },
+    seller: { bg: "#C6F6D5", color: "#276749", },
+    viewer: { bg: "#f6ebc6", color: "#675827", },
   };
 
   const initialUser: any = {
@@ -251,102 +252,114 @@ const UsersPage = () => {
               </tr>
             ) : (
               <>
-              {paginated.map((u: UserRow) => {
-                const rc = roleColors[u.role];
-                return (
-                  <tr key={u.id} style={{ borderBottom: "1px solid var(--border)", transition: "background 0.15s" }}
-                    onMouseEnter={(e) => (e.currentTarget.style.background = "var(--bg)")}
-                    onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
-                  >
-                    <td style={{ padding: "14px 16px" }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                        <div style={{
-                          width: 36, height: 36, borderRadius: "50%", flexShrink: 0,
-                          background: "linear-gradient(135deg, #1A365D, #F6AD55)",
-                          display: "flex", alignItems: "center", justifyContent: "center",
-                          color: "#fff", fontSize: 12, fontWeight: 700,
-                        }}>
-                          {u.imageURL && u.imageURL.startsWith("uploads/") ? (
-                            <img 
-                              src={uploadsFolder + "/" + u.imageURL} 
-                              style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "50%", }} 
-                            />
-                          ) : (
-                            u.username.split(" ").map((w) => w[0]).join("").slice(0, 2)
-                          )}
+                {paginated.map((u: UserRow) => {
+                  const rc = roleColors[u.role];
+                  return (
+                    <tr key={u.id} style={{ borderBottom: "1px solid var(--border)", transition: "background 0.15s" }}
+                      onMouseEnter={(e) => (e.currentTarget.style.background = "var(--bg)")}
+                      onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+                    >
+                      <td style={{ padding: "14px 16px" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                          <div style={{
+                            width: 36, height: 36, borderRadius: "50%", flexShrink: 0,
+                            background: "linear-gradient(135deg, #1A365D, #F6AD55)",
+                            display: "flex", alignItems: "center", justifyContent: "center",
+                            color: "#fff", fontSize: 12, fontWeight: 700,
+                          }}>
+                            {u.imageURL && u.imageURL.startsWith("uploads/") ? (
+                              <img 
+                                src={uploadsFolder + "/" + u.imageURL} 
+                                style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "50%", }} 
+                              />
+                            ) : (
+                              u.username.split(" ").map((w) => w[0]).join("").slice(0, 2)
+                            )}
+                          </div>
+                          <div>
+                            <div style={{ fontWeight: 600, color: "var(--text-primary)" }}>{u.username}</div>
+                            <div style={{ fontSize: 11, color: "var(--text-muted)" }}>{u.company}</div>
+                          </div>
                         </div>
-                        <div>
-                          <div style={{ fontWeight: 600, color: "var(--text-primary)" }}>{u.username}</div>
-                          <div style={{ fontSize: 11, color: "var(--text-muted)" }}>{u.company}</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td style={{ padding: "14px 16px", color: "var(--text-secondary)", fontFamily: "var(--font-mono)", fontSize: 12 }}>{u.email}</td>
-                    <td style={{ padding: "14px 16px" }}>
-                      <span style={{ padding: "3px 10px", borderRadius: 99, fontSize: 11, fontWeight: 700, background: rc.bg, color: rc.color, border: `solid .5px ${rc.color}` }}>
-                        {tr(u.role, lang)}
-                      </span>
-                    </td>
-                    <td style={{ padding: "14px 16px" }}>
-                      <label style={{ display: "inline-flex", alignItems: "center", gap: 8, cursor: (user && user.id !== u.id) ? "pointer" : "default" }}>
-                        <div 
-                          style={{ position: "relative", width: 40, height: 22 }} 
-                          onClick={() => {
-                            if (user && user.id !== u.id) toggleActive(u.id!);
+                      </td>
+                      <td style={{ padding: "14px 16px", color: "var(--text-secondary)", fontFamily: "var(--font-mono)", fontSize: 12 }}>{u.email}</td>
+                      <td style={{ padding: "14px 16px" }}>
+                        <span 
+                          style={{ 
+                            padding: "3px 10px", borderRadius: 99, fontSize: 11, 
+                            fontWeight: 700, background: rc.bg, color: rc.color, 
                           }}
                         >
-                          <div 
-                            style={{
-                              width: 40, height: 22, borderRadius: 99,
-                              background: (user && user.id !== u.id) && u.isActive ? "#48BB78" : "#CBD5E0",
-                              transition: "background 0.2s",
-                            }} 
-                          />
-                          <div 
-                            style={{
-                              position: "absolute", top: 3, left: u.isActive ? 21 : 3,
-                              width: 16, height: 16, borderRadius: "50%", 
-                              background: (user && user.id !== u.id) ? "#fff" : "#eee",
-                              transition: "left 0.2s", boxShadow: "0 1px 3px #0000002A",
-                            }} 
-                          />
-                        </div>
-                        <span style={{ fontSize: 12, color: (user && user.id !== u.id) && u.isActive ? "#276749" : "var(--text-muted)", fontWeight: 500 }}>
-                          {tr(u.isActive ? "active" : "inactive", lang)}
+                          {tr(u.role, lang)}
                         </span>
-                      </label>
-                    </td>
-                    <td style={{ padding: "14px 16px" }}>
-                      {(user && user.id !== u.id) && (
-                        <div style={{ display: "flex", gap: 6 }}>
-                          <button 
-                            onClick={() => openEdit(u)}
-                            title={tr("edit", lang)}
-                            style={{ padding: "5px 12px", borderRadius: 6, border: "1px solid #1A365D", background: "rgb(185, 229, 250)", cursor: "pointer", fontSize: 12, color: "#1A365D", fontWeight: 600, marginRight: 10, }}>
-                              {tr("edit", lang)}
-                          </button>
-                          <button 
-                            onClick={() => handleDeleteUser(u.id!)}
-                            title={tr("delete", lang)}
-                            style={{ padding: "5px 10px", borderRadius: 6, border: "1px solid #d13939", background: "rgb(250, 162, 162)", cursor: "pointer", fontSize: 12, color: "#d13939", fontWeight: 600 }}>
-                            {tr("delete", lang)}
-                          </button>
-                        </div>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })}
-              <tr>
-                <td colSpan={5}>
-                  <Paginator 
-                    page={page}
-                    totalPages={totalPages}
-                    onPageChange={setPage}
-                    lang={lang}
-                  />
-                </td>
-              </tr>
+                      </td>
+                      <td style={{ padding: "14px 16px" }}>
+                        <label style={{ display: "inline-flex", alignItems: "center", gap: 8, cursor: (user && user.id !== u.id) ? "pointer" : "default" }}>
+                          <div 
+                            style={{ position: "relative", width: 40, height: 22 }} 
+                            onClick={() => {
+                              if (user && user.id !== u.id) toggleActive(u.id!);
+                            }}
+                          >
+                            <div 
+                              style={{
+                                width: 40, height: 22, borderRadius: 99,
+                                background: (user && user.id !== u.id) && u.isActive 
+                                  ? "var(--color-success)" 
+                                  : "var(--text-muted)",
+                                transition: "background 0.2s",
+                              }} 
+                            />
+                            <div 
+                              style={{
+                                position: "absolute", top: 3, left: u.isActive ? 21 : 3,
+                                width: 16, height: 16, borderRadius: "50%", 
+                                background: (user && user.id !== u.id) ? "#fff" : "#eee",
+                                transition: "left 0.2s", boxShadow: "0 1px 3px #0000002A",
+                              }} 
+                            />
+                          </div>
+                          <span   
+                            style={{ 
+                              color: (user && user.id !== u.id) && u.isActive ? "var(--color-success)" : "var(--text-muted)", 
+                              fontSize: 12, fontWeight: "bold" ,
+                            }}
+                          >
+                            {tr(u.isActive ? "active" : "inactive", lang)}
+                          </span>
+                        </label>
+                      </td>
+                      <td style={{ padding: "14px 16px" }}>
+                        {(user && user.id !== u.id) && (
+                          <div style={{ display: "flex", gap: 6 }}>
+                            <button 
+                              onClick={() => openEdit(u)}
+                              title={tr("edit", lang)}
+                              style={{ padding: "5px 12px", borderRadius: 6, border: "1px solid #1A365D", background: "rgb(185, 229, 250)", cursor: "pointer", fontSize: 12, color: "#1A365D", fontWeight: 600, marginRight: 10, }}>
+                                {tr("edit", lang)}
+                            </button>
+                            <button 
+                              onClick={() => handleDeleteUser(u.id!)}
+                              title={tr("delete", lang)}
+                              style={{ padding: "5px 10px", borderRadius: 6, border: "1px solid #d13939", background: "rgb(250, 162, 162)", cursor: "pointer", fontSize: 12, color: "#d13939", fontWeight: 600 }}>
+                              {tr("delete", lang)}
+                            </button>
+                          </div>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+                <tr>
+                  <td colSpan={5}>
+                    <Paginator 
+                      page={page}
+                      totalPages={totalPages}
+                      onPageChange={setPage}
+                      lang={lang}
+                    />
+                  </td>
+                </tr>
               </>
             )}
           </tbody>

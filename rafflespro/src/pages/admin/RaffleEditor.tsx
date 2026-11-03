@@ -205,7 +205,7 @@ const RaffleEditor = () => {
               <textarea
                 value={raffle.description}
                 onChange={(e) => setRaffle({ ...raffle, description: e.target.value })}
-                placeholder={lang === "es" ? "Describe los premios y condiciones..." : "Describe prizes and conditions..."}
+                placeholder={tr("describe_prizes_and_conditions", lang)}
                 rows={3}
                 style={{
                   width: "100%", padding: "10px 14px", borderRadius: 8,
@@ -327,7 +327,7 @@ const RaffleEditor = () => {
                     <div style={{ fontFamily: "var(--font-mono)", fontSize: 16, fontWeight: 700, color: "#1A365D" }}>
                       {"0".repeat(d)}
                     </div>
-                    <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 4 }}>{d} {lang === "es" ? "dígitos" : "digits"}</div>
+                    <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 4 }}>{d} {tr("digits", lang)}</div>
                   </button>
                 ))}
               </div>
@@ -412,10 +412,10 @@ const RaffleEditor = () => {
             <div style={{ borderRadius: 10, overflow: "hidden", boxShadow: "var(--shadow-md)" }}>
               <div style={{ background: raffle.bgColor ?? "#1A365D", padding: "16px 20px" }}>
                 <div style={{ color: "#FFFFFF", fontSize: 15, fontWeight: 700, fontFamily: raffle.fontFamily ?? "Inter" }}>
-                  {raffle.name || (lang === "es" ? "Nombre de la Rifa" : "Raffle Name")}
+                  {raffle.name || tr("raffle_name_label", lang)}
                 </div>
                 <div style={{ color: "#FFFFFF99", fontSize: 12, marginTop: 4 }}>
-                  {raffle.totalNumbers ?? 100} {lang === "es" ? "números" : "numbers"} · {raffle.digits ?? 2} {lang === "es" ? "dígitos" : "digits"}
+                  {raffle.totalNumbers ?? 100} {tr("numbers", lang)} · {raffle.digits ?? 2} {tr("digits", lang)}
                 </div>
               </div>
               <div style={{ background: "var(--bg)", padding: 16 }}>
