@@ -51,7 +51,7 @@ export default function LoginPage() {
 
     if (data.isFirstLogin) {
       navigate("/first-login", { replace: true, state: { email: email, } });
-      dispatch(addToast({ type: "info", message: 'Redirigido a "Mi primer ingreso"' }));
+      dispatch(addToast({ type: "info", message: tr("redirected_to_my_first_login", lang) }));
     }
 
     if (data.token) {
@@ -84,6 +84,8 @@ export default function LoginPage() {
     } else {
       if (!data.isFirstLogin) dispatch(addToast({ type: "error", message: tr(data.message,lang) }));
     }
+
+    console.log(data)
 
     setLoading(false);
   }
@@ -243,7 +245,7 @@ export default function LoginPage() {
                 padding: "14px", borderRadius: 8, border: "none", 
                 cursor: (loading || !password || !email) ? "not-allowed" : "pointer",
                 background: (loading || !password || !email) ? "#A0AEC0" : "linear-gradient(135deg, #1A365D, #2D4A7F)",
-                color: "#FFFFFF", fontSize: 16, fontWeight: 700, fontFamily: "var(--font-display)",
+                color: "#fff", fontSize: 16, fontWeight: 700, fontFamily: "var(--font-display)",
                 boxShadow: (loading || !password || !email) ? "none" : "0 4px 15px #1A365D50",
                 transition: "opacity 0.2s, transform 0.1s",
               }}

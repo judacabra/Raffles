@@ -1,21 +1,25 @@
 import axios from "axios";
 
+import { store } from "../store";
+
 import { appConfig } from "../config";
 
 const { baseURL } = appConfig;
 
-const token = localStorage.getItem('accessToken');
+const getAuthConfig = (files: boolean = false): any => {
+  const token: string | null = store.getState().auth.accessToken;
 
-const config: Object = {
-  headers: {
-    'Content-Type': 'multipart/form-data',
-    'Authorization': `Bearer ${token}`,
-  }
+  return {
+    headers: {
+      "Content-Type": files ? "multipart/form-data" : "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+  };
 };
 
 export const GetRaffles = async (idCompany: number): Promise<any> => {
   try {
-    const { data } = await axios.get<any>(`${baseURL}/raffles/all/${idCompany}`);
+    const { data } = await axios.get<any>(`/raffle/all/${idCompany}`, getAuthConfig(true));
 
     return data;
   } catch (error: any) {
@@ -23,11 +27,11 @@ export const GetRaffles = async (idCompany: number): Promise<any> => {
 
     return error.response.data;
   }
-}
+};
 
 export const SetRaffle = async(dataSend: any): Promise<any> => {
   try {
-    const { data } = await axios.post<any>(`${baseURL}/raffles`, dataSend, config);
+    const { data } = await axios.post<any>(`/raffle`, dataSend, getAuthConfig(true));
 
     return data;
   } catch (error: any) {
@@ -35,4 +39,4 @@ export const SetRaffle = async(dataSend: any): Promise<any> => {
 
     return error.response.data;
   }
-}
+};

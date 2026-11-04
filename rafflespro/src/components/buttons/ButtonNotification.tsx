@@ -3,21 +3,24 @@ import { NavigateFunction, useNavigate } from "react-router-dom";
 
 import { SweetAlertOptions } from "sweetalert2";
 
-import { useAppDispatch, useAppSelector } from "../store/hooks";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
 
-import { User, } from "../store/slices/authSlice";
-import { addToast, Language, Theme } from "../store/slices/uiSlice";
+import { User, } from "../../store/slices/authSlice";
+import { addToast, Language, Theme } from "../../store/slices/uiSlice";
 
-import { tr } from "../i18n/translations";
+import { tr } from "../../i18n/translations";
 
-import { extract_TIME_AGO } from "../utils/date-time";
-import { firstLetterUppercase } from "../utils/format-words";
+import { extract_TIME_AGO } from "../../utils/date-time";
+import { firstLetterUppercase } from "../../utils/format-words";
 
-import { DeleteNotification, GetNotifications, PutNotification } from "../api/notificationAPI";
+import { DeleteNotification, GetNotifications, PutNotification } from "../../api/notificationAPI";
 
-import { useAlert } from "../utils/useAlert";
+import { useAlert } from "../../utils/useAlert";
 
-export default function Notification() {
+export default function Notification(
+  { open, onClick }:
+  { open: boolean, onClick: () => void }
+) {
   const navigate: NavigateFunction = useNavigate();
 
   const dispatch = useAppDispatch();
@@ -27,13 +30,12 @@ export default function Notification() {
   const lang: Language = useAppSelector((s) => s.ui.language);
 
   const { sConfirm } = useAlert();
- 
-  const [notifOpen, setNotifOpen] = useState<boolean>(false);
 
   const [notificationsFounded, setNotificationsFounded] = useState<boolean>(false);
   const [notifications, setNotifications] = useState<any[]>([]);
 
-  const pendingNotifications: boolean = notifications.some((n: any) => n.readedAt == null);
+  const pendingNotifications: boolean = false;
+  // notifications.length > 0 ? notifications.some((n: any) => n.readedAt == null) : false;
 
   const maxNumbersPerPage: number = 6;
   const [visibleCount, setVisibleCount] = useState<number>(maxNumbersPerPage);
@@ -43,8 +45,6 @@ export default function Notification() {
   const existMore: boolean = visibleNotifications.length < notifications.length;
 
   const handleNotification = async (n: any): Promise<void> => {
-    setNotifOpen(false);
-
     await setReadedNotification(n.id);
     
     navigate(n.data.url, {
@@ -67,8 +67,6 @@ export default function Notification() {
   const tryDeleteNotification = async (id: number): Promise<void> => {
     try {
       const response = await DeleteNotification(id);
-
-      if (!response.statusCode) setNotifOpen(false);
 
       const bodyToast: any = {
         type: !response.statusCode ? "success" : "error",
@@ -120,7 +118,7 @@ export default function Notification() {
   return (
     <div style={{ position: "relative" }}>
       <button
-        onClick={() => setNotifOpen(!notifOpen)}
+        onClick={onClick}
         style={{
           width: 42, height: 42, borderRadius: 8, border: "1px solid var(--border)",
           background: "var(--bg)", cursor: "pointer", fontSize: 16, position: "relative",
@@ -138,7 +136,7 @@ export default function Notification() {
           />
         )}
       </button>
-      {notifOpen && (
+      {open && (
         <div
           style={{
             position: "absolute", top: "calc(100% + 8px)", right: 0, width: 320,

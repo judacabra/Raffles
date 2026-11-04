@@ -176,6 +176,11 @@ export const t: Record<string, Record<string, string>> = {
   },
   login: { es: "Iniciar sesión", en: "Login", br: "Entrar" },
   back_to_x : { es: "Volver a {x}", en: "Back to {x}", br: "Voltar para {x}" },
+  redirected_to_my_first_login: {
+    "es": 'Redirigido a "Mi primer ingreso"',
+    "en": 'Redirected to "My first login"',
+    "br": 'Redirecionado para "Meu primeiro acesso"'
+  },
 
   // Companies
   new_company: { es: "Nueva Empresa", en: "New Company", br: "Nova Empresa" },
@@ -296,6 +301,7 @@ export const t: Record<string, Record<string, string>> = {
   },
   invalid_credentials: { es: "Credenciales inválidas", en: "Invalid credentials", br: "Credenciais inválidas" },
   user_alreadey_exist: { es: "El usuario ya existe", en: "User already exists", br: "O usuário já existe" },
+  please_select_a_company: { es: "Por favor seleccione una empresa", en: "Please select a company", br: "Por favor, selecione uma empresa" }
 };
 
 export function tr(key: string, lang: Language, params?: Record<string, any>): string {

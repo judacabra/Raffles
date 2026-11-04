@@ -19,51 +19,27 @@ const getAuthConfig = (files: boolean = false): any => {
 export const Auth = async(dataSend: any): Promise<any> => {
   try {
     const { data } = await axios.post(`${baseURL}/auth/signin`, dataSend, getAuthConfig());
-
     return data;
-  } catch (error: any) {
-    if (error.response) {
-      console.error(`Error del servidor:`, error);
-      return error;
-    }
-    
-    if (error.request) {
-      console.error(`Error de red: No se recibió respuesta del servidor`);
-      return { 
-        error: true, 
-        message: 'No se pudo conectar con el servidor. Verifica tu conexión.' 
-      };
-    }
-    console.error(`Error:`, error.message);
+  } catch (err: any) {
+    console.error(err.response?.data?.message, err);
+
     return { 
       error: true, 
-      message: error.message || 'Error desconocido al autenticar' 
+      message: err.response?.data?.message, 
     };
   }
-}
+};
 
 export const FirstLogin = async(dataSend: any): Promise<any> => {
   try {
     const { data } = await axios.post(`${baseURL}/auth/first-login`, dataSend, getAuthConfig());
-
     return data;
-  } catch (error: any) {
-    if (error.response) {
-      console.error(`Error del servidor:`, error);
-      return error;
-    }
+  } catch (err: any) {
+    console.error(err.response?.data?.message, err);
     
-    if (error.request) {
-      console.error(`Error de red: No se recibió respuesta del servidor`);
-      return { 
-        error: true, 
-        message: 'No se pudo conectar con el servidor. Verifica tu conexión.' 
-      };
-    }
-    console.error(`Error:`, error.message);
     return { 
       error: true, 
-      message: error.message || 'Error desconocido al autenticar' 
+      message: err.response?.data?.message, 
     };
   }
-}
+};

@@ -39,7 +39,6 @@ export default function FirstLoginPage() {
   const [email, setEmail] = useState<string>((location.state && location.state.email) || "");
   const [password, setPassword] = useState<string>("");
   const [confirmPassword, setConfirmPassword] = useState<string>("");
-  const [remember, setRemember] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
 
   const handleSubmit = async(e: React.FormEvent): Promise<void> => {

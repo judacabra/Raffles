@@ -19,7 +19,7 @@ const getAuthConfig = (files: boolean = false): any => {
 
 export const GetNotifications = async(idUser: number): Promise<any> => {
   try {
-    const { data } = await axios.get(`${baseURL}/notifications/user/${idUser}`, getAuthConfig());
+    const { data } = await axios.get(`/notification/user/${idUser}`, getAuthConfig());
 
     return data;
   } catch (error: any) {
@@ -31,7 +31,7 @@ export const GetNotifications = async(idUser: number): Promise<any> => {
 
 export const PutNotification = async(id: number, dataSend: any): Promise<any> => {
   try {
-    const { data } = await axios.put(`${baseURL}/notifications/${id}`, dataSend, getAuthConfig());
+    const { data } = await axios.put(`/notification/${id}`, dataSend, getAuthConfig());
 
     return data;
   } catch (error: any) {
@@ -43,7 +43,7 @@ export const PutNotification = async(id: number, dataSend: any): Promise<any> =>
 
 export const DeleteNotification = async(id: number): Promise<any> => {
   try {
-    const { data } = await axios.delete(`${baseURL}/notifications/${id}`, getAuthConfig());
+    const { data } = await axios.delete(`/notification/${id}`, getAuthConfig());
 
     return data;
   } catch (error: any) {

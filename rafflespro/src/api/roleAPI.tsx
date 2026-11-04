@@ -1,18 +1,25 @@
 import axios from "axios";
 
-import { appConfig } from "src/config";
+import { store } from "../store";
+
+import { appConfig } from "../config";
 
 const { baseURL } = appConfig;
 
-const config: Object = {
-  headers: {
-    'Content-Type': 'application/json',
-  }
+const getAuthConfig = (files: boolean = false): any => {
+  const token: string | null = store.getState().auth.accessToken;
+
+  return {
+    headers: {
+      "Content-Type": files ? "multipart/form-data" : "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+  };
 };
 
-export const Roles = async (idCompany: number): Promise<any> => {
+export const GetRoles = async (idCompany: number): Promise<any> => {
   try {
-    const { data } = await axios.get<any>(`${baseURL}/roles/all/${idCompany}`);
+    const { data } = await axios.get<any>(`${baseURL}/role/all/${idCompany}`, getAuthConfig());
 
     return data;
   } catch (error: any) {
@@ -20,23 +27,11 @@ export const Roles = async (idCompany: number): Promise<any> => {
 
     return error.response.data;
   }
-}
+};
 
-export const RolesForAdmin = async (): Promise<any> => {
+export const DeleteRole = async (id: number): Promise<any> => {
   try {
-    const { data } = await axios.get<any>(`${baseURL}/roles/forAdmin`);
-
-    return data;
-  } catch (error: any) {
-    console.error(`Error al obtener los roles para admin: `, error.response.data);
-
-    return error.response.data;
-  }
-}
-
-export const deleteRole = async (id: number): Promise<any> => {
-  try {
-    const { data } = await axios.delete<any>(`${baseURL}/roles/${id}`);
+    const { data } = await axios.delete<any>(`${baseURL}/role/${id}`, getAuthConfig());
 
     return data;
   } catch (error: any) {
@@ -44,11 +39,11 @@ export const deleteRole = async (id: number): Promise<any> => {
 
     return error.response.data;
   }
-}
+};
 
-export const CreateRole = async(dataSend: any): Promise<any> => {
+export const SetRole = async(dataSend: any): Promise<any> => {
   try {
-    const { data } = await axios.post<any>(`${baseURL}/roles`, dataSend, config);
+    const { data } = await axios.post<any>(`${baseURL}/role`, dataSend, getAuthConfig());
 
     return data;
   } catch (error: any) {
@@ -56,11 +51,11 @@ export const CreateRole = async(dataSend: any): Promise<any> => {
 
     return error.response.data;
   }
-}
+};
 
-export const UpdateRole = async(id: number, dataSend: any): Promise<any> => {
+export const PutRole = async(id: number, dataSend: any): Promise<any> => {
   try {
-    const { data } = await axios.put<any>(`${baseURL}/roles/${id}`, dataSend, config);
+    const { data } = await axios.put<any>(`${baseURL}/role/${id}`, dataSend, getAuthConfig());
 
     return data;
   } catch (error: any) {
@@ -68,4 +63,4 @@ export const UpdateRole = async(id: number, dataSend: any): Promise<any> => {
 
     return error.response.data;
   }
-}
+};

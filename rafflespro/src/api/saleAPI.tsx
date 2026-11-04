@@ -1,35 +1,42 @@
 import axios from "axios";
 
+import { store } from "../store";
+
 import { appConfig } from "../config";
 
 const { baseURL } = appConfig;
 
-const config: Object = {
-  headers: {
-    'Content-Type': 'application/json',
-  }
+const getAuthConfig = (files: boolean = false): any => {
+  const token: string | null = store.getState().auth.accessToken;
+
+  return {
+    headers: {
+      "Content-Type": files ? "multipart/form-data" : "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+  };
 };
 
 export const GetSales = async (idCompany: number): Promise<any> => {
   try {
-    const { data } = await axios.get<any>(`${baseURL}/sales/all/${idCompany}`);
+    const { data } = await axios.get<any>(`${baseURL}/sale/all/${idCompany}`, getAuthConfig());
 
     return data;
   } catch (error: any) {
-    console.error(`Error al obtener las ventas: `, error.response.data);
+    console.error(`Error al obtener las ventas: `, error);
 
-    return error.response.data;
+    return error;
   }
-}
+};
 
 export const SetSale = async(dataSend: any): Promise<any> => {
   try {
-    const { data } = await axios.post<any>(`${baseURL}/sales`, dataSend, config);
+    const { data } = await axios.post<any>(`${baseURL}/sale`, dataSend, getAuthConfig());
 
     return data;
   } catch (error: any) {
-    console.error(`Error al guardar la venta: `, error.response.data);
+    console.error(`Error al guardar la venta: `, error);
 
-    return error.response.data;
+    return error;
   }
-}
+};

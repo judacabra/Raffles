@@ -11,6 +11,7 @@ import { CONFIG } from "../config-global";
 
 export default function App() {
   const theme: Theme = useAppSelector((s) => s.ui.theme);
+  
   const { appName } = CONFIG;
 
   useEffect(() => {

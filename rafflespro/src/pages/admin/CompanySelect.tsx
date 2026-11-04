@@ -1,14 +1,17 @@
+import { useState } from "react";
 import { NavigateFunction, useNavigate } from "react-router-dom";
 
-import { selectCompany, logout, type Company, } from "../../store/slices/authSlice";
+import { selectCompany, logout, type Company, User, } from "../../store/slices/authSlice";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { Language, toggleTheme, } from "../../store/slices/uiSlice";
+import { addToast, Language, } from "../../store/slices/uiSlice";
 
 import { tr } from "../../i18n/translations";
 
 import { useAlert } from "../../utils/useAlert";
 
-import { firstLetterUppercase } from "../../utils/format-words";
+import ButtonLanguage from "../../components/buttons/ButtonLanguage";
+import ButtonTheme from "../../components/buttons/ButtonTheme";
+import ButtonBackTo from "../../components/buttons/ButtonBackTo";
 
 import { appConfig } from "../../config";
 
@@ -20,30 +23,47 @@ const planBadge: Record<string, string> = {
 
 const CompanySelect = () => {
   const dispatch = useAppDispatch();
-
-  const { sConfirm, } = useAlert();
-
+  
   const navigate: NavigateFunction = useNavigate();
-
-  const lang: Language = useAppSelector((s) => s.ui.language);
-  const user: any = useAppSelector((s) => s.auth.user);
-  const theme: any = useAppSelector((s) => s.ui.theme);
-
+  
+  const lang: Language = useAppSelector((s: any) => s.ui.language);
+  const user: User | null = useAppSelector((s: any) => s.auth.user);
+  const token: string | null = useAppSelector((s) => s.auth.accessToken);
+  const permissions: any = useAppSelector((s: any) => s.auth.user.rolePermissions);
+  const activeCompany: any = useAppSelector((s: any) => s.auth.activeCompany);
+  const theme: any = useAppSelector((s: any) => s.ui.theme);
+  
+  const { sConfirm, } = useAlert();
   const { uploadsFolder } = appConfig;
+
+  const [lngOpen, setLngOpen] = useState<boolean>(false);
+
+  const backTo = () => {
+    if (!activeCompany) {
+      dispatch(addToast({ type: "warning", message: tr("please_select_a_company", lang) }))
+      return;
+    }
+    
+    const path: string = (user && token) ? `/${permissions[0]}` : "/login";
+    navigate(path, { replace: true });
+  };
 
   return (
     <>
-      <button
-        onClick={() => dispatch(toggleTheme())}
-        style={{
-          borderRadius: 8, border: "1px solid var(--border)", width: 42, height: 42,
-          background: "var(--bg)", cursor: "pointer", fontSize: 16,
-          position: "absolute", right: 20, top: 20,
-        }}
-        title={firstLetterUppercase(tr("switch_to_x", lang, { x: theme === "dark" ? tr("light", lang) : tr("dark", lang) }))}
-      >
-        {theme === "dark" ? "☀️" : "🌙"}
-      </button>
+      {activeCompany && (
+        <ButtonBackTo onClick={backTo} />
+      )}
+
+      <div style={{ position: "absolute", top: 20, right: 25, }}>
+        <div style={{ position: "absolute", top: 0, right: 50, }}>
+          <ButtonLanguage 
+            open={lngOpen}
+            onClick={() => setLngOpen(!lngOpen)}
+          />
+        </div>
+   
+        <ButtonTheme onClick={() => setLngOpen(false)} />
+      </div>
 
       <div 
         style={{
@@ -55,7 +75,7 @@ const CompanySelect = () => {
         <div 
           className="animate-fade-in" 
           style={{
-            background: "var(--bg)", borderRadius: 20, padding: "48px 40px",
+            background: "var(--bg)", borderRadius: 20, padding: "25px 40px",
             width: "100%", maxWidth: 540, boxShadow: "0 25px 60px #0000004D",
           }}
         >
@@ -64,7 +84,7 @@ const CompanySelect = () => {
               width: 56, height: 56, borderRadius: "50%",
               background: "linear-gradient(135deg, #1A365D, #F6AD55)",
               display: "inline-flex", alignItems: "center", justifyContent: "center",
-              color: "var(--text-primary)", fontSize: 20, fontWeight: 700, marginBottom: 16,
+              color: "#fff", fontSize: 20, fontWeight: 700, marginBottom: 16,
             }}>
               {user && user?.avatar.startsWith("uploads/") ? (
                 <img src={uploadsFolder + "/" + user?.avatar} style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "50%", }} />
@@ -86,7 +106,7 @@ const CompanySelect = () => {
                 key={company.id}
                 onClick={() => {
                   dispatch(selectCompany(company));
-                  navigate("/dashboard", { replace: true });
+                  navigate(`/${permissions[0]}`, { replace: true });
                 }}
                 style={{
                   display: "flex", alignItems: "center", gap: 16,
@@ -153,8 +173,8 @@ const CompanySelect = () => {
               display: "flex", justifyContent: "center", alignItems: "center", 
               borderRadius: 8, transition: "all 0.2s", fontSize: 14, 
               cursor: "pointer", fontFamily: "var(--font-sans)",
-              color: "#fff", 
               background: theme === "dark" ? "var(--bg-header)" : "var(--bg-sidebar)", 
+              color: "#fff", marginBottom: 5,
             }}
           >
             {tr("logout", lang)} <span style={{ marginLeft: 7 }}> {'➜]'} </span>
