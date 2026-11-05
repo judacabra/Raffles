@@ -1,0 +1,102 @@
+{
+  "name": "raffles-backend",
+  "projectType": "http-api",
+  "cloudProvider": "none",
+  "httpAdapter": "fastify",
+  "spoonfeedVersion": "0.0.1",
+  "generatedAt": "2026-09-22T14:27:53.706Z",
+  "recipes": {
+    "helmet": {
+      "installedAt": "2026-09-22T14:27:53.706Z",
+      "version": "0.0.1",
+      "files": [],
+      "mainTsBlocks": [
+        "helmet"
+      ]
+    },
+    "cors": {
+      "installedAt": "2026-09-22T14:27:53.706Z",
+      "version": "0.0.1",
+      "files": [],
+      "envSection": "CORS"
+    },
+    "graceful-shutdown": {
+      "installedAt": "2026-09-22T14:27:53.706Z",
+      "version": "0.0.1",
+      "files": [
+        "src/shared/lifecycle/shutdown.module.ts",
+        "src/shared/lifecycle/shutdown.service.ts",
+        "tests/unit/shared/lifecycle/shutdown.service.spec.ts"
+      ],
+      "envSection": "Graceful Shutdown",
+      "moduleImport": {
+        "moduleName": "ShutdownModule",
+        "importPath": "@/shared/lifecycle/shutdown.module"
+      }
+    },
+    "correlation-id": {
+      "installedAt": "2026-09-22T14:27:53.706Z",
+      "version": "0.0.1",
+      "files": [
+        "src/shared/middleware/correlation-id.middleware.ts",
+        "tests/unit/shared/middleware/correlation-id.spec.ts"
+      ]
+    },
+    "request-logging": {
+      "installedAt": "2026-09-22T14:27:53.706Z",
+      "version": "0.0.1",
+      "files": [
+        "src/shared/middleware/request-logging.middleware.ts",
+        "tests/unit/shared/middleware/request-logging.middleware.spec.ts"
+      ],
+      "envSection": "Request Logging"
+    },
+    "swagger": {
+      "installedAt": "2026-09-22T14:27:53.706Z",
+      "version": "0.0.1",
+      "files": [
+        "src/main.swagger.ts",
+        "tests/unit/main.swagger.spec.ts"
+      ],
+      "mainTsBlocks": [
+        "swagger"
+      ],
+      "envSection": "Swagger / OpenAPI"
+    },
+    "pino": {
+      "installedAt": "2026-09-22T14:27:53.706Z",
+      "version": "0.0.1",
+      "files": [
+        "src/infrastructure/logging/logger.module.ts",
+        "tests/unit/infrastructure/logging/logger.module.spec.ts"
+      ],
+      "envSection": "Pino Logger",
+      "moduleImport": {
+        "moduleName": "LoggerModule",
+        "importPath": "@/infrastructure/logging/logger.module"
+      }
+    },
+    "health-checks": {
+      "installedAt": "2026-09-22T14:27:53.706Z",
+      "version": "0.0.1",
+      "files": [
+        "src/shared/health/health.controller.ts",
+        "src/shared/health/health.module.ts",
+        "tests/unit/shared/health/health.controller.spec.ts"
+      ],
+      "moduleImport": {
+        "moduleName": "HealthModule",
+        "importPath": "@/shared/health/health.module"
+      }
+    },
+    "throttler": {
+      "installedAt": "2026-09-22T14:27:53.706Z",
+      "version": "0.0.1",
+      "files": [
+        "src/shared/guards/throttle.config.ts",
+        "tests/unit/shared/guards/throttle.spec.ts"
+      ],
+      "envSection": "Rate Limiting"
+    }
+  }
+}

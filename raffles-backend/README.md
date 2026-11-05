@@ -1,0 +1,20 @@
+# raffles-backend
+
+Generated with [spoonfeed](https://github.com/spoonfeed/spoonfeed).
+
+## Getting Started
+
+```bash
+pnpm install
+cp .env.example .env
+pnpm start:dev
+```
+
+## Testing
+
+```bash
+pnpm test          # Unit tests
+pnpm test:e2e      # E2E tests
+pnpm test:all      # All tests
+pnpm test:cov      # Coverage
+```
