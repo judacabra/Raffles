@@ -1,9 +1,6 @@
 import axios from "axios";
 
-import { appConfig } from "../config";
 import { store } from "../store";
-
-const { baseURL } = appConfig;
 
 const getAuthConfig = (files: boolean = false): any => {
   const token: string | null = store.getState().auth.accessToken;
@@ -18,7 +15,7 @@ const getAuthConfig = (files: boolean = false): any => {
 
 export const Auth = async(dataSend: any): Promise<any> => {
   try {
-    const { data } = await axios.post(`${baseURL}/auth/signin`, dataSend, getAuthConfig());
+    const { data } = await axios.post(`/api/auth/signin`, dataSend, getAuthConfig());
     return data;
   } catch (err: any) {
     console.error(err.response?.data?.message, err);
@@ -32,7 +29,7 @@ export const Auth = async(dataSend: any): Promise<any> => {
 
 export const FirstLogin = async(dataSend: any): Promise<any> => {
   try {
-    const { data } = await axios.post(`${baseURL}/auth/first-login`, dataSend, getAuthConfig());
+    const { data } = await axios.post(`/api/auth/first-login`, dataSend, getAuthConfig());
     return data;
   } catch (err: any) {
     console.error(err.response?.data?.message, err);

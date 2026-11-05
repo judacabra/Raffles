@@ -17,10 +17,9 @@ const getAuthConfig = (files: boolean = false): any => {
   };
 };
 
-export const GetRaffles = async (idCompany: number): Promise<any> => {
+export const GetRaffles = async (): Promise<any> => {
   try {
-    const { data } = await axios.get<any>(`/raffle/all/${idCompany}`, getAuthConfig(true));
-
+    const { data } = await axios.get<any>(`/api/raffle/all`, getAuthConfig(true));
     return data;
   } catch (error: any) {
     console.error(`Error al obtener las rifas: `, error.response.data);
@@ -31,7 +30,7 @@ export const GetRaffles = async (idCompany: number): Promise<any> => {
 
 export const SetRaffle = async(dataSend: any): Promise<any> => {
   try {
-    const { data } = await axios.post<any>(`/raffle`, dataSend, getAuthConfig(true));
+    const { data } = await axios.post<any>(`/api/raffle`, dataSend, getAuthConfig(true));
 
     return data;
   } catch (error: any) {

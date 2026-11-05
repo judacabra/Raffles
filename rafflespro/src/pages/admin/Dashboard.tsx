@@ -126,7 +126,11 @@ const Dashboard = () => {
 
   const fetchRaffles = async (idC: number): Promise<void> => {
     try {
-      const data = await GetRaffles(idC);
+      const data = await GetRaffles();
+
+          console.log("recibo dashboard >>>> ")
+    console.log(data)
+
       setRaffles(data);
     } catch (err: any) {
       console.error(`Error al obtener las rifas de la empresa #${idC}`, err);
@@ -221,7 +225,7 @@ const Dashboard = () => {
                     </td>
                   </tr>
                 ) : (
-                  [].map((r: Raffle) => {
+                  paginated.map((r: Raffle) => {
                     const badge = statusColors[r.status] ?? statusColors.draft;
                     const sold = r.numbers.filter((n) => n.status === "sold").length;
                     const pct = Math.round((sold / r.totalNumbers) * 100);
