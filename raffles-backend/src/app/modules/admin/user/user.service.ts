@@ -77,17 +77,12 @@ export class UserService {
   }
 
   async findByCompanyAndEmail(companyName: string, email: string): Promise<User | null> {
-    console.log(companyName)
-    console.log(email)
-
     const exist = await this.userRepository
       .createQueryBuilder('u')
       .innerJoin('u.userCompany', 'uc')
       .innerJoin('uc.company', 'c')
       .where('u.email = :email', { email })
       .andWhere("LOWER(REPLACE(c.name, ' ', '')) = LOWER(REPLACE(:companyName, ' ', ''))", { companyName })
-
-    console.log(exist.getSql())
 
     return exist.getOne();
   }

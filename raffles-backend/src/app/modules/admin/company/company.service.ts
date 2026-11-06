@@ -23,12 +23,12 @@ export class CompanyService {
 
     @InjectRepository(UserCompany)
     private readonly userCompanyRepository: Repository<UserCompany>,
-  ) { }
+  ) {}
 
   async create(createCompanyDto: CreateCompanyDto): Promise<Company> {
     const companyExist: boolean = await this.companyExistsByTaxId(createCompanyDto.taxId);
 
-    if (companyExist) throw new NotFoundException(`Ya existe una empresa con el Tax #${createCompanyDto.taxId}.`);
+    if (companyExist) throw new NotFoundException(`Ya existe una empresa con el TaxId #${createCompanyDto.taxId}.`);
 
     createCompanyDto.dateAt = new Date().toISOString().split("T")[0];
     createCompanyDto.hourAt = new Date().toISOString().split("T")[1].split(".")[0];
@@ -49,7 +49,7 @@ export class CompanyService {
     return this.findOne(id);
   }
 
-  findAll(): Promise<Company[]> {
+  async findAll(): Promise<Company[]> {
     const companies = this.companyRepository
       .createQueryBuilder('c')
       .select('c.id', 'id')
@@ -59,6 +59,8 @@ export class CompanyService {
       .addSelect('c.logoURL', 'logoURL')
       .addSelect('c.website', 'website')
       .addSelect('c.isActive', 'isActive')
+      .addSelect("c.location", "location")
+      .addSelect("c.tag", "tag")
       .addSelect('c.expiratedDate', 'expiratedDate')
       .addSelect('cp.dateAt', 'lastPayment')
       .leftJoin('company_payments', 'cp', 'c.id = cp.companyId AND c.lastPaymentId = cp.id')
@@ -67,6 +69,27 @@ export class CompanyService {
       .getRawMany();
 
     return companies;
+  }
+
+  async findByParam(param: string | number): Promise<Company> {
+    const company = await this.companyRepository
+      .createQueryBuilder("c")
+      .select("c.id", "id")
+      .addSelect("c.name", "name")
+      .addSelect("c.taxId", "taxId")
+      .addSelect("c.website", "website")
+      .addSelect("c.logoURL", "logoURL")
+      .addSelect("c.location", "location")
+      .addSelect("c.isActive", "isActive");
+
+    if (typeof param === "number") company.where("c.id = :param", { param })
+    if (typeof param === "string") company.where("LOWER(REPLACE(c.name, ' ', '')) = LOWER(REPLACE(:param, ' ', ''))", { param })
+    
+    const result = await company.getRawOne();
+
+    if (!result) throw new NotFoundException(`Empresa ${(typeof param === "number") ? `de id #` + param : param } no encontrada.`);
+
+    return result;
   }
 
   async findOne(id: number): Promise<Company> {

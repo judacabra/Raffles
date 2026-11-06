@@ -137,7 +137,7 @@ const ButtonUserMenu = (
               style={{
                 display: "flex", alignItems: "center", gap: 10, width: "100%",
                 justifyContent: "center", padding: "10px 16px", border: "none",
-                background: "none", cursor: "pointer", fontSize: 13, 
+                background: "none", cursor: "pointer", fontSize: 13, fontWeight: "bold",
                 color: "#FC8181", fontFamily: "var(--font-sans)", textAlign: "left",
               }}
               onMouseEnter={(e) =>

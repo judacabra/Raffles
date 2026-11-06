@@ -34,8 +34,7 @@ export default function Notification(
   const [notificationsFounded, setNotificationsFounded] = useState<boolean>(false);
   const [notifications, setNotifications] = useState<any[]>([]);
 
-  const pendingNotifications: boolean = false;
-  // notifications.length > 0 ? notifications.some((n: any) => n.readedAt == null) : false;
+  const pendingNotifications: boolean = notifications.length > 0 ? notifications.some((n: any) => n.readedAt == null) : false;
 
   const maxNumbersPerPage: number = 6;
   const [visibleCount, setVisibleCount] = useState<number>(maxNumbersPerPage);
@@ -83,12 +82,12 @@ export default function Notification(
     }
   };
 
-  const fetchNotifications = async (idC: number): Promise<void> => {
+  const fetchNotifications = async (idU: number): Promise<void> => {
     try {
-      const data = await GetNotifications(idC);
+      const data = await GetNotifications(idU);
       if (data) setNotifications(data);
     } catch (err: any) {
-      console.error(`Error al obtener las notificaciones de la empresa id #${idC}: `, err);
+      console.error(`Error al obtener las notificaciones del usuario id #${idU}: `, err);
     } finally {
       setNotificationsFounded(true);
     }

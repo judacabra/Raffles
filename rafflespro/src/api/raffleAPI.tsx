@@ -2,10 +2,6 @@ import axios from "axios";
 
 import { store } from "../store";
 
-import { appConfig } from "../config";
-
-const { baseURL } = appConfig;
-
 const getAuthConfig = (files: boolean = false): any => {
   const token: string | null = store.getState().auth.accessToken;
 
@@ -23,7 +19,6 @@ export const GetRaffles = async (): Promise<any> => {
     return data;
   } catch (error: any) {
     console.error(`Error al obtener las rifas: `, error.response.data);
-
     return error.response.data;
   }
 };
@@ -31,11 +26,9 @@ export const GetRaffles = async (): Promise<any> => {
 export const SetRaffle = async(dataSend: any): Promise<any> => {
   try {
     const { data } = await axios.post<any>(`/api/raffle`, dataSend, getAuthConfig(true));
-
     return data;
   } catch (error: any) {
     console.error(`Error al crear la rifa: `, error.response.data);
-
     return error.response.data;
   }
 };

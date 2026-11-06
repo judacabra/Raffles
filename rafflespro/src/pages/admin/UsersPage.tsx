@@ -20,7 +20,6 @@ const UsersPage = () => {
   const lang: Language = useAppSelector((s: any) => s.ui.language);
   const company: Company | null = useAppSelector((s: any) => s.auth.activeCompany);
   const user: User | null = useAppSelector((s: any) => s.auth.user);
-  const theme: any = useAppSelector((s: any) => s.ui.theme);
   
   const { uploadsFolder, } = appConfig;
   const { sAlert, sInput, sConfirm } = useAlert();
@@ -68,12 +67,12 @@ const UsersPage = () => {
   const openEdit = (u: UserRow): void => { 
     setEditing({ ...u }); 
     setModalOpen(true); 
-  }
+  };
 
   const openNew = (): void => {
     setEditing(initialUser);
     setModalOpen(true);
-  }
+  };
 
   const saveUser = async (): Promise<void> => {
     if (!editing) return;
@@ -113,7 +112,7 @@ const UsersPage = () => {
     } catch (err: any) {
       console.error(`${tr(editing.id ? "failed_to_update_user" : "failed_to_save_user", lang)}: `, err);
     } finally {
-      if (company) await fetchUsers(company.id);
+      await fetchUsers();
       setModalOpen(false);
     }
   };
@@ -133,7 +132,7 @@ const UsersPage = () => {
     } catch (err: any) {
       console.error(`${tr("failed_to_update_user", lang)}: `, err);
     } finally {
-      if (company) await fetchUsers(company.id);
+      await fetchUsers();
     }
   };
 
@@ -181,13 +180,13 @@ const UsersPage = () => {
     } catch(err: any) {
       console.error(`${tr("failed_to_delete_user", lang)}: `, err);
     } finally {
-      if (company) await fetchUsers(company.id);
+      await fetchUsers();
     }
   };
 
-  const fetchUsers = async (idC: number): Promise<void> => {
+  const fetchUsers = async (): Promise<void> => {
     try {
-      const data: UserRow[] = await GetUsers(idC);
+      const data: UserRow[] = await GetUsers();
       setUsers(data);
     } catch (err: any) {
       console.error(`${tr("failed_to_get_users", lang)}: `, err);
@@ -197,8 +196,8 @@ const UsersPage = () => {
   };
 
   useEffect(() => {
-    if (!usersFounded && company) fetchUsers(company.id);
-  }, [usersFounded, company]);
+    if (!usersFounded) fetchUsers();
+  }, [usersFounded]);
 
   return (
     <div className="animate-fade-in" style={{ padding: 28, maxWidth: 1100, height: "90vh", margin: "0 auto" }}>

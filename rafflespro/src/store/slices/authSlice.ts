@@ -24,7 +24,6 @@ interface AuthState {
   activeCompany: Company | null;
   accessToken: string | null;
   isAuthenticated: boolean;
-  rememberMe: boolean;
 }
 
 const initialState: AuthState = {
@@ -32,7 +31,6 @@ const initialState: AuthState = {
   activeCompany: null,
   accessToken: null,
   isAuthenticated: false,
-  rememberMe: false,
 };
 
 const authSlice = createSlice({

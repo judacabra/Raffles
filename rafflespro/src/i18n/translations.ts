@@ -4,6 +4,110 @@ import { Language } from "@/store/slices/uiSlice";
 // EJMP: obj: { es: "", en: "", br: "" },
 
 export const t: Record<string, Record<string, string>> = {
+  // Landing
+  // ===== Header / Navegación =====
+  nav_nosotros: { es: "Nosotros", en: "About us", br: "Sobre nós" },
+  nav_como_funciona: { es: "Cómo funciona", en: "How it works", br: "Como funciona" },
+  nav_empresas: { es: "Empresas", en: "Companies", br: "Empresas" },
+  nav_testimonios: { es: "Testimonios", en: "Testimonials", br: "Depoimentos" },
+  nav_preguntas: { es: "Preguntas", en: "Questions", br: "Perguntas" },
+  nav_explorar_rifas: { es: "EXPLORAR RIFAS", en: "EXPLORE RAFFLES", br: "EXPLORAR RIFAS" },
+  nav_abrir_menu: { es: "Abrir menú", en: "Open menu", br: "Abrir menu" },
+
+  // ===== Hero =====
+  hero_badge: { es: "LA PLATAFORMA DE LOS GRANDES SORTEOS", en: "THE PLATFORM FOR BIG GIVEAWAYS", br: "A PLATAFORMA DOS GRANDES SORTEIOS" },
+  hero_title_part1: { es: "Tu suerte puede", en: "Your luck can", br: "A sua sorte pode" },
+  hero_title_part2: { es: "cambiarlo todo.", en: "change everything.", br: "mudar tudo." },
+  hero_subtitle: { es: "Descubre empresas de rifas verificadas, participa en sorteos increíbles y sigue cada resultado en un solo lugar.", en: "Discover verified raffle companies, join incredible giveaways and follow every result in one place.", br: "Descubra empresas de rifas verificadas, participe de sorteios incríveis e acompanhe cada resultado em um só lugar." },
+  hero_cta_primary: { es: "VER RIFAS DISPONIBLES", en: "SEE AVAILABLE RAFFLES", br: "VER RIFAS DISPONÍVEIS" },
+  hero_cta_secondary: { es: "CONOCE RIFAS PRO", en: "GET TO KNOW RIFAS PRO", br: "CONHEÇA A RIFAS PRO" },
+  hero_feature_verified: { es: "EMPRESAS VERIFICADAS", en: "VERIFIED COMPANIES", br: "EMPRESAS VERIFICADAS" },
+  hero_feature_secure: { es: "EXPERIENCIA SEGURA", en: "SECURE EXPERIENCE", br: "EXPERIÊNCIA SEGURA" },
+  hero_img_alt: { es: "Automóvil deportivo, uno de los premios que puedes encontrar en Rifas Pro", en: "Sports car, one of the prizes you can find on Rifas Pro", br: "Carro esportivo, um dos prêmios que você pode encontrar na Rifas Pro" },
+
+  // ===== Stats =====
+  stat_companies: { es: "EMPRESAS ACTIVAS", en: "ACTIVE COMPANIES", br: "EMPRESAS ATIVAS" },
+  stat_tickets: { es: "BOLETOS GESTIONADOS", en: "TICKETS MANAGED", br: "BILHETES GERENCIADOS" },
+  stat_prizes: { es: "EN PREMIOS PUBLICADOS", en: "IN PUBLISHED PRIZES", br: "EM PRÊMIOS PUBLICADOS" },
+  stat_uptime: { es: "DISPONIBILIDAD", en: "UPTIME", br: "DISPONIBILIDADE" },
+
+  // ===== Nosotros =====
+  about_img_alt: { es: "Plataforma Rifas Pro en distintos dispositivos", en: "Rifas Pro platform on different devices", br: "Plataforma Rifas Pro em diferentes dispositivos" },
+  about_next_raffle: { es: "PRÓXIMO SORTEO", en: "NEXT GIVEAWAY", br: "PRÓXIMO SORTEIO" },
+  about_toast_confirmed: { es: "Boleto confirmado", en: "Ticket confirmed", br: "Bilhete confirmado" },
+  about_eyebrow: { es: "QUIÉNES SOMOS", en: "WHO WE ARE", br: "QUEM SOMOS" },
+  about_title: { es: "La tecnología detrás de cada gran oportunidad.", en: "The technology behind every great opportunity.", br: "A tecnologia por trás de cada grande oportunidade." },
+  about_p1: { es: "Rifas Pro nació para profesionalizar la industria de los sorteos. Conectamos a organizadores serios con miles de participantes a través de experiencias digitales claras, ágiles y confiables.", en: "Rifas Pro was born to professionalize the raffle industry. We connect serious organizers with thousands of participants through clear, agile and reliable digital experiences.", br: "A Rifas Pro nasceu para profissionalizar a indústria dos sorteios. Conectamos organizadores sérios a milhares de participantes por meio de experiências digitais claras, ágeis e confiáveis." },
+  about_p2: { es: "No somos una rifa: somos la infraestructura que ayuda a cada empresa a gestionar sus boletos, pagos y resultados con transparencia.", en: "We are not a raffle: we are the infrastructure that helps each company manage its tickets, payments and results with transparency.", br: "Não somos uma rifa: somos a infraestrutura que ajuda cada empresa a gerenciar seus bilhetes, pagamentos e resultados com transparência." },
+  about_val1_title: { es: "Transparencia primero", en: "Transparency first", br: "Transparência em primeiro lugar" },
+  about_val1_desc: { es: "Información clara para que participes con confianza.", en: "Clear information so you can participate with confidence.", br: "Informações claras para você participar com confiança." },
+  about_val2_title: { es: "Tecnología que responde", en: "Technology that responds", br: "Tecnologia que responde" },
+  about_val2_desc: { es: "Una plataforma rápida, estable y disponible 24/7.", en: "A fast, stable platform available 24/7.", br: "Uma plataforma rápida, estável e disponível 24/7." },
+  about_val3_title: { es: "Empresas con identidad", en: "Companies with identity", br: "Empresas com identidade" },
+  about_val3_desc: { es: "Cada organizador conserva su marca y comunidad.", en: "Each organizer keeps their brand and community.", br: "Cada organizador mantém sua marca e comunidade." },
+  about_val4_title: { es: "Soporte humano", en: "Human support", br: "Suporte humano" },
+  about_val4_desc: { es: "Acompañamiento real detrás de cada experiencia.", en: "Real support behind every experience.", br: "Acompanhamento real por trás de cada experiência." },
+
+  // ===== Cómo funciona =====
+  how_eyebrow: { es: "PARTICIPAR ES MUY FÁCIL", en: "PARTICIPATING IS EASY", br: "PARTICIPAR É MUITO FÁCIL" },
+  how_title: { es: "Tu próximo premio está a tres pasos.", en: "Your next prize is three steps away.", br: "Seu próximo prêmio está a três passos." },
+  how_subtitle: { es: "Encuentra una empresa, elige el sorteo que más te guste y participa desde su sitio oficial.", en: "Find a company, choose the giveaway you like most and participate from its official site.", br: "Encontre uma empresa, escolha o sorteio que mais gostar e participe pelo site oficial dela." },
+  how_step_label: { es: "PASO", en: "STEP", br: "PASSO" },
+  how_step1_title: { es: "Explora", en: "Explore", br: "Explore" },
+  how_step1_desc: { es: "Conoce las empresas que operan con Rifas Pro y descubre sus premios disponibles.", en: "Get to know the companies that operate with Rifas Pro and discover their available prizes.", br: "Conheça as empresas que operam com a Rifas Pro e descubra seus prêmios disponíveis." },
+  how_step2_title: { es: "Elige tus números", en: "Choose your numbers", br: "Escolha seus números" },
+  how_step2_desc: { es: "Entra al sitio oficial de la empresa y selecciona tus boletos de la suerte.", en: "Go to the company's official site and select your lucky tickets.", br: "Entre no site oficial da empresa e selecione seus bilhetes da sorte." },
+  how_step3_title: { es: "Sigue el sorteo", en: "Follow the giveaway", br: "Acompanhe o sorteio" },
+  how_step3_desc: { es: "Recibe tu confirmación y consulta resultados directamente con el organizador.", en: "Receive your confirmation and check results directly with the organizer.", br: "Receba sua confirmação e consulte os resultados diretamente com o organizador." },
+
+  // ===== Empresas =====
+  companies_eyebrow: { es: "COMUNIDAD RIFAS PRO", en: "RIFAS PRO COMMUNITY", br: "COMUNIDADE RIFAS PRO" },
+  companies_title: { es: "Elige dónde empieza tu suerte.", en: "Choose where your luck begins.", br: "Escolha onde a sua sorte começa." },
+  companies_subtitle: { es: "Explora empresas que confían en nuestra tecnología. Cada una cuenta con su propio catálogo, comunidad y sitio oficial.", en: "Explore companies that trust our technology. Each one has its own catalog, community and official site.", br: "Explore empresas que confiam na nossa tecnologia. Cada uma tem seu próprio catálogo, comunidade e site oficial." },
+  no_companies_found: { es: "No se encontraron empresas.", en: "No companies found.", br: "Nenhuma empresa encontrada." },
+
+  // ===== Testimonios =====
+  testimonials_eyebrow: { es: "HISTORIAS DE LA COMUNIDAD", en: "COMMUNITY STORIES", br: "HISTÓRIAS DA COMUNIDADE" },
+  testimonials_quote: { es: "“Pensé que era uno más de mis boletos de siempre. Cuando vi mi número en pantalla, no lo podía creer. Hoy esa camioneta está en mi cochera.”", en: "\"I thought it was just another one of my usual tickets. When I saw my number on screen, I couldn't believe it. Today that truck is in my garage.\"", br: "\"Pensei que era mais um dos meus bilhetes de sempre. Quando vi meu número na tela, não pude acreditar. Hoje essa caminhonete está na minha garagem.\"" },
+  testimonials_winner_name: { es: "José Manuel R.", en: "José Manuel R.", br: "José Manuel R." },
+  testimonials_winner_info: { es: "Ganador en Sorteos del Norte · Chihuahua", en: "Winner at Sorteos del Norte · Chihuahua", br: "Ganhador no Sorteos del Norte · Chihuahua" },
+
+  // ===== Preguntas frecuentes =====
+  faq_eyebrow: { es: "PREGUNTAS FRECUENTES", en: "FREQUENTLY ASKED QUESTIONS", br: "PERGUNTAS FREQUENTES" },
+  faq_title: { es: "Todo claro antes de participar.", en: "Everything clear before participating.", br: "Tudo claro antes de participar." },
+  faq_subtitle: { es: "Resolvemos las dudas más comunes para que tu única preocupación sea elegir tus números.", en: "We answer the most common questions so your only concern is choosing your numbers.", br: "Respondemos às dúvidas mais comuns para que sua única preocupação seja escolher seus números." },
+  faq_contact_support: { es: "HABLAR CON SOPORTE", en: "TALK TO SUPPORT", br: "FALAR COM O SUPORTE" },
+
+  faq_q1: { es: "¿Rifas Pro organiza los sorteos?", en: "Does Rifas Pro organize the giveaways?", br: "A Rifas Pro organiza os sorteios?" },
+  faq_a1: { es: "No. Rifas Pro es la plataforma tecnológica; cada empresa organiza y opera su propio sorteo.", en: "No. Rifas Pro is the technology platform; each company organizes and operates its own giveaway.", br: "Não. A Rifas Pro é a plataforma tecnológica; cada empresa organiza e opera seu próprio sorteio." },
+  faq_q2: { es: "¿Cómo sé que una empresa es confiable?", en: "How do I know a company is trustworthy?", br: "Como sei que uma empresa é confiável?" },
+  faq_a2: { es: "Todas las empresas listadas pasan por un proceso de verificación antes de operar con nosotros.", en: "All listed companies go through a verification process before operating with us.", br: "Todas as empresas listadas passam por um processo de verificação antes de operar conosco." },
+  faq_q3: { es: "¿Cómo participo en un sorteo?", en: "How do I participate in a giveaway?", br: "Como participo de um sorteio?" },
+  faq_a3: { es: "Elige la empresa y el sorteo que te interese, entra a su sitio oficial y sigue las instrucciones para seleccionar tus boletos y completar el pago.", en: "Choose the company and giveaway you're interested in, go to its official site and follow the instructions to select your tickets and complete the payment.", br: "Escolha a empresa e o sorteio que lhe interessar, entre no site oficial dela e siga as instruções para selecionar seus bilhetes e concluir o pagamento." },
+  faq_q4: { es: "¿Dónde puedo consultar los resultados?", en: "Where can I check the results?", br: "Onde posso consultar os resultados?" },
+  faq_a4: { es: "Cada organizador publica los resultados en su sitio oficial y notifica directamente a los ganadores. Rifas Pro no opera los sorteos.", en: "Each organizer publishes the results on its official site and notifies the winners directly. Rifas Pro does not operate the giveaways.", br: "Cada organizador publica os resultados no site oficial e notifica diretamente os ganhadores. A Rifas Pro não opera os sorteios." },
+
+  // ===== CTA final =====
+  cta_eyebrow: { es: "¿LISTO PARA PROBAR TU SUERTE?", en: "READY TO TRY YOUR LUCK?", br: "PRONTO PARA TENTAR A SORTE?" },
+  cta_title: { es: "Tu próximo gran momento puede empezar hoy.", en: "Your next big moment can start today.", br: "Seu próximo grande momento pode começar hoje." },
+  cta_button: { es: "EXPLORAR EMPRESAS", en: "EXPLORE COMPANIES", br: "EXPLORAR EMPRESAS" },
+
+  // ===== Footer =====
+  footer_tagline: { es: "Tecnología que conecta grandes premios con personas que se atreven a probar su suerte.", en: "Technology that connects great prizes with people who dare to try their luck.", br: "Tecnologia que conecta grandes prêmios com pessoas que ousam tentar a sorte." },
+  footer_explore: { es: "EXPLORA", en: "EXPLORE", br: "EXPLORE" },
+  footer_about: { es: "Nosotros", en: "About us", br: "Sobre nós" },
+  footer_companies: { es: "Empresas", en: "Companies", br: "Empresas" },
+  footer_winners: { es: "Ganadores", en: "Winners", br: "Ganhadores" },
+  footer_help: { es: "AYUDA", en: "HELP", br: "AJUDA" },
+  footer_faq: { es: "Preguntas frecuentes", en: "Frequently asked questions", br: "Perguntas frequentes" },
+  footer_contact: { es: "Contacto", en: "Contact", br: "Contato" },
+  footer_privacy: { es: "Aviso de privacidad", en: "Privacy notice", br: "Aviso de privacidade" },
+  footer_organizers_title: { es: "¿ORGANIZAS RIFAS?", en: "DO YOU ORGANIZE RAFFLES?", br: "VOCÊ ORGANIZA RIFAS?" },
+  footer_organizers_desc: { es: "Lleva tu negocio al siguiente nivel con la plataforma líder.", en: "Take your business to the next level with the leading platform.", br: "Leve seu negócio para o próximo nível com a plataforma líder." },
+  footer_platform_cta: { es: "CONOCER LA PLATAFORMA", en: "DISCOVER THE PLATFORM", br: "CONHECER A PLATAFORMA" },
+  footer_copyright: { es: "© 2025 RIFAS PRO. TODOS LOS DERECHOS RESERVADOS.", en: "© 2025 RIFAS PRO. ALL RIGHTS RESERVED.", br: "© 2025 RIFAS PRO. TODOS OS DIREITOS RESERVADOS." },
+  footer_disclaimer: { es: "RIFAS PRO NO ORGANIZA NI OPERA SORTEOS DIRECTAMENTE.", en: "RIFAS PRO DOES NOT ORGANIZE OR OPERATE GIVEAWAYS DIRECTLY.", br: "A RIFAS PRO NÃO ORGANIZA NEM OPERA SORTEIOS DIRETAMENTE." },
+
   // Auth
   welcome_back: { es: "¡Bienvenido de vuelta!", en: "Welcome back!", br: "Bem-vindo de volta!" },
   sign_in: { es: "Iniciar sesión", en: "Sign in", br: "Entrar" },
@@ -150,7 +254,7 @@ export const t: Record<string, Record<string, string>> = {
   date: { es: "Fecha", en: "Date", br: "Data" },
   all: { es: "Todo", en: "All", br: "Tudo" },
   username: { es: "Nombre de usuario", en: "Username", br: "Nome de usuário" },
-  language_switch: { es: "Cambiar a ingles", en: "Switch to spanish", br: "Mudar para espanhol" },
+  language_switch: { es: "Cambiar a ingles o portugues", en: "Switch to spanish or portuguese", br: "Mudar para espanhol ou inglês" },
   dark: { es: "Oscuro", en: "Dark", br: "Escuro" },
   light: { es: "Claro", en: "Light", br: "Claro" },
   switch_to_x: { es: "Cambiar a {x}", en: "Switch to {x}", br: "Mudar para {x}" },
@@ -176,11 +280,13 @@ export const t: Record<string, Record<string, string>> = {
   },
   login: { es: "Iniciar sesión", en: "Login", br: "Entrar" },
   back_to_x : { es: "Volver a {x}", en: "Back to {x}", br: "Voltar para {x}" },
+  go_to_x : { es: "Ir a {x}", en: "Go to {x}", br: "Ir para {x}" },
   redirected_to_my_first_login: {
     "es": 'Redirigido a "Mi primer ingreso"',
     "en": 'Redirected to "My first login"',
     "br": 'Redirecionado para "Meu primeiro acesso"'
   },
+  powered_by: { "es": "Desarrollado por", "en": "Powered by", "br": "Desenvolvido por" },
 
   // Companies
   new_company: { es: "Nueva Empresa", en: "New Company", br: "Nova Empresa" },
@@ -301,7 +407,18 @@ export const t: Record<string, Record<string, string>> = {
   },
   invalid_credentials: { es: "Credenciales inválidas", en: "Invalid credentials", br: "Credenciais inválidas" },
   user_alreadey_exist: { es: "El usuario ya existe", en: "User already exists", br: "O usuário já existe" },
-  please_select_a_company: { es: "Por favor seleccione una empresa", en: "Please select a company", br: "Por favor, selecione uma empresa" }
+  please_select_a_company: { es: "Por favor seleccione una empresa", en: "Please select a company", br: "Por favor, selecione uma empresa" },
+  sorry_page_not_found: { "es": "Lo sentimos, página no encontrada", "en": "Sorry, page not found", "br": "Desculpe, página não encontrada" },
+  page_not_found_sb: {
+    es: "Quizás el enlace cambió o nunca estuvo aquí",
+    en: "Perhaps the link changed or was never here",
+    br: "Talvez o link mudou ou nunca esteve aqui"
+  },
+  page_not_found_msg: {
+    es: "Vuelve al inicio y sigue participando con nosotros",
+    en: "Go back to the home page and keep participating with us",
+    br: "Volte ao início e continue participando com a gente"
+  },
 };
 
 export function tr(key: string, lang: Language, params?: Record<string, any>): string {

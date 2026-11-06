@@ -19,7 +19,6 @@ export const Auth = async(dataSend: any): Promise<any> => {
     return data;
   } catch (err: any) {
     console.error(err.response?.data?.message, err);
-
     return { 
       error: true, 
       message: err.response?.data?.message, 

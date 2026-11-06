@@ -1,6 +1,8 @@
 import { ReactNode } from "react";
 import { Location, Navigate, Route, Routes, useLocation } from "react-router-dom";
 
+import LandingPage from "../pages/public/LandignPage";
+
 import LoginPage from "../pages/admin/LoginPage";
 import CompanySelect from "../pages/admin/CompanySelect";
 import Dashboard from "../pages/admin/Dashboard";
@@ -13,6 +15,7 @@ import CompaniesPage from "../pages/admin/CompanyPage";
 import ProfilePage from "../pages/admin/ProfilePage";
 import SearchPage from "../pages/admin/SearchPage";
 import FirstLoginPage from "../pages/admin/FirstLoginPage";
+import NotFoundPage from "../components/404";
 
 import ProtectedRoute from "./ProtectedRouted";
 import AppShell from "./AppShell";
@@ -22,6 +25,8 @@ import { User } from "../store/slices/authSlice";
 import { useAppSelector } from "../store/hooks";
 
 const ALWAYS_ALLOWED_PATHS: string[] = [
+  "/",
+  "/404",
   "/login",
   "/first-login",
   "/select-company",
@@ -35,6 +40,7 @@ const normalize = (p: string): string => p.replace(/^\/+|\/+$/g, "");
 
 function RoleRoute({ children }: { children: ReactNode }) {
   const user: User | null = useAppSelector((s) => s.auth.user);
+  const token: string | null = useAppSelector((s) => s.auth.accessToken);
   
   const location: Location = useLocation();
 
@@ -42,25 +48,23 @@ function RoleRoute({ children }: { children: ReactNode }) {
 
   const currentPath: string = normalize(location.pathname);
 
-  const isAlwaysAllowed: boolean = ALWAYS_ALLOWED_PATHS.some(
-    (p) => normalize(p) === currentPath
-  );
+  const isAlwaysAllowed: boolean = ALWAYS_ALLOWED_PATHS.some((p) => normalize(p) === currentPath);
 
-  const hasPermission = permissions.some(
-    (permission) =>
-      normalize(permission) === currentPath ||
-      currentPath.startsWith(normalize(permission) + "/") // subrutas
+  const hasPermission: boolean = permissions.some(
+    (permission) => 
+      normalize(permission) === currentPath || 
+      currentPath.startsWith(normalize(permission) + "/")
   );
 
   if (isAlwaysAllowed || hasPermission) {
     return <>{children}</>;
   }
 
-  if (user && user.companies.length > 1) {
+  if (token && user && user.companies.length > 1) {
     return <Navigate to={`/select-company`} replace />;
   } 
 
-  if (user && user.id) {
+  if (token && user && user.id) {
     return <Navigate to={`/${permissions[0]}`} replace />;
   } 
   
@@ -71,8 +75,10 @@ export default function AppRouter() {
   return (
     <Routes>
       {/* PUBLICS */}
+      <Route path="/" element={<LandingPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/first-login" element={<FirstLoginPage />} />
+      <Route path="/404" element={<NotFoundPage />} />
 
       {/* PRIVATES */}
       <Route element={<ProtectedRoute />}>
@@ -164,8 +170,10 @@ export default function AppRouter() {
       </Route>
 
       {/* ROOT / 404 */}
-      <Route path="/" element={<NotFoundRedirect />} />
-      <Route path="*" element={<NotFoundRedirect />} />
+      {/* 
+        <Route path="/" element={<NotFoundRedirect />} />
+        <Route path="*" element={<NotFoundRedirect />} /> 
+      */}
     </Routes>
   );
 }

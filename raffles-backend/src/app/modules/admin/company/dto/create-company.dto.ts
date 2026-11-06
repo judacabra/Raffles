@@ -7,6 +7,14 @@ export class CreateCompanyDto {
   @IsString()
   taxId: string;
 
+  @IsOptional()
+  @IsString()
+  location?: string;
+
+  @IsOptional()
+  @IsString()
+  tag?: string;
+
   @IsString()
   @IsOptional()
   email?: string;

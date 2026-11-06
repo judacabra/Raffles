@@ -10,6 +10,7 @@ import { extname } from 'path';
 
 import { CreateCompanyPaymentDto } from './dto/create-company-payment.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { Public } from '../auth/public.decorator';
 
 @Controller('company')
 @UseGuards(JwtAuthGuard) 
@@ -40,14 +41,16 @@ export class CompanyController {
     return this.companyService.create(createCompanyDto);
   }
 
+  @Public()
   @Get()
   findAll() {
     return this.companyService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: number) {
-    return this.companyService.findOne(id);
+  @Public()
+  @Get(':param')
+  findOne(@Param('param') param: string | number) {
+    return this.companyService.findByParam(param);
   }
 
   @Put(':id')

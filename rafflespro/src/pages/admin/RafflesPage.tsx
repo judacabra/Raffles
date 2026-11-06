@@ -24,7 +24,6 @@ function RafflesPage () {
   const navigate: NavigateFunction = useNavigate();
 
   const lang: Language = useAppSelector((s) => s.ui.language);
-  const company: Company | null = useAppSelector((s) => s.auth.activeCompany);
   const user: User | null = useAppSelector((s) => s.auth.user);
   const theme: any = useAppSelector((s) => s.ui.theme);
 
@@ -92,20 +91,20 @@ function RafflesPage () {
     navigate("/raffles/editor", objEdit);
   };
 
-  const fetchRaffles = async (idC: number): Promise<void> => {
+  const fetchRaffles = async (): Promise<void> => {
     try {
-      const data = await GetRaffles(idC);
+      const data = await GetRaffles();
       setRaffles(data);
     } catch (err: any) {
-      console.error(`Error al obtener las rifas de la empresa #${idC}`, err);
+      console.error(`Error al obtener las rifas de la empresa: `, err);
     } finally {
       setRafflesFounded(true);
     }
   };
 
   useEffect(() => {
-    if (!rafflesFounded && company) fetchRaffles(company.id);
-  }, [rafflesFounded, company]);
+    if (!rafflesFounded) fetchRaffles();
+  }, [rafflesFounded]);
 
   return (
     <div className="animate-fade-in" style={{ padding: 28, maxWidth: 1100, margin: "0 auto" }}>

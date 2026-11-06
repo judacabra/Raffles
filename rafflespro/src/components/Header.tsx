@@ -137,7 +137,7 @@ export default function Header() {
  
       {/* Right */}
       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-        <div style={{ position: "absolute", top: 11, right: (companies.leng > 1) ? 341.5 : 291.3, }}>
+        <div style={{ position: "absolute", top: 11, right: (companies.length > 1) ? 341.5 : 291.3, }}>
           <ButtonLanguage 
             open={lngOpen} 
             onClick={handleButtonLanguage} 

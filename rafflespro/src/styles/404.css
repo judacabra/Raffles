@@ -1,0 +1,197 @@
+.container {
+  text-align: center;
+  padding: 45px 35px;
+  background: var(--bg-card);
+  border-radius: 32px;
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
+  position: relative;
+  z-index: 10;
+  animation: popIn 0.7s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+}
+
+@keyframes popIn {
+  0% {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Ilustración SVG - Ruleta */
+.illustration {
+  width: 140px;
+  height: 140px;
+  margin: 0 auto 15px;
+  display: block;
+  animation: spinSlow 12s linear infinite;
+}
+
+@keyframes spinSlow {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* La aguja queda fija */
+.needle-wrapper {
+  position: relative;
+  width: 140px;
+  height: 140px;
+  margin: 0 auto 15px;
+}
+
+.needle-wrapper .illustration {
+  margin: 0;
+}
+
+.needle {
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 12px solid transparent;
+  border-right: 12px solid transparent;
+  border-top: 22px solid var(--color-gold);
+  filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.2));
+  z-index: 2;
+}
+
+.error-code {
+  font-size: 96px;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -4px;
+  margin-bottom: 10px;
+  position: relative;
+  display: inline-block;
+
+  /* Texto base violeta */
+  background: var(--color-primary);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+/* Capa del brillo que barre las letras */
+.error-code::before {
+  content: "404";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--color-gold) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  background-position: 200% 0;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  animation: shineSweep 6s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes shineSweep {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@keyframes shineText {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+h1 {
+  font-size: 24px;
+  margin-bottom: 16px;
+  font-weight: 700;
+}
+
+p {
+  color: var(--text-secondary);;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+/* Botón */
+.btn {
+  display: inline-block;
+  cursor: pointer;
+  padding: 15px 42px;
+  background: var(--color-primary);
+  box-shadow: 0 0 20px var(--bg-header);
+  color: #fff;
+  text-decoration: none;
+  border-radius: 50px;
+  font-weight: 600;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  transition: left 0.5s ease;
+}
+
+.btn:hover::before {
+  left: 100%;
+}
+
+.btn:hover {
+  transform: translateY(-3px);
+}
+
+.btn:active {
+  transform: translateY(-1px);
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .error-code {
+    font-size: 72px;
+  }
+
+  .illustration,
+  .needle-wrapper {
+    width: 110px;
+    height: 110px;
+  }
+
+  h1 {
+    font-size: 20px;
+  }
+
+  p {
+    font-size: 14px;
+  }
+
+  .btn {
+    padding: 13px 32px;
+    font-size: 14px;
+  }
+
+  .container {
+    padding: 35px 25px;
+  }
+}

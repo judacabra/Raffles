@@ -18,6 +18,12 @@ export class Company {
 
   @Column({ unique: true })
   taxId: string;
+  
+  @Column({ nullable: true })
+  location: string;
+
+  @Column({ nullable: true })
+  tag?: string;
 
   @Column({ nullable: true })
   email?: string;

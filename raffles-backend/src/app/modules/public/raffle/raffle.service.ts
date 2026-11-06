@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, IsNull, Not, In } from 'typeorm';
+import { Repository, } from 'typeorm';
 
 import { CreateRaffleDto } from './dto/create-raffle.dto';
 import { UpdateRaffleDto } from './dto/update-raffle.dto';
@@ -14,9 +14,6 @@ export class RaffleService {
   constructor(
     @InjectRepository(Raffle)
     private readonly raffleRepository: Repository<Raffle>,
-
-    @InjectRepository(RaffleNumber)
-    private readonly raffleNumberRepository: Repository<RaffleNumber>,
   ) {}
   async create(createRaffleDto: CreateRaffleDto): Promise<Raffle> {
     createRaffleDto.createdAt = new Date().toISOString().split("T")[0];
@@ -31,31 +28,24 @@ export class RaffleService {
     return await this.raffleRepository.save(raffle);
   }
 
-  async findAllByCompany(companyName: string): Promise<Raffle[]> {
-    const numbers: RaffleNumber[] = await this.findAllNumbersByCompany(companyName);
-
-    const raffles: any = await this.raffleRepository
+  async findAllByCompany(companyName: string) {
+    const raffles = await this.raffleRepository
       .createQueryBuilder('r')
       .leftJoin('company', 'c', 'c.id = r.companyId')
-      .select('r.*')
-      .andWhere("LOWER(REPLACE(c.name, ' ', '')) = LOWER(REPLACE(:companyName, ' ', ''))", { companyName })
-      .orderBy('r.id', 'DESC');
+      .leftJoinAndMapMany(
+        'r.numbers',
+        RaffleNumber,
+        'rn',
+        'rn.raffleId = r.id',
+      )
+      .andWhere(
+        "LOWER(REPLACE(c.name, ' ', '')) = LOWER(REPLACE(:companyName, ' ', ''))",
+        { companyName },
+      )
+      .orderBy('r.id', 'DESC')
+      .getMany();
 
-    return raffles.getRawMany();
-  }
-
-  async findAllNumbersByCompany(companyName: string): Promise<RaffleNumber[]> {
-    const numbers = await this.raffleNumberRepository
-      .createQueryBuilder('rn')
-      .select([
-        'rn.*',
-      ])
-      .leftJoin('raffle', 'r' , 'rn.raffleId = r.id')
-      .leftJoin('company', 'c' , 'c.id = r.companyId')
-      .where("LOWER(REPLACE(c.name, ' ', '')) = LOWER(REPLACE(:companyName, ' ', ''))", { companyName })
-      .getRawMany();
-
-    return numbers;
+    return raffles;
   }
 
   async findOne(id: number): Promise<Raffle> {

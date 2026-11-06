@@ -2,10 +2,6 @@ import axios from "axios";
 
 import { store } from "../store";
 
-import { appConfig } from "../config";
-
-const { baseURL } = appConfig;
-
 const getAuthConfig = (files: boolean = false): any => {
   const token: string | null = store.getState().auth.accessToken;
 
@@ -20,16 +16,14 @@ const getAuthConfig = (files: boolean = false): any => {
 export const SetUser = async(dataSend: any): Promise<any> => {
   try {
     const { data } = await axios.post(`/api/user`, dataSend, getAuthConfig(true));
-
     return data;
   } catch (error: any) {
     console.error(`Error al guardar el usuario: `, error);
-
     return error;
   }
 };
 
-export const GetUsers = async(idCompany: number): Promise<any> => {
+export const GetUsers = async(): Promise<any> => {
   try {
     const { data } = await axios.get(`/api/user/all`, getAuthConfig(true));
 
@@ -43,7 +37,7 @@ export const GetUsers = async(idCompany: number): Promise<any> => {
 
 export const PutUser = async(id: number, dataSend: any): Promise<any> => {
   try {
-    const { data } = await axios.put(`/user/${id}`, dataSend, getAuthConfig(true));
+    const { data } = await axios.put(`/api/user/${id}`, dataSend, getAuthConfig(true));
 
     return data;
   } catch (error: any) {
@@ -55,7 +49,7 @@ export const PutUser = async(id: number, dataSend: any): Promise<any> => {
 
 export const PutUserStatus = async(id: number, status: boolean): Promise<any> => {
   try {
-    const { data } = await axios.put(`/user/status/${id}`, { status }, getAuthConfig());
+    const { data } = await axios.put(`/api/user/status/${id}`, { status }, getAuthConfig());
 
     return data;
   } catch (error: any) {
@@ -67,7 +61,7 @@ export const PutUserStatus = async(id: number, status: boolean): Promise<any> =>
 
 export const DeleteUser = async(id: number): Promise<any> => {
   try {
-    const { data } = await axios.delete(`/user/${id}`, getAuthConfig());
+    const { data } = await axios.delete(`/api/user/${id}`, getAuthConfig());
 
     return data;
   } catch (error: any) {

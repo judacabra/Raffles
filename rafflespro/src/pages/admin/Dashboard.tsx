@@ -71,8 +71,7 @@ const Dashboard = () => {
   const [rafflesFounded, setRafflesFounded] = useState<boolean>(false);
   const [raffles, setRaffles] = useState<Raffle[]>([]);
 
-  const activeRaffles: Raffle[] = [];
-    // raffles ? raffles.filter((r: Raffle) => r.status === "active") : [];
+  const activeRaffles: Raffle[] = raffles ? raffles.filter((r: Raffle) => r.status === "active") : [];
 
   const now: Date = new Date();
 
@@ -90,10 +89,9 @@ const Dashboard = () => {
   
   const today: string = new Date().toISOString().split("T")[0];
 
-  const soldToday: number = 2;
-    // raffles.flatMap((r: Raffle) => r.numbers)
-    // .filter((n: RaffleNumber) => n.soldAt && n.soldAt.split("T")[0] === today)
-    // .length;
+  const soldToday: number = raffles.flatMap((r: Raffle) => r.numbers)
+    .filter((n: RaffleNumber) => n.soldAt && n.soldAt.split("T")[0] === today)
+    .length;
 
   const revenue: number = activeRaffles.reduce((sum, r) => sum + r.numbers.filter((n) => n.status === "sold").length * r.pricePerNumber, 0);
 

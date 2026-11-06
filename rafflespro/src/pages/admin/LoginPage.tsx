@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { NavigateFunction, useNavigate } from "react-router-dom";
 
 import { login, selectCompany } from "../../store/slices/authSlice";
-import { addToast, Language, toggleLanguage, } from "../../store/slices/uiSlice";
+import { addToast, Language, Theme, toggleLanguage, } from "../../store/slices/uiSlice";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { toggleTheme, } from "../../store/slices/uiSlice";
+
+import { GetCompanyByIdOrName } from "../../api/companiesAPI.tsx";
 
 import { tr } from "../../i18n/translations";
 
@@ -13,18 +15,21 @@ import { Auth } from "../../api/authAPI";
 import { firstLetterUppercase } from "../../utils/format-words.ts";
 
 import { CONFIG } from "../../../config-global.ts";
+import { appConfig } from "../../config/index.ts";
 
 import "../../styles/Login.css";
 
 export default function LoginPage() {
   const { appName } = CONFIG;
 
+  const { uploadsFolder } = appConfig;
+
   const dispatch = useAppDispatch();
 
   const navigate: NavigateFunction = useNavigate();
 
   const lang: Language = useAppSelector((s) => s.ui.language);
-  const theme: any = useAppSelector((s) => s.ui.theme);
+  const theme: Theme = useAppSelector((s) => s.ui.theme);
 
   const srcLogo: string = `./images/logo_${theme}.png`;
 
@@ -38,9 +43,35 @@ export default function LoginPage() {
 
   const [lngOpen, setLngOpen] = useState<boolean>(false);
 
+  const [companyName, setCompanyName] = useState<string>("");
+  const [companyInfo, setCompanyInfo] = useState<any>(null);
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
+
+  const [onPageLoading, setOnPageLoading] = useState<boolean>(false);
+
+  const fetchCompanyInfo = async () => {
+    try {
+      const company: string = location.host.split(".")[0];
+
+      if (company) setCompanyName(company);
+
+      const data = await GetCompanyByIdOrName({ name: company });
+
+      if (data) {
+        if (data.isActive) {
+          setCompanyInfo(data);
+        } else {
+          alert("Empresa inactiva...")
+        }
+      }
+    } catch (err: any) {
+      console.error(`Error al obtener la información de la empresa ${companyName}:`, err)
+    } finally {
+      setOnPageLoading(true);
+    }
+  };
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -88,7 +119,11 @@ export default function LoginPage() {
     console.log(data)
 
     setLoading(false);
-  }
+  };
+
+  useEffect(() => {
+    if (!onPageLoading) fetchCompanyInfo();
+  }, [onPageLoading]);
 
   return (
     <>
@@ -146,7 +181,7 @@ export default function LoginPage() {
       </button>
 
       <div style={{
-        minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center",
+        height: "100vh", display: "flex", alignItems: "center", justifyContent: "center",
         background: `linear-gradient(135deg, var(--bg-sidebar) 0%, ${theme === "dark" ? "var(--color-primary)" : "var(--color-primary-light)"} 50%, var(--bg-sidebar) 100%)`,
         fontFamily: "var(--font-sans)",
       }}>
@@ -170,7 +205,12 @@ export default function LoginPage() {
         >
           {/* Logo */}
           <div style={{ textAlign: "center", marginBottom: 20, }}>
-            <img src={srcLogo} alt="logo_de_rifas" style={{ width: "55%", margin: "-40px auto -10px", }} />
+            {(companyInfo && companyInfo.logoURL) ? (
+              <img src={`${uploadsFolder}/${companyInfo.logoURL}`} alt="logo_de_rifas" style={{ width: "50%", margin: "-20px auto 20px", borderRadius: "50%" }} />
+            ) : (
+              <img src={srcLogo} alt="logo_de_rifas" style={{ width: "55%", margin: "-40px auto -10px", }} />
+            )}
+            
             <p style={{ color: "var(--text-primary)", fontSize: 14, }}>
               {tr("welcome_back", lang)}
             </p>
@@ -256,8 +296,8 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <p style={{ textAlign: "center", fontSize: 12, color: "#A0AEC0", marginTop: 24 }}>
-            © 2026 {appName} · {tr("all_rights_reserved", lang)}
+          <p style={{ textAlign: "center", fontSize: 12, color: "#A0AEC0", marginTop: 24, marginBottom: "-20px" }}>
+            {tr("powered_by", lang)} <b style={{ color: "var(--text-secondary)" }}> {appName} </b> · {tr("all_rights_reserved", lang)} © 2026
           </p>
         </div>
       </div>

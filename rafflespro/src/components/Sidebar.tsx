@@ -40,14 +40,14 @@ export default function Sidebar({ open }: { open: boolean }) {
       {/* Logo */}
       <div style={{
         padding: "20px 16px", display: "flex", alignItems: "center", gap: 12,
-        borderBottom: "1px solid #FFFFFF15", flexShrink: 0,
+        borderBottom: "1px solid #ffffff15", flexShrink: 0,
       }}>
         <img src="/images/icon_rifas.png" alt="icono_de_rifas" style={{ width: open ? "18%" : "", background: "#fff", borderRadius: 10, }} />
         {open && (
           <div>
-            <div style={{ color: "#FFFFFF", fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 16, whiteSpace: "nowrap" }}>RifasPro</div>
+            <div style={{ color: "#fff", fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 16, whiteSpace: "nowrap" }}>RifasPro</div>
             {company && (
-              <div style={{ color: "#FFFFFF80", fontSize: 11, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: 150 }}>
+              <div style={{ color: "#ffffff80", fontSize: 11, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: 150 }}>
                 {company.name}
               </div>
             )}
@@ -68,14 +68,14 @@ export default function Sidebar({ open }: { open: boolean }) {
               style={{
                 display: "flex", alignItems: "center", gap: 12,
                 padding: "10px 12px", borderRadius: 8, border: "none", cursor: "pointer",
-                background: isActive ? "#FFFFFF20" : "transparent",
-                color: isActive ? "#F6AD55" : "#FFFFFF99",
+                background: isActive ? "#fffffff20" : "transparent",
+                color: isActive ? "#F6AD55" : "#fffffff99",
                 fontFamily: "var(--font-sans)", fontSize: 14, fontWeight: isActive ? 600 : 400,
                 transition: "all 0.15s", textAlign: "left", width: "100%",
                 borderLeft: isActive ? "3px solid #F6AD55" : "3px solid transparent",
               }}
-              onMouseEnter={(e) => { if (!isActive) e.currentTarget.style.background = "#FFFFFF10"; e.currentTarget.style.color = "#FFFFFF"; }}
-              onMouseLeave={(e) => { if (!isActive) e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = isActive ? "#F6AD55" : "#FFFFFF99"; }}
+              onMouseEnter={(e) => { if (!isActive) e.currentTarget.style.background = "#ffffff10"; e.currentTarget.style.color = "#fff"; }}
+              onMouseLeave={(e) => { if (!isActive) e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = isActive ? "#F6AD55" : "#ffffff99"; }}
             >
               <span style={{ fontSize: 18, flexShrink: 0, width: 20, textAlign: "center" }}>{item.icon}</span>
               {open && <span style={{ whiteSpace: "nowrap" }}>{tr(item.key, lang)}</span>}
@@ -85,18 +85,18 @@ export default function Sidebar({ open }: { open: boolean }) {
       </nav>
 
       {/* Bottom */}
-      <div style={{ padding: "12px 8px", borderTop: "1px solid #FFFFFF15" }}>
+      <div style={{ padding: "12px 8px", borderTop: "1px solid #ffffff15" }}>
         <button
           onClick={() => navigate("/settings", { replace: true })}
           style={{
             display: "flex", alignItems: "center", gap: 12,
             padding: "10px 12px", borderRadius: 8, border: "none", cursor: "pointer",
-            background: "transparent", color: "#FFFFFF60",
+            background: "transparent", color: "#ffffff60",
             fontFamily: "var(--font-sans)", fontSize: 14, width: "100%",
             transition: "all 0.15s",
           }}
-          onMouseEnter={(e) => { e.currentTarget.style.background = "#FFFFFF10"; e.currentTarget.style.color = "#FFFFFF"; }}
-          onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "#FFFFFF60"; }}
+          onMouseEnter={(e) => { e.currentTarget.style.background = "#ffffff10"; e.currentTarget.style.color = "#fff"; }}
+          onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "#ffffff60"; }}
         >
           <span style={{ fontSize: 18, flexShrink: 0, width: 20, textAlign: "center" }}>⚙</span>
           {open && <span style={{ whiteSpace: "nowrap" }}>{tr("settings", lang)}</span>}

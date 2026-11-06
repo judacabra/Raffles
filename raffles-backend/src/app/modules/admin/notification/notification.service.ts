@@ -31,9 +31,11 @@ export class NotificationService {
     });
 
     return this.notificationRepository.save(notification);
-  }
+  };
 
-  findByUser(idUser: number): Promise<Notification[]> {
+  // "LOWER(REPLACE(c.name, ' ', '')) = LOWER(REPLACE(:companyName, ' ', ''))", { companyName },
+
+  async findByUser(idUser: number): Promise<Notification[]> {
     return this.notificationRepository
       .createQueryBuilder('n')
       .leftJoin('n.user', 'u')
@@ -56,7 +58,7 @@ export class NotificationService {
       .andWhere('u.id = :idUser', { idUser })
       .orderBy('n.id', 'DESC')
       .getMany();
-  }
+  };
 
   async findOne(id: number): Promise<Notification> {
     const notification = await this.notificationRepository.findOne({ where: { id } });
