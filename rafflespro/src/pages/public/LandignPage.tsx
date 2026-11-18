@@ -94,7 +94,7 @@ const faqs: any[] = [
   },
 ];
 
-function Icon({
+const Icon = ({
   children,
   size = 20,
   className = "",
@@ -102,7 +102,7 @@ function Icon({
   children: ReactNode;
   size?: number;
   className?: string;
-}) {
+}) => {
   return (
     <svg
       aria-hidden="true"
@@ -117,7 +117,7 @@ function Icon({
   );
 }
 
-function Arrow({ direction = "right" }: { direction?: "left" | "right" }) {
+const Arrow = ({ direction = "right" }: { direction?: "left" | "right" }) => {
   return (
     <Icon size={18} className={direction === "left" ? "rotate-180" : ""}>
       <path
@@ -131,7 +131,7 @@ function Arrow({ direction = "right" }: { direction?: "left" | "right" }) {
   );
 }
 
-function Logo({ compact = false }: { compact?: boolean }) {
+const Logo = ({ compact = false }: { compact?: boolean }) => {
   return (
     <a
       className="group flex items-center gap-2.5"
@@ -282,8 +282,11 @@ const LandingPage = () => {
 
         <div className="relative mx-auto flex max-w-[1240px] px-5 pb-48 pt-24 lg:px-8 lg:pt-32">
           <div className="max-w-[680px]">
-            <div className="mb-7 inline-flex items-center gap-2 rounded-full border border-[var(--color-gold)]/25 bg-[var(--color-gold)]/[0.08] px-3 py-2 text-[10px] font-extrabold tracking-[0.17em] text-[var(--color-gold)]">
-              <span className="size-1.5 rounded-full bg-[var(--color-gold)] shadow-[0_0_9px_var(--color-gold)]" />
+            <div 
+              className="mb-7 inline-flex items-center gap-2 rounded-full border border-[var(--color-gold)]/25 
+              bg-[var(--color-gold)]/[0.08] px-3 py-2 text-[10px] font-extrabold tracking-[0.17em] text-[var(--color-gold)]"
+            >
+              <span className="size-1.5 rounded-full bg-[var(--color-gold)] shadow-[0_0_9px_var(--color-gold)] pointer" />
               {tr("hero_badge", lang)}
             </div>
             <h1 

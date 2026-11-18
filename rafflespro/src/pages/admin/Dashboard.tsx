@@ -126,9 +126,6 @@ const Dashboard = () => {
     try {
       const data = await GetRaffles();
 
-          console.log("recibo dashboard >>>> ")
-    console.log(data)
-
       setRaffles(data);
     } catch (err: any) {
       console.error(`Error al obtener las rifas de la empresa #${idC}`, err);

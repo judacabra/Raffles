@@ -13,7 +13,9 @@ const ButtonTheme = (
     const lang: Language = useAppSelector((s: any) => s.ui.language);
     const user: User | null = useAppSelector((s: any) => s.auth.user);
     const token: string | null = useAppSelector((s) => s.auth.accessToken);
-    const permissions: any = useAppSelector((s: any) => s.auth.user.rolePermissions);
+
+    let permissions: any[] = [];
+    if (user) permissions = useAppSelector((s: any) => s.auth.user.rolePermissions);
 
   return (
     <button

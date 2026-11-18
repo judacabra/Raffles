@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Location, NavigateFunction, useLocation, useNavigate } from "react-router-dom";
 
 import { login, selectCompany } from "../../store/slices/authSlice.ts";
@@ -8,13 +8,21 @@ import { useAppDispatch, useAppSelector } from "../../store/hooks.ts";
 import { tr } from "../../i18n/translations.ts";
 
 import { FirstLogin } from "../../api/authAPI.tsx";
+import { GetCompanyByIdOrName } from "../../api/companiesAPI.tsx";
 
 import { firstLetterUppercase } from "../../utils/format-words.ts";
 
+import { appConfig } from "../../config/index.ts";
 import { CONFIG } from "../../../config-global.ts";
+
+import ButtonLanguage from "../../components/buttons/ButtonLanguage.tsx";
+import ButtonTheme from "../../components/buttons/ButtonTheme.tsx";
+import ButtonBackTo from "../../components/buttons/ButtonBackTo.tsx";
 
 export default function FirstLoginPage() {
   const { appName } = CONFIG;
+
+  const { uploadsFolder } = appConfig;
 
   const dispatch = useAppDispatch();
 
@@ -36,10 +44,36 @@ export default function FirstLoginPage() {
 
   const [lngOpen, setLngOpen] = useState<boolean>(false);
 
+  const [companyName, setCompanyName] = useState<string>("");
+  const [companyInfo, setCompanyInfo] = useState<any>(null);
   const [email, setEmail] = useState<string>((location.state && location.state.email) || "");
   const [password, setPassword] = useState<string>("");
   const [confirmPassword, setConfirmPassword] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
+
+  const [onPageLoading, setOnPageLoading] = useState<boolean>(false);
+
+  const fetchCompanyInfo = async () => {
+    try {
+      const company: string = window.location.host.split(".")[0];
+
+      if (company) setCompanyName(company);
+
+      const data = await GetCompanyByIdOrName({ name: company });
+
+      if (data) {
+        if (data.isActive) {
+          setCompanyInfo(data);
+        } else {
+          alert("Empresa inactiva...")
+        }
+      }
+    } catch (err: any) {
+      console.error(`Error al obtener la información de la empresa ${companyName}:`, err)
+    } finally {
+      setOnPageLoading(true);
+    }
+  };
 
   const handleSubmit = async(e: React.FormEvent): Promise<void> => {
     e.preventDefault();
@@ -91,79 +125,36 @@ export default function FirstLoginPage() {
     navigate("/login", { replace: true });
   };
 
+  useEffect(() => {
+    if (!onPageLoading) fetchCompanyInfo();
+  }, [onPageLoading]);
+
+  useEffect(()=> {
+    if (companyInfo && companyInfo.name) {
+      document.title = companyInfo.name;
+    }
+  }, [companyInfo]);
+
   return (
     <>
-      <button 
-        style={{
-          position: "absolute", left: 20, top: 20,
-          background: "var(--bg)", width: 45, height: 45,
-          borderRadius: "50%", paddingBottom: 2,
-          transform: "rotate(180deg)", cursor: "pointer"
-        }}
-        title={firstLetterUppercase(tr("back_to_x", lang, { x: tr("login", lang) }))}
-        onClick={backToLogin}
-        onMouseEnter={(e) => e.currentTarget.style.background = "var(--bg-header)"}
-        onMouseLeave={(e) => e.currentTarget.style.background = "var(--bg)"}
-      > 
-        ➜
-      </button>
+      <ButtonBackTo onClick={backToLogin} />
 
-      <div style={{ position: "relative" }}>
-        <button
-          onClick={() => { setLngOpen(!lngOpen); }}
-          style={{
-            width: 72, height: 42, borderRadius: 6, border: "1px solid var(--border)",
-            background: "var(--bg)", color: "var(--text-secondary)", cursor: "pointer",
-            fontSize: 13, position: "absolute", right: 70, top: 20,
-          }}
-          title={tr("language_switch", lang)}
-        >
-          {langSelected.icon} &nbsp; {langSelected.label.toUpperCase()}
-        </button>
-
-        {lngOpen && (
-          <div style={{
-            position: "absolute", top: "calc(100% + 65px)", right: 70, width: 80,
-            background: "var(--bg-card)", border: "1px solid var(--border)",
-            borderRadius: 12, boxShadow: "0 8px 24px #0000001A", zIndex: 100, overflow: "hidden",
-          }}>
-            {LNGS_ARR.map((item) => (
-              <button 
-                key={item.label} 
-                style={{
-                  display: "flex", alignItems: "center", gap: 10, width: "100%",
-                  padding: "10px 16px", border: "none", background: "none", cursor: "pointer",
-                  fontSize: 13, color: "var(--text-secondary)", fontFamily: "var(--font-sans)", textAlign: "left",
-                }}
-                onClick={() => {
-                  dispatch(toggleLanguage(item.label as Language))
-                  setLngOpen(false);
-                }}
-                onMouseEnter={(e) => (e.currentTarget.style.background = "var(--bg)")}
-                onMouseLeave={(e) => (e.currentTarget.style.background = "none")}
-              >
-                <span>{item.icon}</span> {item.label.toUpperCase()}
-              </button>
-            ))}
-          </div>
-        )}
+      <div style={{ position: "absolute", top: 20, right: 25, }}>
+        <div style={{ position: "absolute", top: 0, right: 50, }}>
+          <ButtonLanguage 
+            open={lngOpen}
+            onClick={() => setLngOpen(!lngOpen)}
+          />
+        </div>
+   
+        <ButtonTheme onClick={() => setLngOpen(false)} />
       </div>
-
-      <button
-        onClick={() => dispatch(toggleTheme())}
-        style={{
-          borderRadius: 8, border: "1px solid var(--border)", width: 42, height: 42,
-          background: "var(--bg)", cursor: "pointer", fontSize: 16,
-          position: "absolute", right: 20, top: 20,
-        }}
-        title={firstLetterUppercase(tr("switch_to_x", lang, { x: theme === "dark" ? tr("light", lang) : tr("dark", lang) }))}
-      >
-        {theme === "dark" ? "☀️" : "🌙"}
-      </button>
 
       <div style={{
         minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center",
-        background: `linear-gradient(135deg, var(--bg-sidebar) 0%, ${theme === "dark" ? "var(--color-primary)" : "var(--color-primary-light)"} 50%, var(--bg-sidebar) 100%)`,
+        background: `linear-gradient(135deg, var(--bg-sidebar) 0%, ${theme === "dark" 
+          ? "var(--color-primary)" 
+          : "var(--color-primary-light)"} 50%, var(--bg-sidebar) 100%)`,
         fontFamily: "var(--font-sans)",
       }}>
 
@@ -186,7 +177,12 @@ export default function FirstLoginPage() {
         >
           {/* Logo */}
           <div style={{ textAlign: "center", marginBottom: 20, }}>
-            <img src={srcLogo} alt="logo_de_rifas" style={{ width: "55%", margin: "-40px auto -10px", }} />
+            {(companyInfo && companyInfo.logoURL) ? (
+              <img src={`${uploadsFolder}/${companyInfo.logoURL}`} alt="logo_de_rifas" style={{ width: "50%", margin: "-20px auto 20px", borderRadius: "50%" }} />
+            ) : (
+              <img src={srcLogo} alt="logo_de_rifas" style={{ width: "50%", margin: "-40px auto -10px", }} />
+            )}
+
             <p style={{ color: "var(--text-primary)", fontSize: 14, }}>
               {tr("welcome_back", lang)}
             </p>
@@ -276,7 +272,7 @@ export default function FirstLoginPage() {
             </button>
           </form>
 
-          <p style={{ textAlign: "center", fontSize: 12, color: "#A0AEC0", marginTop: 24 }}>
+          <p style={{ textAlign: "center", fontSize: 12, color: "#A0AEC0", marginTop: 24, marginBottom: "-20px" }}>
             © 2026 {appName} · {tr("all_rights_reserved", lang)}
           </p>
         </div>

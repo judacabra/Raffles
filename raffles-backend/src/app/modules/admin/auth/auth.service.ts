@@ -42,7 +42,6 @@ export class AuthService {
     if (isFirstLogin) return { isFirstLogin };
 
     const isMatch: boolean = await bcrypt.compare(password, userFind.password!);
-
     if (!isMatch) throw new UnauthorizedException('invalid_credentials');
 
     const companies: Company[] = await this.companyService.findByUser(userFind.id);

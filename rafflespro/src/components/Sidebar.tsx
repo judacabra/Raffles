@@ -4,12 +4,16 @@ import { useAppSelector } from "../store/hooks";
 
 import { tr } from "../i18n/translations";
 
-import { Language } from "@/store/slices/uiSlice";
-import { Company, User } from "@/store/slices/authSlice";
-import { View } from "@/interfaces/sidebar.interfaces";
+import { Language } from "../store/slices/uiSlice";
+import { Company, User } from "../store/slices/authSlice";
+import { View } from "../interfaces/sidebar.interfaces";
+
+import { appConfig } from "../config";
 
 export default function Sidebar({ open }: { open: boolean }) {
   const navigate: NavigateFunction = useNavigate();
+
+  const { uploadsFolder } = appConfig;
 
   const lang: Language = useAppSelector((s) => s.ui.language);
   const user: User | null = useAppSelector((s) => s.auth.user);
@@ -39,10 +43,15 @@ export default function Sidebar({ open }: { open: boolean }) {
     }}>
       {/* Logo */}
       <div style={{
-        padding: "20px 16px", display: "flex", alignItems: "center", gap: 12,
+        padding: "12px 16px 10px", display: "flex", alignItems: "center", gap: 12,
         borderBottom: "1px solid #ffffff15", flexShrink: 0,
       }}>
-        <img src="/images/icon_rifas.png" alt="icono_de_rifas" style={{ width: open ? "18%" : "", background: "#fff", borderRadius: 10, }} />
+        {(company && company.logoURL) ? (
+          <img src={`${uploadsFolder}/${company.logoURL}`} alt="logo_de_rifas" style={{ width: open ? "18.5%" : "", background: "#fff", borderRadius: 10, }} />
+        ) : (
+          <img src="/images/icon_rifas.png" alt="icono_de_rifas" style={{ width: open ? "18.5%" : "", background: "#fff", borderRadius: 10, }} />
+        )}
+
         {open && (
           <div>
             <div style={{ color: "#fff", fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 16, whiteSpace: "nowrap" }}>RifasPro</div>
@@ -58,7 +67,7 @@ export default function Sidebar({ open }: { open: boolean }) {
       {/* Nav */}
       <nav style={{ flex: 1, padding: "12px 8px", display: "flex", flexDirection: "column", gap: 4 }}>
         {filteredNavItems.map((item: View) => {
-          const isActive = location.pathname.slice(1,location.pathname.length) == item.view;
+          const isActive: boolean = location.pathname.slice(1,location.pathname.length) === item.view;
 
           return (
             <button
@@ -68,9 +77,9 @@ export default function Sidebar({ open }: { open: boolean }) {
               style={{
                 display: "flex", alignItems: "center", gap: 12,
                 padding: "10px 12px", borderRadius: 8, border: "none", cursor: "pointer",
-                background: isActive ? "#fffffff20" : "transparent",
-                color: isActive ? "#F6AD55" : "#fffffff99",
-                fontFamily: "var(--font-sans)", fontSize: 14, fontWeight: isActive ? 600 : 400,
+                background: isActive ? "#ffffff20" : "transparent",
+                color: isActive ? "#F6AD55" : "#ffffff99",
+                fontFamily: "var(--font-sans)", fontSize: 14, 
                 transition: "all 0.15s", textAlign: "left", width: "100%",
                 borderLeft: isActive ? "3px solid #F6AD55" : "3px solid transparent",
               }}

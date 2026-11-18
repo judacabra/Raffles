@@ -12,7 +12,8 @@ import { tr } from "../../i18n/translations";
 
 import { Auth } from "../../api/authAPI";
 
-import { firstLetterUppercase } from "../../utils/format-words.ts";
+import ButtonTheme from "../../components/buttons/ButtonTheme.tsx";
+import ButtonLanguage from "../../components/buttons/ButtonLanguage.tsx";
 
 import { CONFIG } from "../../../config-global.ts";
 import { appConfig } from "../../config/index.ts";
@@ -32,14 +33,6 @@ export default function LoginPage() {
   const theme: Theme = useAppSelector((s) => s.ui.theme);
 
   const srcLogo: string = `./images/logo_${theme}.png`;
-
-  const LNGS_ARR: any[] = [
-    { label: "es", icon: "🇨🇴", },
-    { label: "en", icon: "🇺🇸", },
-    { label: "br", icon: "🇧🇷", },
-  ];
-
-  const langSelected: any = LNGS_ARR.find((l: any) => l.label === lang);
 
   const [lngOpen, setLngOpen] = useState<boolean>(false);
 
@@ -73,7 +66,7 @@ export default function LoginPage() {
     }
   };
 
-  async function handleSubmit(e: React.FormEvent) {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     setLoading(true);
@@ -125,64 +118,32 @@ export default function LoginPage() {
     if (!onPageLoading) fetchCompanyInfo();
   }, [onPageLoading]);
 
+  useEffect(()=> {
+    if (companyInfo && companyInfo.name) {
+      document.title = companyInfo.name;
+    }
+  }, [companyInfo]);
+
   return (
     <>
-      <div style={{ position: "relative" }}>
-        <button
-          onClick={() => { setLngOpen(!lngOpen); }}
-          style={{
-            width: 72, height: 42, borderRadius: 6, border: "1px solid var(--border)",
-            background: "var(--bg)", color: "var(--text-secondary)", cursor: "pointer",
-            fontSize: 13, position: "absolute", right: 70, top: 20,
-          }}
-          title={tr("language_switch", lang)}
-        >
-          {langSelected.icon} &nbsp; {langSelected.label.toUpperCase()}
-        </button>
-
-        {lngOpen && (
-          <div style={{
-            position: "absolute", top: "calc(100% + 65px)", right: 70, width: 80,
-            background: "var(--bg-card)", border: "1px solid var(--border)",
-            borderRadius: 12, boxShadow: "0 8px 24px #0000001A", zIndex: 100, overflow: "hidden",
-          }}>
-            {LNGS_ARR.map((item) => (
-              <button 
-                key={item.label} 
-                style={{
-                  display: "flex", alignItems: "center", gap: 10, width: "100%",
-                  padding: "10px 16px", border: "none", background: "none", cursor: "pointer",
-                  fontSize: 13, color: "var(--text-secondary)", fontFamily: "var(--font-sans)", textAlign: "left",
-                }}
-                onClick={() => {
-                  dispatch(toggleLanguage(item.label as Language))
-                  setLngOpen(false);
-                }}
-                onMouseEnter={(e) => (e.currentTarget.style.background = "var(--bg)")}
-                onMouseLeave={(e) => (e.currentTarget.style.background = "none")}
-              >
-                <span>{item.icon}</span> {item.label.toUpperCase()}
-              </button>
-            ))}
-          </div>
-        )}
+      <div style={{ position: "absolute", top: 20, right: 25, }}>
+        <div style={{ position: "absolute", top: 0, right: 50, }}>
+          <ButtonLanguage 
+            open={lngOpen}
+            onClick={() => setLngOpen(!lngOpen)}
+          />
+        </div>
+   
+        <ButtonTheme onClick={() => setLngOpen(false)} />
       </div>
-
-      <button
-        onClick={() => dispatch(toggleTheme())}
-        style={{
-          borderRadius: 8, border: "1px solid var(--border)", width: 42, height: 42,
-          background: "var(--bg)", cursor: "pointer", fontSize: 16,
-          position: "absolute", right: 20, top: 20,
-        }}
-        title={firstLetterUppercase(tr("switch_to_x", lang, { x: theme === "dark" ? tr("light", lang) : tr("dark", lang) }))}
-      >
-        {theme === "dark" ? "☀️" : "🌙"}
-      </button>
 
       <div style={{
         height: "100vh", display: "flex", alignItems: "center", justifyContent: "center",
-        background: `linear-gradient(135deg, var(--bg-sidebar) 0%, ${theme === "dark" ? "var(--color-primary)" : "var(--color-primary-light)"} 50%, var(--bg-sidebar) 100%)`,
+        background: `linear-gradient(135deg, var(--bg-sidebar) 0%, 
+          ${theme === "dark" 
+            ? "var(--color-primary)" 
+            : "var(--color-primary-light)"} 50%, 
+          var(--bg-sidebar) 100%)`,
         fontFamily: "var(--font-sans)",
       }}>
 
@@ -208,7 +169,7 @@ export default function LoginPage() {
             {(companyInfo && companyInfo.logoURL) ? (
               <img src={`${uploadsFolder}/${companyInfo.logoURL}`} alt="logo_de_rifas" style={{ width: "50%", margin: "-20px auto 20px", borderRadius: "50%" }} />
             ) : (
-              <img src={srcLogo} alt="logo_de_rifas" style={{ width: "55%", margin: "-40px auto -10px", }} />
+              <img src={srcLogo} alt="logo_de_rifas" style={{ width: "50%", margin: "-40px auto -10px", }} />
             )}
             
             <p style={{ color: "var(--text-primary)", fontSize: 14, }}>
